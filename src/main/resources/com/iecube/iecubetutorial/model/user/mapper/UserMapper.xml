@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model.user.mapper.UserMapper">
+    <resultMap id="User" type="com.iecube.iecubetutorial.model.user.entity.User">
+        <result property="createTime" column="create_time"></result>
+    </resultMap>
+
+    <select id="getUserByPhone" resultMap="User">
+        SELECT id, phone, name, school, collage, role, create_time FROM user WHERE phone=#{phone}
+    </select>
+    
+    <insert id="addUser" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO user (id, phone, name, school, collage, role, create_time)
+        VALUES (NULL, #{phone}, #{name}, #{school}, #{collage},#{role}, #{createTime})
+    </insert>
+
+
+</mapper>

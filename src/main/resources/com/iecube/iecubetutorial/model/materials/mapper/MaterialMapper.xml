@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model.materials.mapper.MaterialMapper">
+
+    <resultMap id="MaterialEntity" type="com.iecube.iecubetutorial.model.materials.entity.MaterialEntity">
+        <result property="userId" column="user_id"></result>
+        <result property="knowledgePoint" column="knowledge_point"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="updateTime" column="update_yime"></result>
+    </resultMap>
+
+    <insert id="addMaterial" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO materials (id,user_id,name,title,knowledge_point,instruction,status,deleted,html,resource,
+                               create_time,update_time )
+        VALUES (NULL,#{userId},#{name},#{title},#{knowledgePoint},#{instruction},#{status},#{deleted},#{html},#{resource},
+                #{createTime},#{updateTime})
+    </insert>
+
+    <update id="updateMaterial">
+        UPDATE materials SET status=#{status},
+                             html=#{html},
+                             resource=#{resource},
+                             update_time=#{updateTime}
+                         WHERE id=#{id}
+    </update>
+
+    <update id="deleteMaterial">
+        UPDATE materials SET deleted=1 WHERE id=#{id}
+    </update>
+
+    <select id="getMaterials" resultMap="MaterialEntity">
+        SELECT id,user_id,name,title,knowledge_point,instruction,status,deleted,html,resource, create_time,update_time
+        FROM materials
+        WHERE user_id=#{userId} and deleted=0 ORDER BY id DESC
+    </select>
+
+    <select id="getMaterial" resultMap="MaterialEntity">
+        SELECT id,user_id,name,title,knowledge_point,instruction,status,deleted,html,resource, create_time,update_time
+        FROM materials
+        WHERE id=#{id} and deleted=0
+    </select>
+
+    <select id="getMaterialByChatId" resultMap="MaterialEntity" parameterType="java.lang.String">
+        SELECT m.id, m.user_id, m.name, m.title, m.knowledge_point, m.instruction, m.status, m.deleted, m.html,
+               m.resource, m.create_time, m.update_time
+        FROM materials m INNER JOIN material_chat mc ON m.id=mc.material_id
+        WHERE mc.chat_id=#{chatId} and m.deleted=0
+    </select>
+</mapper>

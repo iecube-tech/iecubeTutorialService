@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model.invitationCode.mapper.InvitationCodeMapper">
+
+    <resultMap id="InvitationCode" type="com.iecube.iecubetutorial.model.invitationCode.entity.InvitationCode">
+        <result column="user_id" property="userId"></result>
+        <result column="create_time" property="createTime"></result>
+    </resultMap>
+
+    <insert id="addInvitationCode" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO invitation_code (id, code, email, user_id, create_time)
+        VALUES (NULL, #{code}, #{email}, #{userId}, #{createTime})
+    </insert>
+
+    <update id="updateInvitationCode">
+        UPDATE invitation_code SET email=#{email},
+                                   user_id=#{userId}
+                               WHERE id=#{id}
+    </update>
+
+    <select id="getInvitationCode" resultMap="InvitationCode">
+        SELECT id, code, email, user_id, create_time
+        FROM invitation_code
+        WHERE code=#{code}
+    </select>
+
+    <select id="getInvitationCodeByEmail" resultMap="InvitationCode">
+        SELECT id, code, email, user_id, create_time
+        FROM invitation_code
+        WHERE email=#{email}
+    </select>
+</mapper>
