@@ -63,6 +63,5 @@ public class ParseArtefactAndUpdateMaterial implements Runnable {
             material.setUpdateTime(new Date());
         }
         materialService.handelUpload(material);
-
     }
 }

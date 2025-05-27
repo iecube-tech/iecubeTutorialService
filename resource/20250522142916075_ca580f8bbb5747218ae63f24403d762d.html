@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zz - IECUBE Tutorial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --text-primary: #333333;
+            --text-secondary: #555555;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --transition-speed: 0.3s;
+        }
+        
+        .dark {
+            --primary-color: #4cc9f0;
+            --secondary-color: #7209b7;
+            --accent-color: #f72585;
+            --text-primary: #e6e6e6;
+            --text-secondary: #b0b0b0;
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            line-height: 1.6;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text-primary);
+            transition: color var(--transition-speed);
+        }
+        
+        .card {
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all var(--transition-speed);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dark .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn {
+            transition: all var(--transition-speed);
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .container {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-title {
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--primary-color);
+            transition: background-color var(--transition-speed);
+        }
+        
+        @media (max-width: 640px) {
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+    <div class="flex flex-col min-h-screen">
+        <!-- 导航栏 -->
+        <nav class="bg-gradient-to-r from-blue-600 to-indigo-700 dark:from-blue-900 dark:to-indigo-900 text-white shadow-md sticky top-0 z-50">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="font-bold text-xl md:text-2xl flex items-center">
+                    <i class="fas fa-book-open mr-2"></i>
+                    <span>IECUBE Tutorial</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="theme-toggle" class="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-all">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 主要内容 -->
+        <main class="flex-grow container mx-auto px-4 py-8">
+            <!-- 课程标题 -->
+            <header class="mb-10 text-center">
+                <h1 class="text-3xl md:text-4xl font-bold mb-2">zz</h1>
+                <div class="h-1 w-20 bg-blue-600 dark:bg-blue-400 mx-auto"></div>
+            </header>
+
+            <!-- 课程内容 -->
+            <div class="max-w-3xl mx-auto">
+                <section class="mb-12 card p-6">
+                    <h2 class="text-2xl font-bold mb-4 section-title">知识点介绍</h2>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">
+                        zz
+                    </p>
+                </section>
+            </div>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="bg-gray-100 dark:bg-gray-800 py-6">
+            <div class="container mx-auto px-4">
+                <div class="text-center">
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        © IECUBE Tutorial 2025
+                    </p>
+                    <p class="text-gray-500 dark:text-gray-500 text-xs mt-2">
+                        本内容为人工智能生成，观点为转述原作者，不代表本公司立场，仅供参考和批判
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 深色模式切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            // 检查用户偏好
+            if (localStorage.getItem('theme') === 'dark' || 
+                (localStorage.getItem('theme') !== 'light' && 
+                window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            
+            // 主题切换事件
+            themeToggle.addEventListener('click', function() {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+            
+            // 渲染数学公式
+            renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$', right: '$', display: false }
+                ]
+            });
+        });
+        
+        // 添加滚动效果
+        window.addEventListener('scroll', function() {
+            const elements = document.querySelectorAll('.animate-on-scroll');
+            elements.forEach(function(element) {
+                if (isElementInViewport(element)) {
+                    element.classList.add('animate-visible');
+                }
+            });
+        });
+        
+        function isElementInViewport(el) {
+            const rect = el.getBoundingClientRect();
+            return (
+                rect.top >= 0 &&
+                rect.left >= 0 &&
+                rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+            );
+        }
+    </script>
+</body>
+</html>

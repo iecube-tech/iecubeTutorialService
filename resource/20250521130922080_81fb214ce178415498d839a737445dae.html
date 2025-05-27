@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高频电路 - 基础知识</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+
+        // 检测系统主题并应用
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+    <nav class="bg-white dark:bg-gray-800 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-semibold text-primary-600 dark:text-primary-400">高频电路</span>
+                </div>
+                <div class="flex items-center">
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-md text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white focus:outline-none">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="py-12 bg-gradient-to-r from-primary-600 to-blue-700 dark:from-primary-800 dark:to-blue-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="animate-fade-in">
+                <h1 class="text-4xl font-bold text-white sm:text-5xl md:text-6xl">高频电路</h1>
+                <p class="mt-4 text-xl text-blue-100">高频电子技术的基础知识与应用</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+        <section class="mb-16 animate-fade-in">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">高频电路概述</h2>
+            
+            <div class="grid gap-8 md:grid-cols-2">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="rounded-full bg-primary-100 dark:bg-primary-900 p-3 mr-4">
+                            <i class="fas fa-broadcast-tower text-primary-600 dark:text-primary-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">什么是高频电路</h3>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300">
+                        高频电路是工作在较高频率范围（通常指MHz至GHz频段）的电子电路，其工作原理和特性与低频电路有显著区别。高频电路广泛应用于通信、雷达、医疗设备等领域。
+                    </p>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="rounded-full bg-primary-100 dark:bg-primary-900 p-3 mr-4">
+                            <i class="fas fa-wave-square text-primary-600 dark:text-primary-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">高频电路的特点</h3>
+                    </div>
+                    <ul class="text-gray-700 dark:text-gray-300 space-y-2">
+                        <li><span class="font-medium">分布参数现象</span>：电路参数不再集中，而是分布在电路各处</li>
+                        <li><span class="font-medium">传输线效应</span>：信号传输需考虑波的传播特性</li>
+                        <li><span class="font-medium">电磁辐射</span>：电路会产生更强的电磁辐射</li>
+                        <li><span class="font-medium">寄生效应</span>：元件的寄生参数不可忽略</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16 animate-fade-in" style="animation-delay: 0.2s;">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">基本元件在高频下的特性</h2>
+            
+            <div class="grid gap-8 md:grid-cols-3">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md card-hover">
+                    <div class="text-center mb-4">
+                        <div class="inline-block rounded-full bg-blue-100 dark:bg-blue-900 p-3 mb-3">
+                            <i class="fas fa-bolt text-blue-600 dark:text-blue-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">电阻器</h3>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300">
+                        高频下电阻呈现出电感和电容的特性，实际阻抗与标称值不同。碳膜电阻通常比金属膜电阻具有更好的高频特性。
+                    </p>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md card-hover">
+                    <div class="text-center mb-4">
+                        <div class="inline-block rounded-full bg-green-100 dark:bg-green-900 p-3 mb-3">
+                            <i class="fas fa-coil text-green-600 dark:text-green-400">L</i>
+                        </div>
+                        <h3 class="text-xl font-semibold">电感器</h3>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300">
+                        高频下电感存在分布电容，自谐振频率成为关键参数。电感值会随频率变化，且损耗会增加。不同绕制方式的电感有不同的高频特性。
+                    </p>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md card-hover">
+                    <div class="text-center mb-4">
+                        <div class="inline-block rounded-full bg-yellow-100 dark:bg-yellow-900 p-3 mb-3">
+                            <i class="fas fa-equals text-yellow-600 dark:text-yellow-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">电容器</h3>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300">
+                        高频下电容表现出串联电阻和电感特性。介质损耗和ESR随频率增加。陶瓷、云母和特氟龙电容在高频下性能优良。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16 animate-fade-in" style="animation-delay: 0.4s;">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">高频传输线理论</h2>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h3 class="text-2xl font-semibold mb-4">传输线模型</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-lg font-medium text-primary-600 dark:text-primary-400 mb-3">基本概念</h4>
+                            <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+                                <li>传输线是由均匀分布的R、L、C、G参数组成的网络</li>
+                                <li>传输线中信号以电磁波形式传播，具有明确的速度</li>
+                                <li>信号在传输线上产生反射和驻波现象</li>
+                                <li>特征阻抗（Z₀）是传输线的关键参数</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-medium text-primary-600 dark:text-primary-400 mb-3">常见传输线类型</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <span class="bg-gray-200 dark:bg-gray-700 rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">1</span>
+                                    <div>
+                                        <p class="font-medium">同轴电缆</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">特征阻抗通常为50Ω或75Ω，适用于RF信号传输</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="bg-gray-200 dark:bg-gray-700 rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">2</span>
+                                    <div>
+                                        <p class="font-medium">微带线</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">在PCB上最常用的高频传输结构</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="bg-gray-200 dark:bg-gray-700 rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">3</span>
+                                    <div>
+                                        <p class="font-medium">带状线</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">比微带线有更好的屏蔽性能</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 dark:bg-gray-900 p-6 border-t border-gray-200 dark:border-gray-700">
+                    <h4 class="font-medium mb-3">传输线匹配的重要性</h4>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">
+                        在高频电路设计中，传输线的阻抗匹配至关重要。不匹配会导致信号反射，造成下列问题：
+                    </p>
+                    <div class="grid md:grid-cols-3 gap-4 text-center">
+                        <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                            <p class="font-medium text-red-700 dark:text-red-400">信号完整性问题</p>
+                        </div>
+                        <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                            <p class="font-medium text-red-700 dark:text-red-400">功率传输效率降低</p>
+                        </div>
+                        <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                            <p class="font-medium text-red-700 dark:text-red-400">电路性能劣化</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16 animate-fade-in" style="animation-delay: 0.6s;">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">高频电路设计考虑因素</h2>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <div class="grid gap-6 md:grid-cols-2">
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                <i class="fas fa-shield-alt text-indigo-600 dark:text-indigo-400"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium">屏蔽与隔离</h3>
+                                <p class="text-gray-600 dark:text-gray-400">防止电路间的干扰和外部干扰</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                <i class="fas fa-wifi text-indigo-600 dark:text-indigo-400"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium">电磁兼容性(EMC)</h3>
+                                <p class="text-gray-600 dark:text-gray-400">控制辐射和提高抗扰度</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                <i class="fas fa-project-diagram text-indigo-600 dark:text-indigo-400"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium">PCB布局与布线</h3>
+                                <p class="text-gray-600 dark:text-gray-400">合理的布局和信号走线对高频性能至关重要</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                <i class="fas fa-plug text-indigo-600 dark:text-indigo-400"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium">接地技术</h3>
+                                <p class="text-gray-600 dark:text-gray-400">高频接地比低频更复杂，需要考虑接地阻抗</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                <i class="fas fa-power-off text-indigo-600 dark:text-indigo-400"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium">电源去耦</h3>
+                                <p class="text-gray-600 dark:text-gray-400">使用合适的去耦电容防止电源噪声</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                <i class="fas fa-microchip text-indigo-600 dark:text-indigo-400"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium">元件选择</h3>
+                                <p class="text-gray-600 dark:text-gray-400">高频应用需专门设计的元器件</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16 animate-fade-in" style="animation-delay: 0.8s;">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">高频电路应用领域</h2>
+            
+            <div class="grid gap-6 md:grid-cols-3">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden card-hover">
+                    <div class="p-6">
+                        <div class="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900 mb-4 flex items-center justify-center">
+                            <i class="fas fa-satellite-dish text-xl text-purple-600 dark:text-purple-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">无线通信</h3>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            包括手机通信系统、Wi-Fi、蓝牙等无线网络技术，以及卫星通信和广播系统等。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden card-hover">
+                    <div class="p-6">
+                        <div class="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900 mb-4 flex items-center justify-center">
+                            <i class="fas fa-radar text-xl text-purple-600 dark:text-purple-400">R</i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">雷达与传感</h3>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            军用和民用雷达系统、汽车雷达、无人机避障系统和各类RF传感器等。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden card-hover">
+                    <div class="p-6">
+                        <div class="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900 mb-4 flex items-center justify-center">
+                            <i class="fas fa-heartbeat text-xl text-purple-600 dark:text-purple-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">医疗设备</h3>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            核磁共振成像(MRI)、射频消融治疗、医疗监测设备和远程医疗系统等。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="animate-fade-in" style="animation-delay: 1s;">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">未来发展趋势</h2>
+            
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl p-8 shadow-lg">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-blue-800 dark:text-blue-300">技术发展方向</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <svg class="h-6 w-6 text-blue-600 dark:text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                                <span class="text-gray-800 dark:text-gray-200">更高频率应用 (毫米波、太赫兹)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-6 w-6 text-blue-600 dark:text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                                <span class="text-gray-800 dark:text-gray-200">先进的材料与封装技术</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-6 w-6 text-blue-600 dark:text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                                <span class="text-gray-800 dark:text-gray-200">多功能集成化高频系统</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-blue-800 dark:text-blue-300">应用前景</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <svg class="h-6 w-6 text-blue-600 dark:text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                                <span class="text-gray-800 dark:text-gray-200">5G/6G 通信系统的核心技术</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-6 w-6 text-blue-600 dark:text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                                <span class="text-gray-800 dark:text-gray-200">自动驾驶汽车雷达传感系统</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-6 w-6 text-blue-600 dark:text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                                <span class="text-gray-800 dark:text-gray-200">物联网与智能家居无线技术</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-100 dark:bg-gray-800 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-8">
+                <div class="text-center">
+                    <p class="text-base font-semibold text-gray-700 dark:text-gray-300">IECUBE Tutorial &copy; 2025</p>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                        本内容为人工智能生成，观点为转述原作者，不代表本公司立场，仅供参考和批判
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 添加平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // 添加滚动动画
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

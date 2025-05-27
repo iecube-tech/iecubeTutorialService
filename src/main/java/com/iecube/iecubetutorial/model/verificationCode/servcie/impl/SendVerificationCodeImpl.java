@@ -85,10 +85,6 @@ public class SendVerificationCodeImpl implements SendVerificationCode {
      */
     @Override
     public boolean verifyCode(String phoneNumber, String usage, String code) {
-        // todo 删除 用于开发测试
-        if(code.equals("899999")){
-            return true;
-        }
         String key = usage+"_verification_code:" + phoneNumber;
         String correctCode = redisTemplate.opsForValue().get(key);
         if (correctCode == null) {

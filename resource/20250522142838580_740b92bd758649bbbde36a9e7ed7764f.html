@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCC 课程知识点解析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --light: #f9fafb;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light-gray: #e5e7eb;
+            --transition: all 0.3s ease;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+        
+        .dark {
+            --light: #1f2937;
+            --dark: #f9fafb;
+            --light-gray: #374151;
+            --gray: #9ca3af;
+        }
+        
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .btn {
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 针对小屏幕的优化 */
+        @media (max-width: 640px) {
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.75rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--light-gray);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <!-- 导航栏 -->
+    <nav class="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-book-open text-indigo-600 dark:text-indigo-400 text-2xl"></i>
+                <span class="text-xl font-bold">CCC 课程</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
+                    <i class="fas fa-sun text-yellow-500 dark:hidden"></i>
+                    <i class="fas fa-moon text-blue-300 hidden dark:block"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 主要内容 -->
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- 标题部分 -->
+        <div class="text-center mb-12 fade-in">
+            <h1 class="text-4xl font-bold mb-4">CCC 课程知识点概览</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                本页面整合了CCC课程的核心知识要点，帮助您系统掌握相关理论与实践
+            </p>
+            <div class="mt-6 inline-block relative">
+                <div class="h-1 w-24 bg-indigo-600 dark:bg-indigo-400 mx-auto"></div>
+            </div>
+        </div>
+
+        <!-- 内容为空时的提示卡片 -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-12 fade-in">
+            <div class="flex flex-col items-center text-center space-y-6">
+                <div class="w-24 h-24 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                    <i class="fas fa-info-circle text-4xl text-indigo-600 dark:text-indigo-400"></i>
+                </div>
+                <h2 class="text-2xl font-semibold">课程内容待完善</h2>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl">
+                    该CCC课程知识点尚未完全定义或正在更新中。我们正在努力整理相关教学内容，请稍后再来查看！
+                </p>
+                
+                <div class="mt-6 p-4 bg-indigo-50 dark:bg-gray-700 rounded-lg">
+                    <p class="text-gray-700 dark:text-gray-300">
+                        如果您是课程教师或管理员，请通过系统添加相关教学内容，包括但不限于：
+                    </p>
+                    <ul class="mt-4 text-left list-disc list-inside text-gray-600 dark:text-gray-400">
+                        <li>课程基础理论知识</li>
+                        <li>核心概念解析</li>
+                        <li>实践案例与应用</li>
+                        <li>重要公式与模型</li>
+                        <li>教学图表与图解</li>
+                    </ul>
+                </div>
+                
+                <button class="mt-6 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition-all duration-300 flex items-center space-x-2 btn">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>刷新页面</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 空白内容的图示 -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-12 fade-in">
+            <h3 class="text-xl font-semibold mb-4 text-center">预期课程内容结构</h3>
+            <div class="w-full h-64 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center">
+                <div class="grid grid-cols-3 gap-4 w-full max-w-lg p-4">
+                    <div class="h-16 bg-gray-200 dark:bg-gray-600 rounded animate-pulse"></div>
+                    <div class="h-16 bg-gray-200 dark:bg-gray-600 rounded animate-pulse"></div>
+                    <div class="h-16 bg-gray-200 dark:bg-gray-600 rounded animate-pulse"></div>
+                    <div class="h-16 bg-gray-200 dark:bg-gray-600 rounded animate-pulse"></div>
+                    <div class="h-16 bg-gray-200 dark:bg-gray-600 rounded animate-pulse"></div>
+                    <div class="h-16 bg-gray-200 dark:bg-gray-600 rounded animate-pulse"></div>
+                </div>
+            </div>
+            <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
+                示意图：课程知识点网络结构
+            </p>
+        </div>
+        
+        <!-- 思考题/延伸问题 -->
+        <div class="bg-indigo-50 dark:bg-gray-800 rounded-xl p-6 mb-12 border-l-4 border-indigo-500 fade-in">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                思考与探索
+            </h3>
+            <ul class="space-y-3 text-gray-700 dark:text-gray-300">
+                <li class="flex items-start">
+                    <i class="fas fa-circle text-xs mt-2 mr-2 text-indigo-500"></i>
+                    <span>CCC课程可能涵盖哪些核心领域知识？</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-circle text-xs mt-2 mr-2 text-indigo-500"></i>
+                    <span>该学科在当前学术和产业中的发展趋势是什么？</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-circle text-xs mt-2 mr-2 text-indigo-500"></i>
+                    <span>如何将这门课程的知识应用到实际问题解决中？</span>
+                </li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white dark:bg-gray-800 shadow-inner py-8 mt-12">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <div class="flex flex-col md:flex-row justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-lg font-semibold flex items-center">
+                        <i class="fas fa-graduation-cap text-indigo-600 dark:text-indigo-400 mr-2"></i>
+                        IECUBE Tutorial
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        知识传递，智慧启迪
+                    </p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                        <i class="fab fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                        <i class="fab fa-linkedin text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                        <i class="fab fa-twitter text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    &copy; 2025 IECUBE Tutorial. 保留所有权利。
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-500 mt-2 max-w-2xl mx-auto">
+                    本内容为人工智能生成，观点为转述原作者，不代表本公司立场，仅供参考和批判
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // 深色/浅色模式切换
+        const htmlElement = document.documentElement;
+        const themeToggle = document.getElementById('theme-toggle');
+        
+        // 检查系统偏好
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            htmlElement.classList.add('dark');
+        }
+        
+        // 切换主题
+        themeToggle.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+        });
+        
+        // 渐入动画
+        document.addEventListener('DOMContentLoaded', () => {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            fadeElements.forEach(element => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                observer.observe(element);
+            });
+        });
+        
+        // 渲染数学公式
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                ]
+            });
+        });
+    </script>
+</body>
+</html>

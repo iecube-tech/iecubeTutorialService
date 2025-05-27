@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QPSK算法 - 数字通信技术</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            scroll-behavior: smooth;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        
+        .qpsk-symbol {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .qpsk-symbol:hover {
+            transform: scale(1.2);
+            opacity: 0.8;
+        }
+
+        .hover-scale {
+            transition: transform 0.2s ease;
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+        
+        /* 为公式定义样式 */
+        .math-block {
+            overflow-x: auto;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        /* 控制台板设计 */
+        .control-panel {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .control-panel:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 按钮效果 */
+        .btn {
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <nav class="bg-white dark:bg-gray-800 shadow-md py-4 sticky top-0 z-50">
+        <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-signal text-primary-600 dark:text-primary-400 text-2xl"></i>
+                <h1 class="text-xl font-bold">QPSK算法 | 数字通信技术</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
+                    <i id="theme-icon" class="fas fa-moon text-gray-600 dark:text-gray-300"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 md:px-6 py-8">
+        <!-- 引言部分 -->
+        <section class="mb-12 animate-fade-in">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 md:p-8 border-l-4 border-primary-500">
+                <h2 class="text-2xl font-bold text-primary-700 dark:text-primary-300 mb-4">什么是QPSK调制？</h2>
+                <p class="text-lg mb-4">
+                    正交相移键控（Quadrature Phase Shift Keying，QPSK）是一种数字调制技术，广泛应用于移动通信、卫星通信和无线局域网等现代通信系统中。QPSK通过改变载波信号的相位来传输数字信息，每个符号可携带2个比特的信息，从而提高频谱利用效率。
+                </p>
+                <div class="flex flex-col md:flex-row items-center justify-center md:justify-between mt-6 space-y-4 md:space-y-0 md:space-x-4">
+                    <div class="text-center md:text-left">
+                        <h3 class="font-semibold text-primary-600 dark:text-primary-400 text-xl">QPSK特点</h3>
+                        <ul class="list-disc list-inside mt-2 text-gray-700 dark:text-gray-300">
+                            <li>每个符号携带2个比特</li>
+                            <li>相位调制有四个相位状态</li>
+                            <li>比BPSK具有更高的频谱效率</li>
+                            <li>保持与BPSK相同的误码率性能</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-inner">
+                        <p class="font-medium text-gray-700 dark:text-gray-300 text-center">频谱效率：<span class="text-primary-600 dark:text-primary-400 font-bold">2 bit/s/Hz</span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- QPSK原理 -->
+        <section class="mb-12 animate-fade-in" style="animation-delay: 0.2s">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-primary-700 dark:text-primary-300 mb-6">QPSK调制原理</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-semibold text-xl mb-4 text-gray-800 dark:text-gray-200">工作原理</h3>
+                        <p class="mb-4">
+                            QPSK调制将输入的比特流每两位分为一组，形成四种不同的二进制组合（00, 01, 10, 11），
+                            每种组合对应载波的一个特定相位。通常，这四个相位间隔为90°，分别为45°, 135°, 225°和315°。
+                        </p>
+                        <div class="math-block bg-gray-100 dark:bg-gray-700 rounded-lg">
+                            <p>QPSK信号的数学表达式：</p>
+                            <div id="qpsk-formula" class="mt-2"></div>
+                        </div>
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function() {
+                                const formula = "s_i(t) = \\sqrt{\\frac{2E_s}{T_s}}\\cos\\left(2\\pi f_c t + (2i-1)\\frac{\\pi}{4}\\right), \\quad i=1,2,3,4";
+                                katex.render(formula, document.getElementById('qpsk-formula'));
+                            });
+                        </script>
+                        
+                        <p class="mt-4">
+                            其中，<span class="italic">E<sub>s</sub></span>是符号能量，<span class="italic">T<sub>s</sub></span>是符号周期，
+                            <span class="italic">f<sub>c</sub></span>是载波频率，i表示不同的符号状态。
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center justify-center">
+                        <h3 class="font-semibold text-xl mb-4 text-gray-800 dark:text-gray-200 w-full text-center">QPSK星座图</h3>
+                        <div class="w-full max-w-xs aspect-square relative">
+                            <canvas id="constellationChart" class="mx-auto"></canvas>
+                        </div>
+                        <div class="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+                            星座图展示了四个相位状态下的符号映射
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+                    <h3 class="font-semibold text-xl mb-4 text-gray-800 dark:text-gray-200">QPSK调制过程</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 bg-gray-100 dark:bg-gray-700 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">二进制输入</th>
+                                    <th class="px-4 py-3 bg-gray-100 dark:bg-gray-700 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">相位值</th>
+                                    <th class="px-4 py-3 bg-gray-100 dark:bg-gray-700 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">I分量</th>
+                                    <th class="px-4 py-3 bg-gray-100 dark:bg-gray-700 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Q分量</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">00</td>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">45°</td>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">+1/√2</td>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">+1/√2</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">01</td>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">135°</td>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">-1/√2</td>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">+1/√2</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">10</td>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">225°</td>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">-1/√2</td>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">-1/√2</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">11</td>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">315°</td>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">+1/√2</td>
+                                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">-1/√2</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- QPSK实现原理图 -->
+        <section class="mb-12 animate-fade-in" style="animation-delay: 0.4s">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-primary-700 dark:text-primary-300 mb-6">QPSK调制与解调过程</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                        <h3 class="font-semibold text-lg mb-3 text-center text-gray-800 dark:text-gray-200">
+                            <i class="fas fa-arrow-right-from-bracket mr-2 text-primary-500"></i>发射端调制流程
+                        </h3>
+                        <div class="flex justify-center">
+                            <img id="qpsk-modulator" class="max-w-full h-auto" alt="QPSK调制器原理图" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iMjUwIiB2aWV3Qm94PSIwIDAgNTAwIDI1MCIgZmlsbD0ibm9uZSI+CiAgPHJlY3Qgd2lkdGg9IjUwMCIgaGVpZ2h0PSIyNTAiIGZpbGw9IiNmOGY4ZjgiIC8+CiAgPCEtLSBTZXJpYWwgdG8gUGFyYWxsZWwgLS0+CiAgPHJlY3QgeD0iNTAiIHk9IjExMCIgd2lkdGg9IjgwIiBoZWlnaHQ9IjQwIiByeD0iNCIgZmlsbD0iI2UwZjJmZSIgc3Ryb2tlPSIjMzJhYWU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjkwIiB5PSIxMzAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiMwMDU1OWEiPuaWsOijheWJteaKneaJvjwvdGV4dD4KICAKICA8IS0tIEVudGVyaW5nIEJpdCBTdHJlYW0gLS0+CiAgPGxpbmUgeDE9IjEwIiB5MT0iMTMwIiB4Mj0iNTAiIHkyPSIxMzAiIHN0cm9rZT0iIzMyYTllNCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtZGFzaGFycmF5PSI0LDIiLz4KICA8dGV4dCB4PSIxNSIgeT0iMTI1IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiMyQzQ5OTkiPui+k+WFpeS+kJXlrZc8L3RleHQ+CiAgCiAgPCEtLSBVcHBlciBCcmFuY2ggOiBJLUNoYW5uZWwgLS0+CiAgPGxpbmUgeDE9IjEzMCIgeTE9IjExNCIgeDI9IjE3MCIgeTI9IjgwIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjE0MCIgeT0iOTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgZmlsbD0iIzJDNDk5OSI+b2RkIGJpdHM8L3RleHQ+CiAgCiAgPCEtLSBMb3dlciBCcmFuY2ggOiBRLUNoYW5uZWwgLS0+CiAgPGxpbmUgeDE9IjEzMCIgeTE9IjE0NSIgeDI9IjE3MCIgeTI9IjE4MCIgc3Ryb2tlPSIjMzJhYWU0IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxNDAiIHk9IjE3MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiBmaWxsPSIjMkM0OTk5Ij5ldmVuIGJpdHM8L3RleHQ+CiAgCiAgPCEtLSBJLUNoYW5uZWwgTW9kdWxhdGlvbiAtLT4KICA8cmVjdCB4PSIxNzAiIHk9IjYwIiB3aWR0aD0iODAiIGhlaWdodD0iNDAiIHJ4PSI0IiBmaWxsPSIjZTBmMmZlIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPGNpcmNsZSBjeD0iMjEwIiBjeT0iODAiIHI9IjE1IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iMjEwIiB5PSI4NCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzAwNTU5YSI+WDwvdGV4dD4KICA8dGV4dCB4PSIyMTAiIHk9IjEwOCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMkM0OTk5Ij5JIOi9rOaPkuWbvjwvdGV4dD4KICAKICA8IS0tIFEtQ2hhbm5lbCBNb2R1bGF0aW9uIC0tPgogIDxyZWN0IHg9IjE3MCIgeT0iMTYwIiB3aWR0aD0iODAiIGhlaWdodD0iNDAiIHJ4PSI0IiBmaWxsPSIjZTBmMmZlIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPGNpcmNsZSBjeD0iMjEwIiBjeT0iMTgwIiByPSIxNSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjMzJhYWU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjIxMCIgeT0iMTg0IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMDA1NTlhIj5YPC90ZXh0PgogIDx0ZXh0IHg9IjIxMCIgeT0iMjA4IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMyQzQ5OTkiPlEg6L2s5o+S5Zu+PC90ZXh0PgogIAogIDwhLS0gQ29zaW5lIENhcnJpZXIgLS0+CiAgPGxpbmUgeDE9IjE3MCIgeTE9IjQwIiB4Mj0iMjEwIiB5Mj0iNDAiIHN0cm9rZT0iIzMyYWFlNCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPGxpbmUgeDE9IjIxMCIgeTE9IjQwIiB4Mj0iMjEwIiB5Mj0iNjAiIHN0cm9rZT0iIzMyYWFlNCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPHRleHQgeD0iMTgwIiB5PSIzNSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiBmaWxsPSIjMkM0OTk5Ij5jb3MoMnBpZmN0KTwvdGV4dD4KICAKICA8IS0tIFNpbmUgQ2FycmllciAtLT4KICA8bGluZSB4MT0iMTcwIiB5MT0iMjIwIiB4Mj0iMjEwIiB5Mj0iMjIwIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxsaW5lIHgxPSIyMTAiIHkxPSIyMjAiIHgyPSIyMTAiIHkyPSIyMDAiIHN0cm9rZT0iIzMyYWFlNCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPHRleHQgeD0iMTgwIiB5PSIyMzUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgZmlsbD0iIzJDNDk5OSI+c2luKDJwaWZjdCk8L3RleHQ+CiAgCiAgPCEtLSBTdW1tZXIgLS0+CiAgPGNpcmNsZSBjeD0iMzAwIiBjeT0iMTMwIiByPSIyMCIgZmlsbD0iI2UwZjJmZSIgc3Ryb2tlPSIjMzJhYWU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjMwMCIgeT0iMTM0IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMDA1NTlhIj4rPC90ZXh0PgogIAogIDwhLS0gQ29ubmVjdGlvbnMgZnJvbSBNb2R1bGF0b3JzIHRvIFN1bW1lciAtLT4KICA8bGluZSB4MT0iMjUwIiB5MT0iODAiIHgyPSIyODUiIHkyPSIxMTUiIHN0cm9rZT0iIzMyYWFlNCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPGxpbmUgeDE9IjI1MCIgeTE9IjE4MCIgeDI9IjI4NSIgeTI9IjE0NSIgc3Ryb2tlPSIjMzJhYWU0IiBzdHJva2Utd2lkdGg9IjIiLz4KICAKICA8IS0tIE91dHB1dCAtLT4KICA8bGluZSB4MT0iMzIwIiB5MT0iMTMwIiB4Mj0iMzgwIiB5Mj0iMTMwIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxyZWN0IHg9IjM4MCIgeT0iMTEwIiB3aWR0aD0iODAiIGhlaWdodD0iNDAiIHJ4PSI0IiBmaWxsPSIjZTBmMmZlIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iNDIwIiB5PSIxMzAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiMwMDU1OWEiPlFQU0vlm5vmnpoPC90ZXh0PgogIDx0ZXh0IHg9IjQyMCIgeT0iMTQ1IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzJDNDk5OSI+cyh0KSA9IEkoXklJKWNvcygyXM4cGZjdCkrUShcX0lJKXNpbigyXM4cGZjdCk8L3RleHQ+Cjwvc3ZnPg==">
+                        </div>
+                        <div class="mt-4 text-sm text-gray-600 dark:text-gray-400">
+                            <ol class="list-decimal list-inside space-y-1">
+                                <li>输入比特序列每两位一组拆分为奇偶序列</li>
+                                <li>奇位比特流调制为I(同相)路信号</li>
+                                <li>偶位比特流调制为Q(正交)路信号</li>
+                                <li>I路与Q路分别与载波的余弦和正弦分量相乘</li>
+                                <li>两路信号相加形成最终的QPSK调制信号</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                        <h3 class="font-semibold text-lg mb-3 text-center text-gray-800 dark:text-gray-200">
+                            <i class="fas fa-arrow-right-to-bracket mr-2 text-primary-500"></i>接收端解调流程
+                        </h3>
+                        <div class="flex justify-center">
+                            <img id="qpsk-demodulator" class="max-w-full h-auto" alt="QPSK解调器原理图" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iMjUwIiB2aWV3Qm94PSIwIDAgNTAwIDI1MCIgZmlsbD0ibm9uZSI+CiAgPHJlY3Qgd2lkdGg9IjUwMCIgaGVpZ2h0PSIyNTAiIGZpbGw9IiNmOGY4ZjgiIC8+CiAgCiAgPCEtLSBJbnB1dCAtLT4KICA8cmVjdCB4PSIyMCIgeT0iMTEwIiB3aWR0aD0iODAiIGhlaWdodD0iNDAiIHJ4PSI0IiBmaWxsPSIjZTBmMmZlIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iNjAiIHk9IjEzMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzAwNTU5YSI+5pS25Yu+IEEE54K55ZOB5L+h5Y+3PC90ZXh0PgogIAogIDwhLS0gVXBwZXIgQnJhbmNoOiBJLUNoYW5uZWwgLS0+CiAgPGxpbmUgeDE9IjEwMCIgeTE9IjExNCIgeDI9IjE0MCIgeTI9IjgwIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxsaW5lIHgxPSIxMDAiIHkxPSIxNDUiIHgyPSIxNDAiIHkyPSIxODAiIHN0cm9rZT0iIzMyYWFlNCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgCiAgPCEtLSBJLWNoYW5uZWwgbXVsdGlwbGllciAtLT4KICA8cmVjdCB4PSIxNDAiIHk9IjYwIiB3aWR0aD0iODAiIGhlaWdodD0iNDAiIHJ4PSI0IiBmaWxsPSIjZTBmMmZlIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPGNpcmNsZSBjeD0iMTgwIiBjeT0iODAiIHI9IjE1IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iMTgwIiB5PSI4NCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzAwNTU5YSI+WDwvdGV4dD4KICA8dGV4dCB4PSIxODAiIHk9IjEwOCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMkM0OTk5Ij5JIOin+aculea7keWHhOeQhuzwn5K+PC90ZXh0PgogIAogIDwhLS0gUS1jaGFubmVsIG11bHRpcGxpZXIgLS0+CiAgPHJlY3QgeD0iMTQwIiB5PSIxNjAiIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCIgcng9IjQiIGZpbGw9IiNlMGYyZmUiIHN0cm9rZT0iIzMyYWFlNCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8Y2lyY2xlIGN4PSIxODAiIGN5PSIxODAiIHI9IjE1IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iMTgwIiB5PSIxODQiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiMwMDU1OWEiPlg8L3RleHQ+CiAgPHRleHQgeD0iMTgwIiB5PSIyMDgiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzJDNDk5OSI+USDop/mnLpXmu5Hlh4TnkIbs8J+SvjwvdGV4dD4KICAKICA8IS0tIExvY2FsIENhcnJpZXIgOS0tPgogIDxsaW5lIHgxPSIxNDAiIHkxPSI0MCIgeDI9IjE4MCIgeTI9IjQwIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxsaW5lIHgxPSIxODAiIHkxPSI0MCIgeDI9IjE4MCIgeTI9IjYwIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjE1MCIgeT0iMzUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgZmlsbD0iIzJDNDk5OSI+Y29zKDJwaWZjdCk8L3RleHQ+CiAgCiAgPGxpbmUgeDE9IjE0MCIgeTE9IjIyMCIgeDI9IjE4MCIgeTI9IjIyMCIgc3Ryb2tlPSIjMzJhYWU0IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8bGluZSB4MT0iMTgwIiB5MT0iMjIwIiB4Mj0iMTgwIiB5Mj0iMjAwIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjE1MCIgeT0iMjM1IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiMyQzQ5OTkiPnNpbigyXM4cGZjdCk8L3RleHQ+CiAgCiAgPCEtLSBMb3dwYXNzIEZpbHRlcnMgLS0+CiAgPHJlY3QgeD0iMjQwIiB5PSI2MCIgd2lkdGg9IjgwIiBoZWlnaHQ9IjQwIiByeD0iNCIgZmlsbD0iI2UwZjJmZSIgc3Ryb2tlPSIjMzJhYWU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjI4MCIgeT0iODAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiMwMDU1OWEiPkkg5L2O6YCU5oup5rOqPC90ZXh0PgogIAogIDxyZWN0IHg9IjI0MCIgeT0iMTYwIiB3aWR0aD0iODAiIGhlaWdodD0iNDAiIHJ4PSI0IiBmaWxsPSIjZTBmMmZlIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iMjgwIiB5PSIxODAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiMwMDU1OWEiPlEg5L2O6YCU5oup5rOqPC90ZXh0PgogIAogIDwhLS0gQ29ubmVjdGlvbnMgZnJvbSBNdWx0aXBsaWVycyB0byBMb3dwYXNzIEZpbHRlcnMgLS0+CiAgPGxpbmUgeDE9IjIyMCIgeTE9IjgwIiB4Mj0iMjQwIiB5Mj0iODAiIHN0cm9rZT0iIzMyYWFlNCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPGxpbmUgeDE9IjIyMCIgeTE9IjE4MCIgeDI9IjI0MCIgeTI9IjE4MCIgc3Ryb2tlPSIjMzJhYWU0IiBzdHJva2Utd2lkdGg9IjIiLz4KICAKICA8IS0tIFNhbXBsZXJzIC0tPgogIDxyZWN0IHg9IjM0MCIgeT0iNjAiIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCIgcng9IjQiIGZpbGw9IiNlMGYyZmUiIHN0cm9rZT0iIzMyYWFlNCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8dGV4dCB4PSIzODAiIHk9IjgwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMDA1NTlhIj5JIOmHkeeQmOWZqDwvdGV4dD4KICAKICA8cmVjdCB4PSIzNDAiIHk9IjE2MCIgd2lkdGg9IjgwIiBoZWlnaHQ9IjQwIiByeD0iNCIgZmlsbD0iI2UwZjJmZSIgc3Ryb2tlPSIjMzJhYWU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjM4MCIgeT0iMTgwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMDA1NTlhIj5RIOmHkeeQmOWZqDwvdGV4dD4KICAKICA8IS0tIENvbm5lY3Rpb25zIGZyb20gTG93cGFzcyBGaWx0ZXJzIHRvIFNhbXBsZXJzIC0tPgogIDxsaW5lIHgxPSIzMjAiIHkxPSI4MCIgeDI9IjM0MCIgeTI9IjgwIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxsaW5lIHgxPSIzMjAiIHkxPSIxODAiIHgyPSIzNDAiIHkyPSIxODAiIHN0cm9rZT0iIzMyYWFlNCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgCiAgPCEtLSBEZWNpc2lvbiBEZXZpY2VzIC0tPgogIDxyZWN0IHg9IjQ0MCIgeT0iMTEwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHJ4PSI0IiBmaWxsPSIjZTBmMmZlIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHRleHQgeD0iNDYwIiB5PSIxMzAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiMwMDU1OWEiPuWGs+agvOWZqDwvdGV4dD4KCiAgPCEtLSBDb25uZWN0aW9ucyBmcm9tIFNhbXBsZXJzIHRvIERlY2lzaW9uIERldmljZSAtLT4KICA8bGluZSB4MT0iNDIwIiB5MT0iODAiIHgyPSI0NDAiIHkyPSIxMTUiIHN0cm9rZT0iIzMyYWFlNCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPGxpbmUgeDE9IjQyMCIgeTE9IjE4MCIgeDI9IjQ0MCIgeTI9IjE0NSIgc3Ryb2tlPSIjMzJhYWU0IiBzdHJva2Utd2lkdGg9IjIiLz4KICAKICA8IS0tIE91dHB1dCAtLT4KICA8bGluZSB4MT0iNDgwIiB5MT0iMTMwIiB4Mj0iNTAwIiB5Mj0iMTMwIiBzdHJva2U9IiMzMmFhZTQiIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjQ5MCIgeT0iMTI1IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiMyQzQ5OTkiPui+k+WHuuS+kJXlrZc8L3RleHQ+CiAgCjwvc3ZnPg==">
+                        </div>
+                        <div class="mt-4 text-sm text-gray-600 dark:text-gray-400">
+                            <ol class="list-decimal list-inside space-y-1">
+                                <li>接收调制信号分为同相(I)路和正交(Q)路</li>
+                                <li>I路与本地载波余弦分量相乘，Q路与本地载波正弦分量相乘</li>
+                                <li>低通滤波器去除高频分量</li>
+                                <li>抽样器对信号进行采样</li>
+                                <li>判决器根据I路和Q路采样值恢复原始比特序列</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- QPSK模拟仿真 -->
+        <section class="mb-12 animate-fade-in" style="animation-delay: 0.6s">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-primary-700 dark:text-primary-300 mb-6">
+                    <i class="fas fa-wave-square mr-2"></i>QPSK调制交互式仿真
+                </h2>
+                
+                <div class="control-panel bg-gray-50 dark:bg-gray-700 p-4 mb-6 rounded-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="symbol-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">符号速率 (kBaud)</label>
+                            <input type="range" id="symbol-rate" min="1" max="20" value="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                            <div class="text-xs text-gray-500 dark:text-gray-400 text-right mt-1" id="symbol-rate-value">10 kBaud</div>
+                        </div>
+                        <div>
+                            <label for="noise-level" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">噪声水平 (SNR)</label>
+                            <input type="range" id="noise-level" min="5" max="40" value="20" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                            <div class="text-xs text-gray-500 dark:text-gray-400 text-right mt-1" id="noise-level-value">20 dB</div>
+                        </div>
+                        <div>
+                            <label for="bit-sequence" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">输入比特序列</label>
+                            <input type="text" id="bit-sequence" placeholder="如: 10110101" value="10110101" class="w-full px-3 py-1.5 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-primary-500 dark:focus:border-primary-400">
+                        </div>
+                    </div>
+                    <div class="flex justify-center mt-4 space-x-4">
+                        <button id="start-simulation" class="btn bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium focus:outline-none">
+                            <i class="fas fa-play mr-1"></i> 开始仿真
+                        </button>
+                        <button id="reset-simulation" class="btn bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium focus:outline-none">
+                            <i class="fas fa-redo-alt mr-1"></i> 重置
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- QPSK星座图显示 -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200 text-center">接收星座图</h3>
+                        <div class="relative w-full aspect-square max-w-md mx-auto">
+                            <canvas id="qpskSimulationConstellationChart" class="mx-auto bg-gray-50 dark:bg-gray-900 rounded-lg"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 信号波形图显示 -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200 text-center">QPSK调制波形</h3>
+                        <div class="relative w-full aspect-square max-w-md mx-auto">
+                            <canvas id="qpskSimulationWaveformChart" class="mx-auto bg-gray-50 dark:bg-gray-900 rounded-lg"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-2 text-center text-gray-800 dark:text-gray-200">模拟结果</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-2 bg-gray-100 dark:bg-gray-600 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">输入比特</th>
+                                    <th class="px-4 py-2 bg-gray-100 dark:bg-gray-600 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">调制符号</th>
+                                    <th class="px-4 py-2 bg-gray-100 dark:bg-gray-600 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">相位</th>
+                                    <th class="px-4 py-2 bg-gray-100 dark:bg-gray-600 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">接收符号</th>
+                                    <th class="px-4 py-2 bg-gray-100 dark:bg-gray-600 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">解调比特</th>
+                                </tr>
+                            </thead>
+                            <tbody id="simulation-results" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr>
+                                    <td class="px-4 py-2 text-xs text-gray-700 dark:text-gray-300" colspan="5">点击"开始仿真"查看结果...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- QPSK优缺点分析 -->
+        <section class="mb-12 animate-fade-in" style="animation-delay: 0.8s">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-primary-700 dark:text-primary-300 mb-6">
+                    <i class="fas fa-balance-scale mr-2"></i>QPSK优缺点分析
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-5 border-l-4 border-green-500 hover-scale">
+                        <h3 class="font-semibold text-xl mb-4 text-green-700 dark:text-green-400"><i class="fas fa-plus-circle mr-2"></i>优点</h3>
+                        <ul class="space-y-2 list-disc list-inside text-gray-700 dark:text-gray-300">
+                            <li><span class="font-medium">高频谱效率</span> - 相比BPSK，QPSK在相同带宽下可以传输两倍的数据量</li>
+                            <li><span class="font-medium">抗干扰能力强</span> - 在同样的误比特率下，QPSK与BPSK需要相同的信噪比</li>
+                            <li><span class="font-medium">实现简单</span> - 调制解调电路设计相对简单，容易实现</li>
+                            <li><span class="font-medium">广泛应用</span> - 在卫星通信、移动通信和数字电视等系统中得到广泛应用</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-5 border-l-4 border-red-500 hover-scale">
+                        <h3 class="font-semibold text-xl mb-4 text-red-700 dark:text-red-400"><i class="fas fa-minus-circle mr-2"></i>缺点</h3>
+                        <ul class="space-y-2 list-disc list-inside text-gray-700 dark:text-gray-300">
+                            <li><span class="font-medium">相位敏感</span> - 对载波相位同步要求较高，否则会导致整体误码率上升</li>
+                            <li><span class="font-medium">解调复杂度增加</span> - 相比BPSK，解调电路更为复杂</li>
+                            <li><span class="font-medium">包络波动</span> - QPSK调制信号的包络不恒定，需要非线性放大器工作在线性区</li>
+                            <li><span class="font-medium">相位跳变</span> - 符号间相位跳变可能达到180°，导致频谱扩展</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mt-8 bg-gray-50 dark:bg-gray-700 p-5 rounded-lg">
+                    <h3 class="font-semibold text-xl mb-4 text-gray-800 dark:text-gray-200 text-center">QPSK性能图表</h3>
+                    <div class="w-full max-w-2xl mx-auto">
+                        <canvas id="performanceChart" height="300"></canvas>
+                    </div>
+                    <div class="text-sm text-center mt-2 text-gray-500 dark:text-gray-400">
+                        不同数字调制技术的误比特率(BER)与信噪比(SNR)关系对比
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 应用场景 -->
+        <section class="mb-12 animate-fade-in" style="animation-delay: 1s">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-primary-700 dark:text-primary-300 mb-6">
+                    <i class="fas fa-broadcast-tower mr-2"></i>QPSK应用场景
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-gray-50 dark:bg-gray-700 p-5 rounded-lg shadow-sm hover-scale">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">
+                                <i class="fas fa-satellite text-2xl"></i>
+                            </div>
+                            <h3 class="ml-4 text-lg font-semibold text-gray-800 dark:text-gray-200">卫星通信</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            卫星通信系统广泛使用QPSK调制技术，以实现在有限带宽条件下的高数据传输率。例如，DVB-S数字卫星电视广播系统就采用QPSK作为基本调制方案。
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-700 p-5 rounded-lg shadow-sm hover-scale">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">
+                                <i class="fas fa-mobile-alt text-2xl"></i>
+                            </div>
+                            <h3 class="ml-4 text-lg font-semibold text-gray-800 dark:text-gray-200">移动通信</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            4G LTE和早期的5G NR系统中使用QPSK作为基本调制方式之一。当信道条件不佳时，系统会自适应切换到QPSK以保证通信质量，牺牲速率换取可靠性。
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-700 p-5 rounded-lg shadow-sm hover-scale">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">
+                                <i class="fas fa-wifi text-2xl"></i>
+                            </div>
+                            <h3 class="ml-4 text-lg font-semibold text-gray-800 dark:text-gray-200">无线局域网</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            IEEE 802.11 Wi-Fi标准中采用QPSK作为调制选项之一，在信道条件适中时使用QPSK提供较好的传输速率和覆盖范围的平衡。
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-700 p-5 rounded-lg shadow-sm hover-scale">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">
+                                <i class="fas fa-tv text-2xl"></i>
+                            </div>
+                            <h3 class="ml-4 text-lg font-semibold text-gray-800 dark:text-gray-200">数字电视</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            各种数字电视标准如DVB-T、ATSC和ISDB-T都采用QPSK作为可选的调制方式，尤其是在信道条件较差的情况下。
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-700 p-5 rounded-lg shadow-sm hover-scale">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">
+                                <i class="fas fa-microchip text-2xl"></i>
+                            </div>
+                            <h3 class="ml-4 text-lg font-semibold text-gray-800 dark:text-gray-200">物联网设备</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            低功耗广域网(LPWAN)如LoRa和Sigfox等物联网通信协议中，QPSK调制因其良好的功率效率和频谱效率而被广泛应用。
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-700 p-5 rounded-lg shadow-sm hover-scale">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300">
+                                <i class="fas fa-route text-2xl"></i>
+                            </div>
+                            <h3 class="ml-4 text-lg font-semibold text-gray-800 dark:text-gray-200">导航系统</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            GPS等全球卫星导航系统中使用QPSK变体来传输导航数据，提供高精度的定位信息。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 思考题 -->
+        <section class="mb-12 animate-fade-in" style="animation-delay: 1.2s">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-primary-700 dark:text-primary-300 mb-6">
+                    <i class="fas fa-lightbulb mr-2"></i>思考与拓展
+                </h2>
+                
+                <div class="bg-gray-50 dark:bg-gray-700 p-5 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800 dark:text-gray-200">思考问题</h3>
+                    <ol class="list-decimal list-inside space-y-3 text-gray-700 dark:text-gray-300">
+                        <li>对比BPSK和QPSK，为什么在相同的误比特率性能下，QPSK能够提供更高的数据传输速率？</li>
+                        <li>QPSK与16QAM调制相比，各自有哪些优势和局限性？在哪些应用场景中更适合使用QPSK而非16QAM？</li>
+                        <li>如何改进QPSK调制方案以降低相位跳变带来的频谱扩展影响？（提示：考虑π/4-QPSK）</li>
+                        <li>在5G通信系统中，相比于高阶调制（如64QAM），QPSK调制的使用场景是什么？</li>
+                        <li>如果信道条件持续恶化，QPSK系统的误码率会如何变化？系统应如何响应？</li>
+                    </ol>
+                </div>
+                
+                <div class="mt-6 bg-gray-50 dark:bg-gray-700 p-5 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800 dark:text-gray-200">拓展内容</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white dark:bg-gray-800 p-4 rounded-md shadow-sm">
+                            <h4 class="font-medium text-primary-600 dark:text-primary-400 mb-2">QPSK的变体</h4>
+                            <ul class="list-disc list-inside text-gray-600 dark:text-gray-400 space-y-1">
+                                <li>π/4-QPSK：限制相邻符号间的相位变化，用于数字蜂窝系统</li>
+                                <li>OQPSK：延迟Q路半个符号周期，减小相位跳变</li>
+                                <li>DQPSK：差分编码QPSK，简化接收端同步要求</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-gray-800 p-4 rounded-md shadow-sm">
+                            <h4 class="font-medium text-primary-600 dark:text-primary-400 mb-2">相关调制技术</h4>
+                            <ul class="list-disc list-inside text-gray-600 dark:text-gray-400 space-y-1">
+                                <li>8PSK：每个符号携带3比特，频谱效率更高</li>
+                                <li>QAM：结合幅度和相位调制，提高频谱效率</li>
+                                <li>MSK：最小频移键控，常用于移动通信</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white dark:bg-gray-800 py-6 shadow-inner">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="flex flex-col items-center">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-book-reader text-primary-600 dark:text-primary-400 text-xl mr-2"></i>
+                    <h3 class="text-lg font-semibold">IECUBE Tutorial</h3>
+                </div>
+                <div class="text-center text-sm text-gray-600 dark:text-gray-400">
+                    <p>© 2025 IECUBE Tutorial. 保留所有权利。</p>
+                    <p class="mt-2 text-xs">本内容为人工智能生成，观点为转述原作者，不代表本公司立场，仅供参考和批判</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 主题切换功能
+        document.addEventListener('DOMContentLoaded', () => {
+            // 检查用户首选主题
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').classList.remove('fa-moon');
+                document.getElementById('theme-icon').classList.add('fa-sun');
+            }
+            
+            // 主题切换按钮事件
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+                const icon = document.getElementById('theme-icon');
+                if (document.documentElement.classList.contains('dark')) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            });
+
+            // 初始化星座图
+            initConstellationChart();
+            
+            // 初始化性能比较图表
+            initPerformanceChart();
+            
+            // 初始化QPSK仿真
+            initQpskSimulation();
+        });
+
+        // 星座图初始化
+        function initConstellationChart() {
+            const ctx = document.getElementById('constellationChart').getContext('2d');
+            
+            const constellationChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'QPSK符号',
+                        data: [
+                            { x: 0.7071, y: 0.7071, bit: '00' },
+                            { x: -0.7071, y: 0.7071, bit: '01' },
+                            { x: -0.7071, y: -0.7071, bit: '10' },
+                            { x: 0.7071, y: -0.7071, bit: '11' }
+                        ],
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        pointRadius: 10,
+                        pointHoverRadius: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    aspectRatio: 1,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'I (同相分量)'
+                            },
+                            min: -1.2,
+                            max: 1.2,
+                            grid: {
+                                color: function(context) {
+                                    if (context.tick.value === 0) {
+                                        return 'rgba(0, 0, 0, 0.5)';
+                                    }
+                                    return 'rgba(0, 0, 0, 0.1)';
+                                }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Q (正交分量)'
+                            },
+                            min: -1.2,
+                            max: 1.2,
+                            grid: {
+                                color: function(context) {
+                                    if (context.tick.value === 0) {
+                                        return 'rgba(0, 0, 0, 0.5)';
+                                    }
+                                    return 'rgba(0, 0, 0, 0.1)';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `二进制: ${context.raw.bit}, 相位: ${getPhase(context.raw.x, context.raw.y)}°`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 添加象限标签
+            const originalDraw = constellationChart.draw;
+            constellationChart.draw = function() {
+                originalDraw.apply(this, arguments);
+                
+                const chartArea = this.chartArea;
+                const ctx = this.ctx;
+                
+                ctx.save();
+                
+                // 设置文本样式
+                ctx.font = '12px Arial';
+                ctx.fillStyle = document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // 计算中心点
+                const centerX = (chartArea.left + chartArea.right) / 2;
+                const centerY = (chartArea.top + chartArea.bottom) / 2;
+                
+                // 计算象限半径
+                const radius = Math.min(chartArea.right - centerX, chartArea.bottom - centerY) * 0.85;
+                
+                // 角度标记
+                const angles = [45, 135, 225, 315];
+                const bits = ['00', '01', '10', '11'];
+                
+                for (let i = 0; i < 4; i++) {
+                    const angle = angles[i] * Math.PI / 180;
+                    const x = centerX + radius * Math.cos(angle);
+                    const y = centerY - radius * Math.sin(angle);
+                    
+                    // 绘制虚线
+                    ctx.beginPath();
+                    ctx.setLineDash([2, 2]);
+                    ctx.strokeStyle = document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)';
+                    ctx.moveTo(centerX, centerY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    
+                    // 绘制角度标记
+                    ctx.fillText(`${angles[i]}°`, 
+                        centerX + radius * 0.5 * Math.cos(angle), 
+                        centerY - radius * 0.5 * Math.sin(angle));
+                    
+                    // 绘制比特标记
+                    ctx.fillText(bits[i], 
+                        centerX + radius * 0.75 * Math.cos(angle), 
+                        centerY - radius * 0.75 * Math.sin(angle));
+                }
+                
+                ctx.restore();
+            };
+        }
+        
+        // 获取相位角度
+        function getPhase(x, y) {
+            let phase = Math.atan2(y, x) * 180 / Math.PI;
+            if (phase < 0) {
+                phase += 360;
+            }
+            return Math.round(phase);
+        }
+        
+        // 初始化性能比较图表
+        function initPerformanceChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            const snrValues = Array.from({length: 16}, (_, i) => i);
+            
+            // BER理论值计算
+            const bpskBER = snrValues.map(snr => {
+                const linearSNR = Math.pow(10, snr/10);
+                return 0.5 * Math.erfc(Math.sqrt(linearSNR));
+            });
+            
+            const qpskBER = bpskBER; // QPSK与BPSK具有相同的BER
+            
+            const qam16BER = snrValues.map(snr => {
+                const linearSNR = Math.pow(10, snr/10);
+                return (3/8) * Math.erfc(Math.sqrt(linearSNR / 5));
+            });
+            
+            const qam64BER = snrValues.map(snr => {
+                const linearSNR = Math.pow(10, snr/10);
+                return (7/16) * Math.erfc(Math.sqrt(linearSNR / 21));
+            });
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: snrValues,
+                    datasets: [
+                        {
+                            label: 'BPSK',
+                            data: bpskBER,
+                            borderColor: 'rgb(54, 162, 235)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'QPSK',
+                            data: qpskBER,
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.4
+                        },
+                        {
+                            label: '16QAM',
+                            data: qam16BER,
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.4
+                        },
+                        {
+                            label: '64QAM',
+                            data: qam64BER,
+                            borderColor: 'rgb(255, 159, 64)',
+                            backgroundColor: 'rgba(255, 159, 64, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'SNR (dB)'
+                            }
+                        },
+                        y: {
+                            type: 'logarithmic',
+                            min: 1e-6,
+                            max: 1,
+                            title: {
+                                display: true,
+                                text: '误比特率 (BER)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '数字调制方式性能比较',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        subtitle: {
+                            display: true,
+                            text: '在AWGN信道下的理论误比特率',
+                            font: {
+                                size: 12,
+                                style: 'italic'
+                            },
+                            padding: {
+                                bottom: 10
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed.y;
+                                    return `${context.dataset.label}: ${value.toExponential(3)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 辅助函数：误差函数补余
+        Math.erfc = function(x) {
+            const z = Math.abs(x);
+            const t = 1.0 / (1.0 + 0.5 * z);
+            const ans = t * Math.exp(-z * z - 1.26551223 + 
+                        t * (1.00002368 + 
+                        t * (0.37409196 + 
+                        t * (0.09678418 + 
+                        t * (-0.18628806 + 
+                        t * (0.27886807 + 
+                        t * (-1.13520398 + 
+                        t * (1.48851587 + 
+                        t * (-0.82215223 + 
+                        t * 0.17087277)))))))));
+            return x >= 0.0 ? ans : 2.0 - ans;
+        };
+        
+        // QPSK仿真初始化
+        function initQpskSimulation() {
+            // 获取DOM元素
+            const symbolRateSlider = document.getElementById('symbol-rate');
+            const symbolRateValue = document.getElementById('symbol-rate-value');
+            const noiseSlider = document.getElementById('noise-level');
+            const noiseValue = document.getElementById('noise-level-value');
+            const bitSequenceInput = document.getElementById('bit-sequence');
+            const startButton = document.getElementById('start-simulation');
+            const resetButton = document.getElementById('reset-simulation');
+            const resultsTable = document.getElementById('simulation-results');
+            
+            // 初始化星座图和波形图
+            const constellationCtx = document.getElementById('qpskSimulationConstellationChart').getContext('2d');
+            const waveformCtx = document.getElementById('qpskSimulationWaveformChart').getContext('2d');
+            
+            let constellationChart = createConstellationChart(constellationCtx);
+            let waveformChart = createWaveformChart(waveformCtx);
+            
+            // 更新显示的值
+            symbolRateSlider.addEventListener('input', function() {
+                symbolRateValue.textContent = `${this.value} kBaud`;
+            });
+            
+            noiseSlider.addEventListener('input', function() {
+                noiseValue.textContent = `${this.value} dB`;
+            });
+            
+            // 按钮事件
+            startButton.addEventListener('click', function() {
+                // 验证输入
+                const bitSequence = bitSequenceInput.value.trim().replace(/[^01]/g, '');
+                if (!bitSequence || bitSequence.length % 2 !== 0) {
+                    alert('请输入有效的比特序列（例如：10110010），长度必须是偶数');
+                    return;
+                }
+                
+                // 清空结果表
+                resultsTable.innerHTML = '';
+                
+                // 设置参数
+                const symbolRate = parseInt(symbolRateSlider.value);
+                const snrDb = parseInt(noiseSlider.value);
+                
+                // 执行QPSK仿真
+                runQpskSimulation(bitSequence, symbolRate, snrDb, constellationChart, waveformChart, resultsTable);
+            });
+            
+            resetButton.addEventListener('click', function() {
+                // 重置图表
+                constellationChart.destroy();
+                waveformChart.destroy();
+                constellationChart = createConstellationChart(constellationCtx);
+                waveformChart = createWaveformChart(waveformCtx);
+                
+                // 重置结果表
+                resultsTable.innerHTML = '<tr><td class="px-4 py-2 text-xs text-gray-700 dark:text-gray-300" colspan="5">点击"开始仿真"查看结果...</td></tr>';
+            });
+        }
+        
+        // 创建星座图
+        function createConstellationChart(ctx) {
+            return new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: '理想QPSK符号',
+                            data: [
+                                { x: 0.7071, y: 0.7071 },
+                                { x: -0.7071, y: 0.7071 },
+                                { x: -0.7071, y: -0.7071 },
+                                { x: 0.7071, y: -0.7071 }
+                            ],
+                            backgroundColor: 'rgba(54, 162, 235, 0.3)',
+                            borderColor: 'rgba(54, 162, 235, 0.8)',
+                            pointRadius: 8,
+                            pointStyle: 'circle'
+                        },
+                        {
+                            label: '接收符号',
+                            data: [],
+                            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            pointRadius: 5,
+                            pointStyle: 'cross'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    aspectRatio: 1,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'I (同相分量)'
+                            },
+                            min: -1.5,
+                            max: 1.5
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Q (正交分量)'
+                            },
+                            min: -1.5,
+                            max: 1.5
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'QPSK接收星座图'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 创建波形图
+        function createWaveformChart(ctx) {
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'QPSK信号',
+                        data: [],
+                        borderColor: 'rgb(75, 192, 192)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    aspectRatio: 1,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '时间 (ms)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '幅度'
+                            },
+                            min: -1.5,
+                            max: 1.5
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'QPSK调制波形'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // QPSK仿真
+        function runQpskSimulation(bitSequence, symbolRate, snrDb, constellationChart, waveformChart, resultsTable) {
+            // 分组比特序列，每两位为一组
+            const bitPairs = [];
+            for (let i = 0; i < bitSequence.length; i += 2) {
+                bitPairs.push(bitSequence.substr(i, 2));
+            }
+            
+            // 映射到QPSK符号
+            const symbols = bitPairs.map(pair => {
+                switch (pair) {
+                    case '00': return { i: 0.7071, q: 0.7071, phase: 45 };
+                    case '01': return { i: -0.7071, q: 0.7071, phase: 135 };
+                    case '10': return { i: -0.7071, q: -0.7071, phase: 225 };
+                    case '11': return { i: 0.7071, q: -0.7071, phase: 315 };
+                    default: return { i: 0, q: 0, phase: 0 };
+                }
+            });
+            
+            // 添加噪声
+            const linearSNR = Math.pow(10, snrDb / 10);
+            const noiseStdDev = 1 / Math.sqrt(2 * linearSNR);
+            
+            const receivedSymbols = symbols.map(symbol => {
+                // 生成噪声
+                const iNoise = gaussianRandom(0, noiseStdDev);
+                const qNoise = gaussianRandom(0, noiseStdDev);
+                
+                return {
+                    i: symbol.i + iNoise,
+                    q: symbol.q + qNoise,
+                    originalI: symbol.i,
+                    originalQ: symbol.q,
+                    phase: symbol.phase
+                };
+            });
+            
+            // 解调接收符号
+            const demodulatedBits = receivedSymbols.map(symbol => {
+                // 根据接收符号的I/Q值判断最可能的比特对
+                if (symbol.i >= 0 && symbol.q >= 0) return '00';
+                if (symbol.i < 0 && symbol.q >= 0) return '01';
+                if (symbol.i < 0 && symbol.q < 0) return '10';
+                return '11'; // i >= 0 && q < 0
+            });
+            
+            // 更新星座图
+            constellationChart.data.datasets[1].data = receivedSymbols.map(symbol => ({
+                x: symbol.i,
+                y: symbol.q
+            }));
+            constellationChart.update();
+            
+            // 生成波形数据
+            // 每个符号采样10个点
+            const samplesPerSymbol = 10;
+            const carrierFrequency = 5; // 载波频率，单位为符号速率的倍数
+            const totalSamples = symbols.length * samplesPerSymbol;
+            
+            const timePoints = Array.from({length: totalSamples}, (_, i) => i / samplesPerSymbol);
+            const waveformData = [];
+            
+            for (let i = 0; i < totalSamples; i++) {
+                const symbolIndex = Math.floor(i / samplesPerSymbol);
+                if (symbolIndex >= symbols.length) break;
+                
+                const symbol = symbols[symbolIndex];
+                const t = i / samplesPerSymbol; // 时间，以符号周期为单位
+                
+                // 生成QPSK信号: I*cos(2πft) - Q*sin(2πft)
+                const signal = symbol.i * Math.cos(2 * Math.PI * carrierFrequency * t) 
+                             - symbol.q * Math.sin(2 * Math.PI * carrierFrequency * t);
+                
+                waveformData.push(signal);
+            }
+            
+            // 更新波形图
+            waveformChart.data.labels = timePoints;
+            waveformChart.data.datasets[0].data = waveformData;
+            waveformChart.update();
+            
+            // 更新结果表格
+            for (let i = 0; i < bitPairs.length; i++) {
+                const row = document.createElement('tr');
+                
+                const inputCell = document.createElement('td');
+                inputCell.className = 'px-4 py-2 text-xs text-gray-700 dark:text-gray-300';
+                inputCell.textContent = bitPairs[i];
+                
+                const symbolCell = document.createElement('td');
+                symbolCell.className = 'px-4 py-2 text-xs text-gray-700 dark:text-gray-300';
+                symbolCell.textContent = `(${symbols[i].i.toFixed(2)}, ${symbols[i].q.toFixed(2)})`;
+                
+                const phaseCell = document.createElement('td');
+                phaseCell.className = 'px-4 py-2 text-xs text-gray-700 dark:text-gray-300';
+                phaseCell.textContent = `${symbols[i].phase}°`;
+                
+                const receivedCell = document.createElement('td');
+                receivedCell.className = 'px-4 py-2 text-xs text-gray-700 dark:text-gray-300';
+                receivedCell.textContent = `(${receivedSymbols[i].i.toFixed(2)}, ${receivedSymbols[i].q.toFixed(2)})`;
+                
+                const demodCell = document.createElement('td');
+                demodCell.className = 'px-4 py-2 text-xs text-gray-700 dark:text-gray-300';
+                // 比较原始比特和解调比特是否相同
+                if (bitPairs[i] === demodulatedBits[i]) {
+                    demodCell.innerHTML = `<span class="text-green-600 dark:text-green-400">${demodulatedBits[i]}</span>`;
+                } else {
+                    demodCell.innerHTML = `<span class="text-red-600 dark:text-red-400">${demodulatedBits[i]}</span>`;
+                }
+                
+                row.appendChild(inputCell);
+                row.appendChild(symbolCell);
+                row.appendChild(phaseCell);
+                row.appendChild(receivedCell);
+                row.appendChild(demodCell);
+                
+                resultsTable.appendChild(row);
+            }
+        }
+        
+        // 生成正态分布随机数
+        function gaussianRandom(mean, stdDev) {
+            let u = 0, v = 0;
+            while (u === 0) u = Math.random();
+            while (v === 0) v = Math.random();
+            
+            const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+            return mean + z * stdDev;
+        }
+    </script>
+</body>
+</html>

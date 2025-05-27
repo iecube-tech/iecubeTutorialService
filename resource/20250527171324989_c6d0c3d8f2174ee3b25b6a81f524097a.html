@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大学语文 - 乐府诗《长歌行》赏析与教学</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --accent-color: #f59e0b;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-gradient-start: #f8fafc;
+            --bg-gradient-end: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #3b82f6;
+            --secondary-color: #60a5fa;
+            --accent-color: #fbbf24;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --bg-gradient-start: #1f2937;
+            --bg-gradient-end: #111827;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .serif { font-family: 'Noto Serif SC', serif; }
+        
+        .poem-text {
+            font-family: 'Noto Serif SC', serif;
+            line-height: 2.2;
+            font-size: 1.1rem;
+            writing-mode: horizontal-tb;
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.05), rgba(245, 158, 11, 0.05));
+            border-radius: 1rem;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            margin: 2rem 0;
+        }
+
+        .hover-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hover-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .parallax-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+        }
+
+        .floating-element {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            background: var(--primary-color);
+            border: none;
+            border-radius: 50%;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .season-animation {
+            width: 100%;
+            height: 200px;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #87ceeb 0%, #98fb98 50%, #f4a460 100%);
+            position: relative;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .sun {
+            width: 40px;
+            height: 40px;
+            background: #ffd700;
+            border-radius: 50%;
+            position: absolute;
+            animation: sunMove 8s infinite ease-in-out;
+        }
+
+        .tree {
+            width: 60px;
+            height: 80px;
+            background: linear-gradient(to top, #8b4513 40%, #228b22 40%);
+            border-radius: 4px;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .leaves {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #228b22;
+            border-radius: 50%;
+            animation: fallLeaves 3s infinite;
+        }
+
+        @keyframes sunMove {
+            0% { left: 10px; top: 80px; }
+            25% { left: 30%; top: 30px; }
+            50% { left: 50%; top: 20px; }
+            75% { left: 70%; top: 30px; }
+            100% { left: calc(100% - 50px); top: 80px; }
+        }
+
+        @keyframes fallLeaves {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100px) rotate(360deg); opacity: 0; }
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background: var(--primary-color);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 3px;
+        }
+
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            background: inherit;
+            width: 50%;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            right: -17px;
+            background: white;
+            border: 4px solid var(--primary-color);
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .timeline-item:nth-child(even) {
+            left: 50%;
+        }
+
+        .timeline-item:nth-child(even)::after {
+            left: -16px;
+        }
+
+        @media screen and (max-width: 768px) {
+            .timeline::after {
+                left: 31px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .timeline-item::after {
+                left: 15px;
+            }
+            
+            .timeline-item:nth-child(even) {
+                left: 0%;
+            }
+
+            .poem-text {
+                font-size: 1rem;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="parallax-bg"></div>
+    
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="container mx-auto px-4 py-8">
+            <div class="text-center fade-in">
+                <div class="inline-flex items-center space-x-2 text-var(--accent-color) mb-4">
+                    <i class="fas fa-university text-2xl"></i>
+                    <span class="text-sm font-medium tracking-wide uppercase">大学语文课程</span>
+                </div>
+                <h1 class="text-4xl md:text-6xl font-bold serif mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    乐府诗《长歌行》
+                </h1>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                    探讨汉乐府诗歌的艺术精髓与人生哲理
+                </p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 pb-16">
+            <!-- 诗歌原文 -->
+            <section class="mb-16 fade-in">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover-card border border-gray-200 dark:border-gray-700">
+                        <div class="p-8">
+                            <div class="flex items-center mb-6">
+                                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-scroll text-blue-600 text-xl"></i>
+                                </div>
+                                <h2 class="text-2xl font-bold serif">诗歌原文</h2>
+                            </div>
+                            
+                            <div class="poem-text">
+                                青青园中葵，朝露待日晞。<br>
+                                阳春布德泽，万物生光辉。<br>
+                                常恐秋节至，焜黄华叶衰。<br>
+                                百川东到海，何时复西归？<br>
+                                少壮不努力，老大徒伤悲。
+                            </div>
+                            
+                            <div class="mt-6 text-sm text-gray-500 text-center">
+                                <span>——汉乐府诗集</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 时节变化动画演示 -->
+            <section class="mb-16 fade-in">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover-card border border-gray-200 dark:border-gray-700">
+                        <div class="p-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-4">
+                                        <i class="fas fa-seedling text-green-600 text-xl"></i>
+                                    </div>
+                                    <h2 class="text-2xl font-bold serif">时节变迁：从春华到秋实</h2>
+                                </div>
+                                <button id="seasonBtn" onclick="toggleSeasonAnimation()" 
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-play mr-2"></i>开始演示
+                                </button>
+                            </div>
+                            
+                            <div class="season-animation" id="seasonAnimation">
+                                <div class="sun"></div>
+                                <div class="tree"></div>
+                            </div>
+                            
+                            <p class="text-gray-600 dark:text-gray-300 mt-4">
+                                诗歌通过"青青园中葵"到"焜黄华叶衰"的对比，展现了时间流逝的不可逆转性，
+                                象征着人生从青春到衰老的自然规律。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 核心问题解析 -->
+            <section class="mb-16 fade-in">
+                <div class="max-w-6xl mx-auto">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl font-bold serif mb-4">核心问题解析</h2>
+                        <p class="text-gray-600 dark:text-gray-300">深入理解《长歌行》的思想内涵与艺术特色</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- 问题1 -->
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover-card border border-gray-200 dark:border-gray-700">
+                            <div class="p-6">
+                                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fas fa-question-circle text-purple-600 text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-bold mb-3">诗歌采用了怎样的表现手法？</h3>
+                                <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                                    <p><strong>比兴手法：</strong>以"青青园中葵"起兴，借植物生长规律喻人生</p>
+                                    <p><strong>对比描写：</strong>"青青"与"焜黄"的鲜明对比</p>
+                                    <p><strong>设问修辞：</strong>"何时复西归？"增强感情色彩</p>
+                                    <p><strong>托物言志：</strong>借自然景象表达人生感悟</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 问题2 -->
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover-card border border-gray-200 dark:border-gray-700">
+                            <div class="p-6">
+                                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fas fa-clock text-blue-600 text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-bold mb-3">诗中的时间意识体现在哪里？</h3>
+                                <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                                    <p><strong>朝夕变化：</strong>"朝露待日晞"展现一日之始</p>
+                                    <p><strong>季节更替：</strong>从"阳春"到"秋节"的时序推移</p>
+                                    <p><strong>空间流转：</strong>"百川东到海"的永恒循环</p>
+                                    <p><strong>人生阶段：</strong>"少壮"与"老大"的生命对比</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 问题3 -->
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover-card border border-gray-200 dark:border-gray-700">
+                            <div class="p-6">
+                                <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fas fa-lightbulb text-orange-600 text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-bold mb-3">主题思想的现实意义是什么？</h3>
+                                <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                                    <p><strong>珍惜时光：</strong>警示人们把握青春年华</p>
+                                    <p><strong>积极进取：</strong>倡导奋发有为的人生态度</p>
+                                    <p><strong>哲理思辨：</strong>体现朴素的时间哲学观念</p>
+                                    <p><strong>教育价值：</strong>具有永恒的启发和激励作用</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 文学发展脉络 -->
+            <section class="mb-16 fade-in">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover-card border border-gray-200 dark:border-gray-700">
+                        <div class="p-8">
+                            <div class="flex items-center mb-8">
+                                <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-timeline text-indigo-600 text-xl"></i>
+                                </div>
+                                <h2 class="text-2xl font-bold serif">汉乐府诗歌发展脉络</h2>
+                            </div>
+                            
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-700">
+                                        <h3 class="font-bold text-lg mb-2">西汉初期（公元前206-前140年）</h3>
+                                        <p class="text-gray-600 dark:text-gray-300">乐府机构初建，主要收集民间歌谣，保存传统文化</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item">
+                                    <div class="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl border border-green-200 dark:border-green-700">
+                                        <h3 class="font-bold text-lg mb-2">汉武帝时期（公元前140-前87年）</h3>
+                                        <p class="text-gray-600 dark:text-gray-300">乐府鼎盛时期，设立正式机构，《长歌行》等名篇产生</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item">
+                                    <div class="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-xl border border-purple-200 dark:border-purple-700">
+                                        <h3 class="font-bold text-lg mb-2">东汉时期（公元25-220年）</h3>
+                                        <p class="text-gray-600 dark:text-gray-300">乐府诗歌艺术性进一步提高，题材更加丰富多样</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item">
+                                    <div class="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-xl border border-yellow-200 dark:border-yellow-700">
+                                        <h3 class="font-bold text-lg mb-2">后世影响（汉代以后）</h3>
+                                        <p class="text-gray-600 dark:text-gray-300">成为中国古典诗歌的重要源头，影响历代文人创作</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 艺术特色分析 -->
+            <section class="mb-16 fade-in">
+                <div class="max-w-6xl mx-auto">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover-card border border-gray-200 dark:border-gray-700">
+                        <div class="p-8">
+                            <div class="flex items-center mb-8">
+                                <div class="w-12 h-12 bg-rose-100 dark:bg-rose-900 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-palette text-rose-600 text-xl"></i>
+                                </div>
+                                <h2 class="text-2xl font-bold serif">艺术特色分析</h2>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-8">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-4">语言特点</h3>
+                                    <div class="space-y-4">
+                                        <div class="flex items-start space-x-3">
+                                            <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                                <i class="fas fa-check text-blue-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium">朴素自然</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-300">用词平易近人，无雕琢痕迹</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start space-x-3">
+                                            <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                                <i class="fas fa-check text-blue-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium">音韵和谐</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-300">押韵规整，朗朗上口</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start space-x-3">
+                                            <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                                <i class="fas fa-check text-blue-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium">形象生动</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-300">善用比喻，意象鲜明</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="text-xl font-bold mb-4">结构特色</h3>
+                                    <div class="space-y-4">
+                                        <div class="flex items-start space-x-3">
+                                            <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                                <i class="fas fa-star text-green-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium">层层推进</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-300">从自然到人生的逻辑递进</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start space-x-3">
+                                            <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                                <i class="fas fa-star text-green-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium">对比鲜明</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-300">春秋对比，少老对比</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start space-x-3">
+                                            <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                                <i class="fas fa-star text-green-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium">首尾呼应</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-300">自然引入，人生感悟收束</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 思考与延伸 -->
+            <section class="mb-16 fade-in">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl shadow-lg text-white">
+                        <div class="p-8">
+                            <div class="flex items-center mb-6">
+                                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-brain text-white text-xl"></i>
+                                </div>
+                                <h2 class="text-2xl font-bold">思考与延伸</h2>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white/10 rounded-xl p-6 backdrop-blur-sm">
+                                    <h3 class="font-bold text-lg mb-3">
+                                        <i class="fas fa-question-circle mr-2"></i>思考问题
+                                    </h3>
+                                    <ol class="space-y-2 text-sm">
+                                        <li>1. 为什么诗人选择"园中葵"作为起兴的意象？</li>
+                                        <li>2. "百川东到海，何时复西归"体现了怎样的哲学思考？</li>
+                                        <li>3. 这首诗对当代青年有什么启发意义？</li>
+                                        <li>4. 比较《长歌行》与《短歌行》的异同点。</li>
+                                    </ol>
+                                </div>
+                                
+                                <div class="bg-white/10 rounded-xl p-6 backdrop-blur-sm">
+                                    <h3 class="font-bold text-lg mb-3">
+                                        <i class="fas fa-lightbulb mr-2"></i>拓展阅读
+                                    </h3>
+                                    <ul class="space-y-2 text-sm">
+                                        <li>• 《乐府诗集》郭茂倩编</li>
+                                        <li>• 《汉魏六朝诗选》余冠英选注</li>
+                                        <li>• 《中国古代文学史》袁行霈主编</li>
+                                        <li>• 《诗经》与乐府诗比较研究</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-white py-8">
+            <div class="container mx-auto px-4">
+                <div class="text-center">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-bold mb-2">IECUBE Tutorial</h3>
+                        <p class="text-gray-400">© 2025 版权所有</p>
+                    </div>
+                    <div class="text-xs text-gray-500 max-w-2xl mx-auto">
+                        本内容为人工智能生成，观点为转述原作者，不代表本公司立场，仅供参考和批判
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 主题切换功能
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.removeAttribute('data-theme');
+                themeIcon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // 初始化主题
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const theme = savedTheme || systemTheme;
+            
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'fas fa-sun';
+            }
+        }
+
+        // 时节动画控制
+        let animationInterval;
+        let isAnimating = false;
+
+        function toggleSeasonAnimation() {
+            const btn = document.getElementById('seasonBtn');
+            const animation = document.getElementById('seasonAnimation');
+            
+            if (!isAnimating) {
+                startSeasonAnimation();
+                btn.innerHTML = '<i class="fas fa-stop mr-2"></i>停止演示';
+                btn.className = 'px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors';
+                isAnimating = true;
+            } else {
+                stopSeasonAnimation();
+                btn.innerHTML = '<i class="fas fa-play mr-2"></i>开始演示';
+                btn.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors';
+                isAnimating = false;
+            }
+        }
+
+        function startSeasonAnimation() {
+            const animation = document.getElementById('seasonAnimation');
+            
+            animationInterval = setInterval(() => {
+                createLeaf();
+            }, 800);
+        }
+
+        function stopSeasonAnimation() {
+            if (animationInterval) {
+                clearInterval(animationInterval);
+                const leaves = document.querySelectorAll('.leaves');
+                leaves.forEach(leaf => leaf.remove());
+            }
+        }
+
+        function createLeaf() {
+            const animation = document.getElementById('seasonAnimation');
+            const leaf = document.createElement('div');
+            leaf.className = 'leaves';
+            leaf.style.left = Math.random() * 100 + '%';
+            leaf.style.animationDelay = Math.random() * 2 + 's';
+            animation.appendChild(leaf);
+            
+            setTimeout(() => {
+                if (leaf.parentNode) {
+                    leaf.parentNode.removeChild(leaf);
+                }
+            }, 3000);
+        }
+
+        // 滚动动画
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }
+            });
+        }
+
+        // 平滑滚动
+        function smoothScroll() {
+            document.documentElement.style.scrollBehavior = 'smooth';
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            smoothScroll();
+            animateOnScroll();
+            
+            // 添加滚动监听
+            window.addEventListener('scroll', animateOnScroll);
+            
+            // 系统主题变化监听
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+                if (!localStorage.getItem('theme')) {
+                    if (e.matches) {
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                        document.getElementById('theme-icon').className = 'fas fa-sun';
+                    } else {
+                        document.documentElement.removeAttribute('data-theme');
+                        document.getElementById('theme-icon').className = 'fas fa-moon';
+                    }
+                }
+            });
+
+            // 初始动画延迟
+            setTimeout(() => {
+                const fadeElements = document.querySelectorAll('.fade-in');
+                fadeElements.forEach((el, index) => {
+                    setTimeout(() => {
+                        el.style.animationDelay = index * 0.1 + 's';
+                    }, index * 100);
+                });
+            }, 100);
+        });
+
+        // 性能优化：节流函数
+        function throttle(func, limit) {
+            let inThrottle;
+            return function() {
+                const args = arguments;
+                const context = this;
+                if (!inThrottle) {
+                    func.apply(context, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            }
+        }
+
+        // 应用节流到滚动事件
+        window.addEventListener('scroll', throttle(animateOnScroll, 100));
+    </script>
+</body>
+</html>

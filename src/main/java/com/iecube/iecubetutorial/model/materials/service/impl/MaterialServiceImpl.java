@@ -22,7 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -48,6 +50,8 @@ public class MaterialServiceImpl implements MaterialService {
 
     private final BlockingQueue<MaterialChat> NewConnectTask;
 
+    private static final String SECRET_KEY = "qwertyuioplkjhgfdsa";
+
     public MaterialServiceImpl(BlockingQueue<MaterialChat> NewConnectTask){
         this.NewConnectTask=NewConnectTask;
     }
@@ -60,7 +64,9 @@ public class MaterialServiceImpl implements MaterialService {
         material.setName(materialQo.getName());
         material.setTitle(materialQo.getTitle());
         material.setKnowledgePoint(materialQo.getKnowledgePoints());
-        material.setInstruction(materialQo.getInstruction());
+        // 解码instruction
+        String instruction = decrypt(materialQo.getInstruction());
+        material.setInstruction(instruction);
         material.setStatus(MaterialStatus.NOTReady.getStatus());
         material.setDeleted(0);
         material.setCreateTime(new Date());
@@ -85,7 +91,7 @@ public class MaterialServiceImpl implements MaterialService {
         }
 
         // 调用ai
-        w6ApiService.usePageMaker(chatId, materialQo.getTitle(), materialQo.getKnowledgePoints(), materialQo.getInstruction());
+        w6ApiService.usePageMaker(chatId, materialQo.getTitle(), materialQo.getKnowledgePoints(), instruction);
     }
 
     @Override
@@ -166,6 +172,12 @@ public class MaterialServiceImpl implements MaterialService {
         return this.getMaterials(userId);
     }
 
+    @Override
+    public String decrypt(String encryptedText) {
+        byte[] decryptedBytes = Base64.getDecoder().decode(encryptedText);
+        return new String(decryptedBytes, StandardCharsets.UTF_8);
+    }
+
     private MaterialVo entityToVo(MaterialEntity entity) {
         MaterialVo vo = new MaterialVo();
         vo.setId(entity.getId());
@@ -180,4 +192,5 @@ public class MaterialServiceImpl implements MaterialService {
         vo.setResource(new Resource());
         return vo;
     }
+
 }

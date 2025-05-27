@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model.resource.mapper.ResourceMapper">
+  <resultMap id="Resource" type="com.iecube.iecubetutorial.model.resource.entity.Resource">
+      <result property="createTime" column="create_time"></result>
+      <result property="updateTime" column="update_time"></result>
+  </resultMap>
+
+    <insert id="addResource" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO resource (id,filename,md5,type,create_time, update_time)
+        VALUES (NULL,#{filename},#{md5},#{type},#{createTime}, #{updateTime})
+    </insert>
+
+    <select id="getResource" resultMap="Resource">
+        SELECT id,filename,md5,type,create_time,update_time FROM resource WHERE id=#{id}
+    </select>
+
+    <delete id="deleteResource" >
+        DELETE FROM resource WHERE id=#{id}
+    </delete>
+
+    <update id="updateResource">
+        UPDATE resource SET filename=#{filename},
+                            md5=#{md5},
+                            type=#{type},
+                            create_time=#{createTime},
+                            update_time=#{updateTime}
+                        WHERE id=#{id}
+    </update>
+</mapper>

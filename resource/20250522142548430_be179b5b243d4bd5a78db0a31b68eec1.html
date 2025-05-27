@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>bb - 课程知识点</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: 0 },
+              '100%': { opacity: 1 },
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+    
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      scroll-behavior: smooth;
+    }
+    
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    
+    .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .btn-hover {
+      transition: all 0.2s ease;
+    }
+    
+    .btn-hover:hover {
+      transform: scale(1.05);
+    }
+
+    /* Dark mode styles */
+    .dark .dark\:prose-dark {
+      color: #e2e8f0;
+    }
+    
+    .dark .dark\:prose-dark h1,
+    .dark .dark\:prose-dark h2,
+    .dark .dark\:prose-dark h3,
+    .dark .dark\:prose-dark h4 {
+      color: #f8fafc;
+    }
+    
+    .dark .dark\:prose-dark a {
+      color: #38bdf8;
+    }
+    
+    .dark .dark\:prose-dark strong {
+      color: #f1f5f9;
+    }
+    
+    .dark .dark\:prose-dark blockquote {
+      color: #cbd5e1;
+      border-left-color: #334155;
+    }
+    
+    .dark .dark\:prose-dark hr {
+      border-color: #334155;
+    }
+  </style>
+</head>
+<body class="min-h-screen transition-colors duration-300 bg-gray-50 dark:bg-gray-900">
+  <!-- 深色/浅色模式切换 -->
+  <div class="fixed top-4 right-4 z-50">
+    <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all btn-hover">
+      <i class="fas fa-sun text-yellow-500 dark:hidden"></i>
+      <i class="fas fa-moon text-blue-300 hidden dark:inline"></i>
+    </button>
+  </div>
+
+  <!-- 主内容区 -->
+  <div class="container max-w-4xl mx-auto px-4 sm:px-6 py-10 animate-fade-in">
+    <!-- 课程标题 -->
+    <header class="mb-12 text-center animate-on-scroll">
+      <div class="inline-block p-2 px-4 mb-4 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-100 rounded-full text-sm font-medium">
+        课程知识点
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">bb</h1>
+      <div class="h-1 w-20 bg-primary-500 mx-auto rounded-full"></div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="prose prose-lg max-w-none dark:prose-dark animate-on-scroll">
+      <section class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md mb-8 animate-on-scroll">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">主要知识点</h2>
+        <p class="text-gray-700 dark:text-gray-300">bbb</p>
+      </section>
+
+      <!-- 暂无更多内容，显示提示信息 -->
+      <section class="p-8 bg-gray-100 dark:bg-gray-800 rounded-xl text-center mb-8 animate-on-scroll">
+        <div class="text-5xl mb-4 text-primary-500">
+          <i class="fas fa-lightbulb"></i>
+        </div>
+        <h3 class="text-xl font-medium text-gray-800 dark:text-gray-100 mb-2">内容待完善</h3>
+        <p class="text-gray-600 dark:text-gray-400">当前知识点内容较为简略，我们正在努力完善更多详细内容。</p>
+      </section>
+      
+      <!-- 思考题区域 -->
+      <section class="p-6 bg-primary-50 dark:bg-primary-900/30 rounded-xl border border-primary-100 dark:border-primary-800 mb-8 animate-on-scroll">
+        <h3 class="flex items-center text-xl font-bold text-primary-700 dark:text-primary-300 mb-4">
+          <i class="fas fa-brain mr-2"></i> 思考与练习
+        </h3>
+        <p class="text-gray-700 dark:text-gray-300 mb-4">请思考以下问题，加深对知识点的理解：</p>
+        <ol class="list-decimal pl-5 space-y-2 text-gray-700 dark:text-gray-300">
+          <li>对于"bbb"这一知识点，你能举出一个实际应用的例子吗？</li>
+          <li>这个知识点与其他相关概念有什么联系？</li>
+          <li>如何将这个知识点应用到实际问题解决中？</li>
+        </ol>
+      </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700 text-center animate-on-scroll">
+      <div class="mb-4">
+        <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm text-gray-700 dark:text-gray-300">
+          <i class="fas fa-copyright mr-1"></i> IECUBE Tutorial 2025
+        </span>
+      </div>
+      <p class="text-xs text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+        本内容为人工智能生成，观点为转述原作者，不代表本公司立场，仅供参考和批判
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    // 深色/浅色模式切换
+    const themeToggle = document.getElementById('theme-toggle');
+    
+    // 检查系统首选项和本地存储
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    });
+    
+    // 滚动动画
+    const animateElements = document.querySelectorAll('.animate-on-scroll');
+    
+    function checkScroll() {
+      animateElements.forEach(element => {
+        const elementTop = element.getBoundingClientRect().top;
+        const windowHeight = window.innerHeight;
+        
+        if (elementTop < windowHeight - 100) {
+          element.classList.add('visible');
+        }
+      });
+    }
+    
+    // 初始检查
+    checkScroll();
+    
+    // 滚动时检查
+    window.addEventListener('scroll', checkScroll);
+    
+    // 渲染数学公式
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false}
+        ]
+      });
+    });
+  </script>
+</body>
+</html>

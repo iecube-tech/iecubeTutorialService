@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高频电路 (1-2) | IECUBE教程</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+
+        // 检测系统颜色模式并应用
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen font-sans antialiased">
+    <header class="border-b border-gray-200 dark:border-gray-800 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 sticky top-0 z-50 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-broadcast-tower text-primary-600 dark:text-primary-400 mr-3 text-2xl"></i>
+                    <h1 class="text-xl font-semibold">高频电路教程</h1>
+                </div>
+                <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="animate-fade-in">
+            <div class="mb-10">
+                <h1 class="text-3xl font-bold mb-4 text-primary-700 dark:text-primary-400">高频电路 (1-2)</h1>
+                <div class="h-1 w-20 bg-primary-500 dark:bg-primary-400 rounded-full mb-6"></div>
+                <p class="text-lg text-gray-700 dark:text-gray-300">
+                    高频电路是电子工程中的重要领域，涉及工作频率较高的电子设备设计和分析。本课程将深入介绍高频电路的基本概念、分析方法及应用技术。
+                </p>
+            </div>
+
+            <section class="mb-12">
+                <h2 class="text-2xl font-semibold mb-5 flex items-center">
+                    <i class="fas fa-book-open mr-3 text-primary-600 dark:text-primary-400"></i>
+                    基础概念
+                </h2>
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+                    <h3 class="text-xl font-medium mb-3 text-primary-600 dark:text-primary-400">什么是高频电路？</h3>
+                    <p class="mb-4 text-gray-700 dark:text-gray-300">
+                        高频电路通常指工作频率在1MHz以上的电子电路系统。在这个频率范围内，电路元件的分布参数效应、传输线特性以及电磁辐射等现象变得不可忽略。
+                    </p>
+                    
+                    <h3 class="text-xl font-medium mb-3 text-primary-600 dark:text-primary-400">高频电路的特点</h3>
+                    <ul class="list-disc pl-6 mb-4 space-y-2 text-gray-700 dark:text-gray-300">
+                        <li>分布参数效应明显</li>
+                        <li>传输线理论适用</li>
+                        <li>寄生参数影响显著</li>
+                        <li>电磁辐射和干扰需要考虑</li>
+                        <li>阻抗匹配变得极为重要</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="mb-12">
+                <h2 class="text-2xl font-semibold mb-5 flex items-center">
+                    <i class="fas fa-microchip mr-3 text-primary-600 dark:text-primary-400"></i>
+                    高频电路分析
+                </h2>
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+                    <h3 class="text-xl font-medium mb-3 text-primary-600 dark:text-primary-400">传输线理论</h3>
+                    <p class="mb-4 text-gray-700 dark:text-gray-300">
+                        在高频下，电路连接不再是简单的导线，而应被视为传输线。传输线具有特征阻抗、传播常数等参数，涉及反射系数、驻波比等重要概念。
+                    </p>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mb-4">
+                        <h4 class="font-medium mb-2 text-primary-600 dark:text-primary-400">传输线方程</h4>
+                        <p class="text-gray-700 dark:text-gray-300 font-mono">
+                            ∂V/∂z = -L·∂I/∂t - RI<br>
+                            ∂I/∂z = -C·∂V/∂t - GV
+                        </p>
+                    </div>
+                    
+                    <h3 class="text-xl font-medium mb-3 text-primary-600 dark:text-primary-400">阻抗匹配</h3>
+                    <p class="mb-4 text-gray-700 dark:text-gray-300">
+                        高频系统中，阻抗匹配对信号传输至关重要。不匹配会导致信号反射、功率传输效率降低和驻波现象。
+                    </p>
+                    
+                    <h3 class="text-xl font-medium mb-3 text-primary-600 dark:text-primary-400">史密斯圆图</h3>
+                    <p class="mb-4 text-gray-700 dark:text-gray-300">
+                        史密斯圆图是高频电路设计中的重要工具，用于复阻抗计算、阻抗匹配和传输线问题分析。
+                    </p>
+                </div>
+            </section>
+
+            <section class="mb-12">
+                <h2 class="text-2xl font-semibold mb-5 flex items-center">
+                    <i class="fas fa-broadcast-tower mr-3 text-primary-600 dark:text-primary-400"></i>
+                    高频器件与电路
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-medium mb-3 text-primary-600 dark:text-primary-400">无源元件在高频下的行为</h3>
+                        <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+                            <li>电阻：表现出感抗和杂散电容</li>
+                            <li>电感：自谐振频率、品质因数变化</li>
+                            <li>电容：等效串联电阻和电感影响</li>
+                            <li>变压器：漏感和分布电容影响传输特性</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-medium mb-3 text-primary-600 dark:text-primary-400">高频放大器</h3>
+                        <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+                            <li>高频工作稳定性考量</li>
+                            <li>增益与带宽的权衡</li>
+                            <li>噪声因素和噪声系数</li>
+                            <li>S参数应用</li>
+                            <li>中和技术</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-12">
+                <h2 class="text-2xl font-semibold mb-5 flex items-center">
+                    <i class="fas fa-laptop-code mr-3 text-primary-600 dark:text-primary-400"></i>
+                    高频电路应用领域
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white dark:bg-gray-800 hover:shadow-lg transition-all rounded-lg shadow-md p-5 hover:scale-[1.02] cursor-pointer">
+                        <div class="text-4xl mb-3 text-primary-500 dark:text-primary-400">
+                            <i class="fas fa-wifi"></i>
+                        </div>
+                        <h3 class="font-semibold mb-2">通信系统</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            射频收发器、滤波器、调谐电路、混频器、功率放大器等通信系统核心组件。
+                        </p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 hover:shadow-lg transition-all rounded-lg shadow-md p-5 hover:scale-[1.02] cursor-pointer">
+                        <div class="text-4xl mb-3 text-primary-500 dark:text-primary-400">
+                            <i class="fas fa-satellite-dish"></i>
+                        </div>
+                        <h3 class="font-semibold mb-2">雷达与导航</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            脉冲雷达、多普勒雷达、GPS接收机等复杂系统中的高频电路应用。
+                        </p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 hover:shadow-lg transition-all rounded-lg shadow-md p-5 hover:scale-[1.02] cursor-pointer">
+                        <div class="text-4xl mb-3 text-primary-500 dark:text-primary-400">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                        <h3 class="font-semibold mb-2">测试与仪器</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            频谱分析仪、网络分析仪、信号发生器等高频测量仪器的设计原理。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-12">
+                <h2 class="text-2xl font-semibold mb-5 flex items-center">
+                    <i class="fas fa-tools mr-3 text-primary-600 dark:text-primary-400"></i>
+                    高频电路设计技术
+                </h2>
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-medium mb-3 text-primary-600 dark:text-primary-400">PCB设计考量</h3>
+                            <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+                                <li>受控阻抗布线</li>
+                                <li>微带线与带状线设计</li>
+                                <li>地平面完整性</li>
+                                <li>信号隔离与串扰抑制</li>
+                                <li>材料选择（介电常数、损耗正切）</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-medium mb-3 text-primary-600 dark:text-primary-400">仿真与测试</h3>
+                            <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+                                <li>电磁场仿真工具应用</li>
+                                <li>S参数测量与分析</li>
+                                <li>时域与频域测试方法</li>
+                                <li>噪声测量技术</li>
+                                <li>阻抗测量与匹配验证</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-12">
+                <h2 class="text-2xl font-semibold mb-5 flex items-center">
+                    <i class="fas fa-graduation-cap mr-3 text-primary-600 dark:text-primary-400"></i>
+                    课程重点与学习资源
+                </h2>
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-medium mb-4 text-primary-700 dark:text-primary-300">学习要点</h3>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-600 dark:text-green-400 mt-1 mr-2"></i>
+                            <span class="text-gray-700 dark:text-gray-300">掌握传输线理论基础和应用</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-600 dark:text-green-400 mt-1 mr-2"></i>
+                            <span class="text-gray-700 dark:text-gray-300">熟悉史密斯圆图的使用方法</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-600 dark:text-green-400 mt-1 mr-2"></i>
+                            <span class="text-gray-700 dark:text-gray-300">理解高频元器件特性及其应用</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-600 dark:text-green-400 mt-1 mr-2"></i>
+                            <span class="text-gray-700 dark:text-gray-300">掌握高频放大器设计方法</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-600 dark:text-green-400 mt-1 mr-2"></i>
+                            <span class="text-gray-700 dark:text-gray-300">了解高频电路PCB设计关键技术</span>
+                        </li>
+                    </ul>
+                    
+                    <h3 class="text-xl font-medium mb-4 text-primary-700 dark:text-primary-300">推荐学习资源</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white/50 dark:bg-gray-700/50 p-4 rounded-lg">
+                            <h4 class="font-medium mb-2 text-primary-600 dark:text-primary-400">教材与参考书</h4>
+                            <ul class="text-sm space-y-2 text-gray-700 dark:text-gray-300">
+                                <li>《高频电子电路》 - David M. Pozar</li>
+                                <li>《射频微波电路设计》 - Reinhold Ludwig</li>
+                                <li>《微波工程》 - Thomas Milligan</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white/50 dark:bg-gray-700/50 p-4 rounded-lg">
+                            <h4 class="font-medium mb-2 text-primary-600 dark:text-primary-400">在线资源</h4>
+                            <ul class="text-sm space-y-2 text-gray-700 dark:text-gray-300">
+                                <li>MIT OpenCourseWare - 高频电路课程</li>
+                                <li>RF Cafe - 高频工程设计资源</li>
+                                <li>Microwave101 - 实用高频电路设计指南</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8 mt-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="mb-4">
+                    <i class="fas fa-broadcast-tower text-primary-600 dark:text-primary-400 text-2xl"></i>
+                </div>
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    &copy; IECUBE Tutorial 2025
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+                    本内容为人工智能生成，观点为转述原作者，不代表本公司立场，仅供参考和批判
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 深色模式切换
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        });
+
+        // 滚动动画
+        const animateOnScroll = () => {
+            const elements = document.querySelectorAll('section');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('animate-fade-in');
+                }
+            });
+        };
+
+        window.addEventListener('scroll', animateOnScroll);
+        window.addEventListener('load', animateOnScroll);
+    </script>
+</body>
+</html>

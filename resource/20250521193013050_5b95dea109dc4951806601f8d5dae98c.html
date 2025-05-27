@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通信原理 - 傅里叶变换详解</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js" integrity="sha384-cpW21h6RZv/phavutF+AuVYrr+dA8xD9zs6FwLpaCct6O9ctzYFfFr4dgmgccOTx" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" integrity="sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #3b82f6;
+            --accent-color: #60a5fa;
+            --background-light: #f8fafc;
+            --text-light: #1e293b;
+            --background-dark: #0f172a;
+            --text-dark: #e2e8f0;
+            --card-light: #ffffff;
+            --card-dark: #1e293b;
+            --code-bg-light: #f1f5f9;
+            --code-bg-dark: #334155;
+        }
+        
+        .dark {
+            --bg-color: var(--background-dark);
+            --text-color: var(--text-dark);
+            --card-bg: var(--card-dark);
+            --code-bg: var(--code-bg-dark);
+        }
+        
+        .light {
+            --bg-color: var(--background-light);
+            --text-color: var(--text-light);
+            --card-bg: var(--card-light);
+            --code-bg: var(--code-bg-light);
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .code-block {
+            background-color: var(--code-bg);
+            transition: background-color 0.3s ease;
+        }
+        
+        button {
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 4px;
+        }
+        
+        /* 动画效果 */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 4s infinite;
+        }
+        
+        /* 公式样式 */
+        .katex { 
+            font-size: 1.1em; 
+        }
+        
+        /* 图解区域样式 */
+        .visual-container {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: 0;
+            padding-bottom: 50%;
+        }
+        
+        @media (max-width: 768px) {
+            .visual-container {
+                padding-bottom: 75%;
+            }
+            
+            .katex {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body class="light min-h-screen">
+    <header class="sticky top-0 z-10 bg-opacity-90 backdrop-blur-sm bg-white dark:bg-gray-900 shadow-md transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-broadcast-tower text-blue-600 text-2xl"></i>
+                    <h1 class="text-xl font-bold text-gray-800 dark:text-white">通信原理</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="theme-toggle" class="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <section class="mb-12 fade-in">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-blue-600 mb-4">傅里叶变换详解</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                    傅里叶变换是通信系统分析与设计中的核心数学工具，通过它可以将时域信号转换为频域表示，揭示信号的频率特性。
+                </p>
+            </div>
+        </section>
+
+        <section class="mb-12 fade-in" style="animation-delay: 0.2s">
+            <div class="card rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-2xl font-bold text-blue-600 mb-4">傅里叶变换的本质是什么？</h3>
+                <p class="text-gray-700 dark:text-gray-300 mb-4">
+                    傅里叶变换的核心思想是将任意信号分解为不同频率的正弦和余弦函数（或复指数函数）的加权叠加。这种变换建立了时域与频域之间的桥梁，使我们能够更加深入地理解信号的特性。
+                </p>
+                
+                <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg mb-6">
+                    <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">傅里叶变换对</h4>
+                    <div class="mb-3 overflow-x-auto">
+                        <p class="math">X(f) = \int_{-\infty}^{\infty} x(t) e^{-j2\pi ft} dt</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <p class="math">x(t) = \int_{-\infty}^{\infty} X(f) e^{j2\pi ft} df</p>
+                    </div>
+                </div>
+                
+                <p class="text-gray-700 dark:text-gray-300">
+                    其中，\(x(t)\) 是时域信号，\(X(f)\) 是其频谱，\(e^{-j2\pi ft}\) 是复指数函数，称为变换核。傅里叶变换将时域信号 \(x(t)\) 映射到频域 \(X(f)\)，而傅里叶逆变换则将频域信号映射回时域。
+                </p>
+            </div>
+            
+            <div class="card rounded-xl shadow-lg p-6">
+                <h3 class="text-2xl font-bold text-blue-600 mb-4">傅里叶变换的物理意义</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">
+                            频谱的幅度 \(|X(f)|\) 表示信号在频率 \(f\) 处的能量强度，而相位 \(\angle X(f)\) 表示各频率分量的相对时间关系。
+                        </p>
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">
+                            在通信系统中，傅里叶变换帮助我们：
+                        </p>
+                        <ul class="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-2">
+                            <li>分析信号的带宽需求</li>
+                            <li>设计适当的滤波器</li>
+                            <li>理解调制与解调过程</li>
+                            <li>评估系统中的噪声影响</li>
+                            <li>优化频谱资源利用</li>
+                        </ul>
+                    </div>
+                    <div class="visual-container bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden">
+                        <canvas id="signalCanvas" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12 fade-in" style="animation-delay: 0.4s">
+            <div class="card rounded-xl shadow-lg p-6">
+                <h3 class="text-2xl font-bold text-blue-600 mb-4">常见信号的傅里叶变换</h3>
+                
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">矩形脉冲</h4>
+                            <p class="mb-2">时域表示：</p>
+                            <div class="mb-3">
+                                <p class="math">x(t) = 
+                                \begin{cases} 
+                                A, & |t| \leq \frac{\tau}{2} \\
+                                0, & |t| > \frac{\tau}{2}
+                                \end{cases}
+                                </p>
+                            </div>
+                            <p class="mb-2">频域表示：</p>
+                            <div>
+                                <p class="math">X(f) = A\tau \text{sinc}(f\tau) = A\tau \frac{\sin(\pi f\tau)}{\pi f\tau}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">高斯脉冲</h4>
+                            <p class="mb-2">时域表示：</p>
+                            <div class="mb-3">
+                                <p class="math">x(t) = e^{-\alpha t^2}</p>
+                            </div>
+                            <p class="mb-2">频域表示：</p>
+                            <div>
+                                <p class="math">X(f) = \sqrt{\frac{\pi}{\alpha}}e^{-\frac{\pi^2 f^2}{\alpha}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">正弦信号</h4>
+                            <p class="mb-2">时域表示：</p>
+                            <div class="mb-3">
+                                <p class="math">x(t) = \cos(2\pi f_0 t)</p>
+                            </div>
+                            <p class="mb-2">频域表示：</p>
+                            <div>
+                                <p class="math">X(f) = \frac{1}{2}[\delta(f-f_0) + \delta(f+f_0)]</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">冲激函数</h4>
+                            <p class="mb-2">时域表示：</p>
+                            <div class="mb-3">
+                                <p class="math">x(t) = \delta(t)</p>
+                            </div>
+                            <p class="mb-2">频域表示：</p>
+                            <div>
+                                <p class="math">X(f) = 1</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8">
+                    <div class="flex justify-center">
+                        <div class="w-full md:w-3/4">
+                            <canvas id="transformPairsChart" class="w-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12 fade-in" style="animation-delay: 0.6s">
+            <div class="card rounded-xl shadow-lg p-6">
+                <h3 class="text-2xl font-bold text-blue-600 mb-4">傅里叶变换的性质</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg">
+                        <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">线性性质</h4>
+                        <p class="mb-2">如果</p>
+                        <div class="mb-2">
+                            <p class="math">x_1(t) \Leftrightarrow X_1(f)</p>
+                        </div>
+                        <div class="mb-2">
+                            <p class="math">x_2(t) \Leftrightarrow X_2(f)</p>
+                        </div>
+                        <p class="mb-2">那么</p>
+                        <div>
+                            <p class="math">ax_1(t) + bx_2(t) \Leftrightarrow aX_1(f) + bX_2(f)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg">
+                        <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">时移性质</h4>
+                        <p class="mb-2">如果</p>
+                        <div class="mb-2">
+                            <p class="math">x(t) \Leftrightarrow X(f)</p>
+                        </div>
+                        <p class="mb-2">那么</p>
+                        <div>
+                            <p class="math">x(t-t_0) \Leftrightarrow X(f)e^{-j2\pi ft_0}</p>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">时域中的延时对应于频域中的相位旋转</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg">
+                        <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">频移性质</h4>
+                        <p class="mb-2">如果</p>
+                        <div class="mb-2">
+                            <p class="math">x(t) \Leftrightarrow X(f)</p>
+                        </div>
+                        <p class="mb-2">那么</p>
+                        <div>
+                            <p class="math">x(t)e^{j2\pi f_0t} \Leftrightarrow X(f-f_0)</p>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">时域中的复指数调制对应于频域中的频移</p>
+                    </div>
+                    
+                    <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg">
+                        <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">尺度变换</h4>
+                        <p class="mb-2">如果</p>
+                        <div class="mb-2">
+                            <p class="math">x(t) \Leftrightarrow X(f)</p>
+                        </div>
+                        <p class="mb-2">那么</p>
+                        <div>
+                            <p class="math">x(at) \Leftrightarrow \frac{1}{|a|}X(\frac{f}{a})</p>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">时域压缩导致频域扩展，反之亦然</p>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg mt-6">
+                    <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">卷积定理</h4>
+                    <p class="mb-2">时域卷积对应频域相乘：</p>
+                    <div class="mb-3">
+                        <p class="math">x_1(t) * x_2(t) \Leftrightarrow X_1(f) \cdot X_2(f)</p>
+                    </div>
+                    <p class="mb-2">频域卷积对应时域相乘：</p>
+                    <div>
+                        <p class="math">x_1(t) \cdot x_2(t) \Leftrightarrow X_1(f) * X_2(f)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12 fade-in" style="animation-delay: 0.8s">
+            <div class="card rounded-xl shadow-lg p-6">
+                <h3 class="text-2xl font-bold text-blue-600 mb-4">数字实现：Python代码</h3>
+                
+                <div class="code-block bg-gray-100 dark:bg-gray-800 overflow-x-auto rounded-lg p-4 mb-6">
+                    <pre><code class="language-python text-sm">import numpy as np
+import matplotlib.pyplot as plt
+from scipy.fft import fft, fftshift
+
+def plot_time_freq(x, fs, title):
+    """
+    绘制时域和频域图
+    x: 时域信号
+    fs: 采样率
+    title: 图表标题
+    """
+    N = len(x)
+    # 时域
+    t = np.arange(N) / fs
+    plt.figure(figsize=(12, 6))
+    
+    plt.subplot(2, 1, 1)
+    plt.plot(t, x)
+    plt.title(f"{title} - 时域")
+    plt.xlabel('时间 (秒)')
+    plt.ylabel('幅度')
+    plt.grid(True)
+    
+    # 频域
+    X = fftshift(fft(x))
+    freq = np.linspace(-fs/2, fs/2, N)
+    
+    plt.subplot(2, 1, 2)
+    plt.plot(freq, np.abs(X)/N)
+    plt.title(f"{title} - 频域")
+    plt.xlabel('频率 (Hz)')
+    plt.ylabel('幅度')
+    plt.grid(True)
+    
+    plt.tight_layout()
+    plt.show()
+
+# 生成示例信号
+fs = 1000  # 采样率1000Hz
+t = np.arange(0, 1, 1/fs)  # 1秒时间
+
+# 示例1：正弦信号
+f1 = 50  # 50Hz正弦
+x1 = np.sin(2 * np.pi * f1 * t)
+plot_time_freq(x1, fs, "50Hz正弦信号")
+
+# 示例2：矩形脉冲
+width = 0.1  # 脉冲宽度为0.1秒
+x2 = np.zeros_like(t)
+x2[t < width] = 1.0
+plot_time_freq(x2, fs, "矩形脉冲")
+
+# 示例3：调制信号
+f_carrier = 100  # 100Hz载波
+f_message = 10   # 10Hz信息信号
+x3 = np.sin(2 * np.pi * f_message * t) * np.sin(2 * np.pi * f_carrier * t)
+plot_time_freq(x3, fs, "调幅信号")</code></pre>
+                </div>
+                
+                <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-3">代码解释</h4>
+                <p class="text-gray-700 dark:text-gray-300 mb-4">
+                    上述Python代码使用NumPy、Matplotlib和SciPy库来生成信号并计算其傅里叶变换。主要步骤包括：
+                </p>
+                <ol class="list-decimal pl-5 text-gray-700 dark:text-gray-300 space-y-2 mb-6">
+                    <li>使用NumPy生成时域信号（正弦、矩形脉冲和调制信号）</li>
+                    <li>应用SciPy的fft函数计算快速傅里叶变换</li>
+                    <li>使用fftshift函数将零频率分量移至中心</li>
+                    <li>绘制时域和频域表示图</li>
+                </ol>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-3">示例结果可视化</h4>
+                        <canvas id="exampleVisualization" class="w-full border border-gray-200 dark:border-gray-700 rounded-lg"></canvas>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-3">关键点分析</h4>
+                        <ul class="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-2">
+                            <li>正弦信号的频谱是在对应频率处的两个冲激函数</li>
+                            <li>矩形脉冲的频谱是sinc函数，脉冲越窄，频带越宽</li>
+                            <li>调幅信号的频谱展示了载波频率附近的上下边带</li>
+                            <li>采样率决定了可观察的最高频率（奈奎斯特频率为fs/2）</li>
+                            <li>窗口函数（此处未使用）可以改善频谱泄漏问题</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="mb-12 fade-in" style="animation-delay: 1s">
+            <div class="card rounded-xl shadow-lg p-6">
+                <h3 class="text-2xl font-bold text-blue-600 mb-4">通信系统中的应用</h3>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg">
+                        <div class="flex justify-center items-center mb-4">
+                            <i class="fas fa-filter text-4xl text-blue-600"></i>
+                        </div>
+                        <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2 text-center">滤波设计</h4>
+                        <p class="text-gray-700 dark:text-gray-300 text-center">
+                            傅里叶变换使我们能够在频域设计滤波器，通过频域乘积实现滤波操作，如带通滤波、低通滤波和高通滤波。
+                        </p>
+                    </div>
+                    
+                    <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg">
+                        <div class="flex justify-center items-center mb-4">
+                            <i class="fas fa-wave-square text-4xl text-blue-600"></i>
+                        </div>
+                        <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2 text-center">调制解调</h4>
+                        <p class="text-gray-700 dark:text-gray-300 text-center">
+                            调制过程可以用频移性质解释，而解调过程则可以用傅里叶变换分析信号的频谱来恢复原始信息。
+                        </p>
+                    </div>
+                    
+                    <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg">
+                        <div class="flex justify-center items-center mb-4">
+                            <i class="fas fa-signal text-4xl text-blue-600"></i>
+                        </div>
+                        <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2 text-center">频谱分析</h4>
+                        <p class="text-gray-700 dark:text-gray-300 text-center">
+                            频谱分析器使用傅里叶变换将接收到的时域信号转换为频域信息，便于干扰识别和信号解析。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-4">案例研究：数字通信中的频谱效率</h4>
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                        <canvas id="modulationComparison" class="w-full h-64"></canvas>
+                    </div>
+                    <p class="mt-4 text-gray-700 dark:text-gray-300">
+                        上图展示了不同调制方案的频谱效率比较。高阶调制（如64-QAM）虽然在相同带宽下可传输更多信息，但对信噪比要求更高。傅里叶变换使我们能够分析这些权衡，并根据通信系统需求选择合适的方案。
+                    </p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="fade-in" style="animation-delay: 1.2s">
+            <div class="card rounded-xl shadow-lg p-6">
+                <h3 class="text-2xl font-bold text-blue-600 mb-4">思考问题</h3>
+                <div class="space-y-4 text-gray-700 dark:text-gray-300">
+                    <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg">
+                        <p class="font-semibold">1. 为什么在信号带限但时限的情况下，理论上不可能同时实现时域和频域的完美限制？</p>
+                        <p class="mt-2 text-sm italic">提示：思考时域和频域之间的不确定性原理，以及矩形脉冲的频谱特性。</p>
+                    </div>
+                    
+                    <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg">
+                        <p class="font-semibold">2. LTI系统的脉冲响应与其频率响应之间有什么关系？这如何帮助我们分析通信信道？</p>
+                        <p class="mt-2 text-sm italic">提示：考虑傅里叶变换的性质，尤其是卷积定理。</p>
+                    </div>
+                    
+                    <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-lg">
+                        <p class="font-semibold">3. 在采样定理中，为什么必须以不低于信号最高频率两倍的速率进行采样？如果采样率不足会发生什么？</p>
+                        <p class="mt-2 text-sm italic">提示：分析欠采样情况下的频谱重叠（混叠）现象。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-100 dark:bg-gray-900 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="border-t border-gray-200 dark:border-gray-800 pt-6">
+                <p class="text-center text-gray-500 dark:text-gray-400 text-sm">
+                    © IECUBE Tutorial 2025
+                </p>
+                <p class="text-center text-gray-400 dark:text-gray-500 text-xs mt-2">
+                    本内容为人工智能生成，观点为转述原作者，不代表本公司立场，仅供参考和批判
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 主题切换
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const htmlElement = document.documentElement;
+            
+            // 检查系统偏好
+            const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // 初始化主题
+            if (prefersDarkMode) {
+                htmlElement.classList.remove('light');
+                htmlElement.classList.add('dark');
+                document.body.classList.remove('light');
+                document.body.classList.add('dark');
+            }
+            
+            // 切换主题
+            themeToggle.addEventListener('click', () => {
+                htmlElement.classList.toggle('dark');
+                htmlElement.classList.toggle('light');
+                document.body.classList.toggle('dark');
+                document.body.classList.toggle('light');
+            });
+            
+            // 渲染数学公式
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true},
+                    {left: "\\begin{equation}", right: "\\end{equation}", display: true},
+                ]
+            });
+            
+            // 淡入动画
+            const fadeElements = document.querySelectorAll('.fade-in');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            fadeElements.forEach(el => {
+                el.style.opacity = 0;
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+            
+            // 初始化图表
+            initializeCharts();
+        });
+        
+        function initializeCharts() {
+            // 时域频域动态展示
+            const signalCanvas = document.getElementById('signalCanvas');
+            if (signalCanvas) {
+                const signalChart = new Chart(signalCanvas, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({ length: 100 }, (_, i) => i / 100),
+                        datasets: [
+                            {
+                                label: '时域信号',
+                                data: Array.from({ length: 100 }, (_, i) => Math.sin(2 * Math.PI * 3 * i / 100)),
+                                borderColor: 'rgb(75, 192, 192)',
+                                borderWidth: 2,
+                                fill: false,
+                                tension: 0.1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 2000,
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: '信号可视化'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '时间 (s)'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '幅度'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 动态更新数据
+                let phase = 0;
+                setInterval(() => {
+                    phase += 0.1;
+                    signalChart.data.datasets[0].data = Array.from(
+                        { length: 100 }, 
+                        (_, i) => Math.sin(2 * Math.PI * 3 * (i / 100) + phase)
+                    );
+                    signalChart.update();
+                }, 100);
+            }
+            
+            // 变换对图表
+            const transformPairsChart = document.getElementById('transformPairsChart');
+            if (transformPairsChart) {
+                new Chart(transformPairsChart, {
+                    type: 'bar',
+                    data: {
+                        labels: ['矩形脉冲', '高斯脉冲', '正弦信号', '冲激函数'],
+                        datasets: [
+                            {
+                                label: '频带宽度',
+                                data: [3.5, 2.1, 0.1, 10],
+                                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                borderColor: 'rgb(54, 162, 235)',
+                                borderWidth: 1,
+                            },
+                            {
+                                label: '时域宽度',
+                                data: [1, 1.5, 5, 0.1],
+                                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                                borderColor: 'rgb(255, 99, 132)',
+                                borderWidth: 1,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '时域宽度与频带宽度的关系'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: function(context) {
+                                        const descriptions = [
+                                            '矩形脉冲：时域短脉冲对应宽频带',
+                                            '高斯脉冲：时频分布最优',
+                                            '正弦信号：时域无限延伸，频域为单一频点',
+                                            '冲激函数：时域极窄，频域完全平坦'
+                                        ];
+                                        return descriptions[context.dataIndex];
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '相对宽度（归一化）'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 示例可视化
+            const exampleVisualization = document.getElementById('exampleVisualization');
+            if (exampleVisualization) {
+                const ctx = exampleVisualization.getContext('2d');
+                
+                // 生成示例数据
+                const fs = 1000;
+                const t = Array.from({ length: 1000 }, (_, i) => i / fs);
+                const f1 = 50;
+                const x1 = t.map(t => Math.sin(2 * Math.PI * f1 * t));
+                
+                // 计算FFT（模拟）
+                const freq = Array.from({ length: 1000 }, (_, i) => (i < 500 ? i : i - 1000) * fs / 1000);
+                const X1 = Array(1000).fill(0);
+                X1[50] = 500;
+                X1[950] = 500;
+                
+                new Chart(exampleVisualization, {
+                    type: 'line',
+                    data: {
+                        datasets: [
+                            {
+                                label: '时域信号',
+                                data: t.slice(0, 200).map((t, i) => ({ x: t, y: x1[i] })),
+                                borderColor: 'rgb(75, 192, 192)',
+                                borderWidth: 2,
+                                fill: false,
+                                tension: 0,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: '频域信号',
+                                data: freq.map((f, i) => ({ x: f, y: X1[i] / 1000 })),
+                                borderColor: 'rgb(255, 99, 132)',
+                                borderWidth: 2,
+                                fill: false,
+                                tension: 0,
+                                yAxisID: 'y1',
+                                hidden: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '点击图例切换时域/频域显示'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                title: {
+                                    display: true,
+                                    text: '时间(s)/频率(Hz)'
+                                }
+                            },
+                            y: {
+                                type: 'linear',
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: '振幅'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: '频谱幅度'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 调制方案比较图表
+            const modulationComparison = document.getElementById('modulationComparison');
+            if (modulationComparison) {
+                new Chart(modulationComparison, {
+                    type: 'bar',
+                    data: {
+                        labels: ['BPSK', 'QPSK', '16-QAM', '64-QAM', '256-QAM'],
+                        datasets: [
+                            {
+                                label: '频谱效率 (bit/s/Hz)',
+                                data: [1, 2, 4, 6, 8],
+                                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                borderColor: 'rgb(54, 162, 235)',
+                                borderWidth: 1,
+                            },
+                            {
+                                label: '所需SNR (dB)',
+                                data: [4, 7, 14, 20, 26],
+                                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                                borderColor: 'rgb(255, 99, 132)',
+                                borderWidth: 1,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '不同调制方式的频谱效率与所需SNR比较'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '频谱效率 (bit/s/Hz)'
+                                }
+                            },
+                            y1: {
+                                beginAtZero: true,
+                                position: 'right',
+                                grid: {
+                                    drawOnChartArea: false,
+                                },
+                                title: {
+                                    display: true,
+                                    text: '所需SNR (dB)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高频电路 - 基础知识</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+
+        // 监听系统深色模式变化
+        function updateTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark')
+            } else {
+                document.documentElement.classList.remove('dark')
+            }
+        }
+
+        // 初始化时检查深色模式
+        document.addEventListener('DOMContentLoaded', updateTheme);
+        
+        // 切换深色/浅色模式
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.theme = 'light';
+                document.documentElement.classList.remove('dark');
+            } else {
+                localStorage.theme = 'dark';
+                document.documentElement.classList.add('dark');
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        .concept-card {
+            transition: all 0.3s ease;
+        }
+        
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* 平滑滚动效果 */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* 加载图片时的占位 */
+        img {
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+        
+        img.loaded {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+    <!-- 导航栏 -->
+    <nav class="sticky top-0 z-50 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-wave-square text-primary-600 dark:text-primary-400 text-2xl mr-2"></i>
+                        <span class="font-bold text-xl">高频电路教程</span>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-md text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区块 -->
+    <header class="bg-gradient-to-r from-primary-600 to-blue-700 dark:from-primary-800 dark:to-blue-900 py-16 md:py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
+            <div class="text-center">
+                <h1 class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl">
+                    高频电路
+                </h1>
+                <p class="mt-3 max-w-md mx-auto text-base text-white opacity-90 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                    探索电子信号在高频条件下的特性与应用技术
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <!-- 介绍部分 -->
+        <section class="mb-16 fade-in" style="animation-delay: 0.1s">
+            <div class="prose dark:prose-invert max-w-none">
+                <h2 class="text-3xl font-bold mb-6 text-primary-700 dark:text-primary-400">高频电路概述</h2>
+                <p class="mb-4">高频电路是指工作频率在数百千赫兹以上的电子电路。在高频状态下，电路中的分布参数不可忽略，电路的行为特性与低频电路有显著差异。</p>
+                <p class="mb-4">高频电路广泛应用于通信系统、雷达、医疗电子、广播电视等领域，是现代电子技术的重要分支。</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-200">高频电路的特点</h3>
+                        <ul class="list-disc pl-6 space-y-2">
+                            <li>分布参数显著，不能简单地用集中参数表示</li>
+                            <li>线路上的电磁场传播表现为波动形式</li>
+                            <li>辐射效应增强，可能产生电磁干扰</li>
+                            <li>趋肤效应和邻近效应明显</li>
+                            <li>元器件的频率特性和寄生参数显著影响电路性能</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-200">高频电路的应用领域</h3>
+                        <ul class="list-disc pl-6 space-y-2">
+                            <li>无线通信系统（移动通信、卫星通信）</li>
+                            <li>雷达系统与微波传感</li>
+                            <li>射频识别技术（RFID）</li>
+                            <li>广播电视发射与接收</li>
+                            <li>医疗电子设备（如MRI、超声成像）</li>
+                            <li>高频测量与实验设备</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 高频电路基础知识 -->
+        <section class="mb-16 fade-in" style="animation-delay: 0.2s">
+            <h2 class="text-3xl font-bold mb-8 text-primary-700 dark:text-primary-400">高频电路基础知识</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 基础概念卡片1 -->
+                <div class="concept-card bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+                    <div class="p-5">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 dark:bg-primary-600 text-white mb-4">
+                            <i class="fas fa-wave-square"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">趋肤效应</h3>
+                        <p class="text-gray-600 dark:text-gray-400">高频交流电流倾向于在导体表面流动，而不是均匀分布于导体截面。频率越高，电流集中在表面的程度越明显，有效导体截面积减小，导致电阻增加。</p>
+                    </div>
+                </div>
+                
+                <!-- 基础概念卡片2 -->
+                <div class="concept-card bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+                    <div class="p-5">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 dark:bg-primary-600 text-white mb-4">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">分布参数</h3>
+                        <p class="text-gray-600 dark:text-gray-400">高频电路中，电感、电容等参数在物理空间中是分布的，而非集中在某一点。传输线理论需要考虑电路中每一段微小部分的电感、电容、电阻和电导。</p>
+                    </div>
+                </div>
+                
+                <!-- 基础概念卡片3 -->
+                <div class="concept-card bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+                    <div class="p-5">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 dark:bg-primary-600 text-white mb-4">
+                            <i class="fas fa-broadcast-tower"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">电磁辐射</h3>
+                        <p class="text-gray-600 dark:text-gray-400">高频电路中的电流会产生变化的磁场，进而产生电磁波向空间辐射能量。这种特性在天线设计中被充分利用，但也可能导致电路间的干扰。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 高频传输线 -->
+        <section class="mb-16 fade-in" style="animation-delay: 0.3s">
+            <h2 class="text-3xl font-bold mb-6 text-primary-700 dark:text-primary-400">高频传输线</h2>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 border border-gray-200 dark:border-gray-700">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">传输线基本概念</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">传输线是将电能从一点传输到另一点的导体系统。在高频条件下，传输线不能简单地视为理想导线，需要考虑其分布参数特性。</p>
+                
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-lg font-medium mb-2 text-gray-700 dark:text-gray-300">常见的传输线类型</h4>
+                        <ul class="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-400">
+                            <li>双绞线 - 由两根绝缘导线绞合而成</li>
+                            <li>同轴电缆 - 由中心导体和外层屏蔽导体组成</li>
+                            <li>微带线 - 印刷电路板上的一种传输线</li>
+                            <li>带状线 - 在两个接地平面之间的扁平导体</li>
+                            <li>波导 - 用于传输微波频率的金属管道</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium mb-2 text-gray-700 dark:text-gray-300">传输线特性参数</h4>
+                        <ul class="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-400">
+                            <li>特性阻抗（Z₀）- 无限长传输线上的阻抗</li>
+                            <li>传播常数 - 描述波沿线传播的衰减和相移</li>
+                            <li>波长 - 电磁波在传输线中的波长</li>
+                            <li>传播速度 - 电磁波在传输线中的传播速度</li>
+                            <li>驻波比（SWR）- 衡量阻抗匹配程度</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">传输线方程</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">传输线上的电压和电流可以用电报方程描述：</p>
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md overflow-x-auto">
+                        <pre class="text-sm text-gray-800 dark:text-gray-300">
+∂V/∂z = -(R + jωL)I
+∂I/∂z = -(G + jωC)V
+                        </pre>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 mt-4">其中V和I分别是传输线上的电压和电流，R是单位长度电阻，L是单位长度电感，G是单位长度电导，C是单位长度电容。</p>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">驻波与反射</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">当传输线末端连接负载阻抗与传输线特性阻抗不匹配时，会产生反射波，入射波和反射波的叠加形成驻波。</p>
+                    <h4 class="text-lg font-medium mb-2 text-gray-700 dark:text-gray-300">反射系数定义</h4>
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md overflow-x-auto">
+                        <pre class="text-sm text-gray-800 dark:text-gray-300">
+Γ = (Z_L - Z₀)/(Z_L + Z₀)
+                        </pre>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 mt-4">其中Z_L是负载阻抗，Z₀是传输线特性阻抗。反射系数的大小表示了反射波与入射波幅度之比。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 高频电路设计 -->
+        <section class="mb-16 fade-in" style="animation-delay: 0.4s">
+            <h2 class="text-3xl font-bold mb-6 text-primary-700 dark:text-primary-400">高频电路设计考虑</h2>
+            
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-750 rounded-lg p-6 mb-8 border border-blue-100 dark:border-gray-700">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">高频电路设计原则</h3>
+                <p class="text-gray-700 dark:text-gray-300 mb-4">在高频电路设计中，需要特别注意以下几个方面：</p>
+                
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 h-6 w-6 text-primary-600 dark:text-primary-400">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-lg font-medium text-gray-700 dark:text-gray-300">阻抗匹配</h4>
+                            <p class="text-gray-600 dark:text-gray-400">确保信号源、传输线和负载之间的阻抗匹配，以最大限度地传输功率并减少反射。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 h-6 w-6 text-primary-600 dark:text-primary-400">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-lg font-medium text-gray-700 dark:text-gray-300">电路布局</h4>
+                            <p class="text-gray-600 dark:text-gray-400">减小信号路径长度，避免尖角和突变，合理安排接地点和屏蔽措施。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 h-6 w-6 text-primary-600 dark:text-primary-400">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-lg font-medium text-gray-700 dark:text-gray-300">元器件选择</h4>
+                            <p class="text-gray-600 dark:text-gray-400">选择适用于高频的专用元器件，考虑元器件在高频下的寄生参数。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 h-6 w-6 text-primary-600 dark:text-primary-400">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-lg font-medium text-gray-700 dark:text-gray-300">电磁兼容性</h4>
+                            <p class="text-gray-600 dark:text-gray-400">考虑电路的辐射特性和抗干扰能力，采取适当的屏蔽和滤波措施。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">阻抗匹配技术</h3>
+                    <ul class="list-disc pl-6 space-y-3 text-gray-600 dark:text-gray-400">
+                        <li>L型匹配网络 - 使用一个电感和一个电容</li>
+                        <li>π型匹配网络 - 适用于较宽的阻抗变换范围</li>
+                        <li>T型匹配网络 - 适合某些特定应用场景</li>
+                        <li>1/4波长传输线变换器 - 利用传输线特性进行阻抗变换</li>
+                        <li>史密斯圆图 - 图形化工具，辅助阻抗匹配设计</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">高频PCB设计注意事项</h3>
+                    <ul class="list-disc pl-6 space-y-3 text-gray-600 dark:text-gray-400">
+                        <li>选择合适的PCB基板材料（如FR-4、Rogers等）</li>
+                        <li>控制传输线的宽度和间距以维持特性阻抗</li>
+                        <li>避免信号线上的急剧转弯（使用45°或圆弧转角）</li>
+                        <li>合理设计接地平面和通孔</li>
+                        <li>考虑高频信号线的串扰和耦合</li>
+                        <li>在关键信号路径附近避免开槽或断裂接地平面</li>
+                        <li>高频元器件布局紧凑，缩短连接线长度</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 高频测量技术 -->
+        <section class="fade-in" style="animation-delay: 0.5s">
+            <h2 class="text-3xl font-bold mb-6 text-primary-700 dark:text-primary-400">高频测量与分析</h2>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 border border-gray-200 dark:border-gray-700">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">高频测量仪器</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-lg">
+                        <h4 class="font-medium mb-2 text-gray-700 dark:text-gray-300">网络分析仪</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">测量高频网络的反射和传输特性，如S参数、阻抗、增益等。</p>
+                    </div>
+                    
+                    <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-lg">
+                        <h4 class="font-medium mb-2 text-gray-700 dark:text-gray-300">频谱分析仪</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">测量信号的频谱成分，分析谐波、噪声和干扰。</p>
+                    </div>
+                    
+                    <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-lg">
+                        <h4 class="font-medium mb-2 text-gray-700 dark:text-gray-300">示波器</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">高带宽示波器可用于观察高频信号的时域波形。</p>
+                    </div>
+                    
+                    <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-lg">
+                        <h4 class="font-medium mb-2 text-gray-700 dark:text-gray-300">信号发生器</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">产生各种波形和调制的高频测试信号。</p>
+                    </div>
+                    
+                    <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-lg">
+                        <h4 class="font-medium mb-2 text-gray-700 dark:text-gray-300">功率计</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">测量高频电路中的功率传输和功率损耗。</p>
+                    </div>
+                    
+                    <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-lg">
+                        <h4 class="font-medium mb-2 text-gray-700 dark:text-gray-300">阻抗分析仪</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">专门测量元器件和电路在不同频率下的阻抗特性。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">S参数分析</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">散射参数（Scattering parameters，简称S参数）是描述高频网络特性的重要参数，特别适用于不方便测量电压和电流的高频电路。</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-lg font-medium mb-3 text-gray-700 dark:text-gray-300">双端口网络的S参数</h4>
+                        <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md overflow-x-auto">
+                            <pre class="text-sm text-gray-800 dark:text-gray-300">
+[b₁]   [S₁₁ S₁₂] [a₁]
+[b₂] = [S₂₁ S₂₂] [a₂]
+                            </pre>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
+                            其中：<br>
+                            S₁₁ - 输入反射系数<br>
+                            S₁₂ - 逆向传输系数<br>
+                            S₂₁ - 正向传输系数<br>
+                            S₂₂ - 输出反射系数<br>
+                            a₁,a₂ - 入射波<br>
+                            b₁,b₂ - 反射波
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-medium mb-3 text-gray-700 dark:text-gray-300">S参数的物理意义</h4>
+                        <ul class="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-400">
+                            <li>|S₁₁|² - 从端口1反射回来的功率与入射功率的比值</li>
+                            <li>|S₂₁|² - 从端口1传输到端口2的功率与入射功率的比值</li>
+                            <li>|S₂₂|² - 从端口2反射回来的功率与入射功率的比值</li>
+                            <li>|S₁₂|² - 从端口2传输到端口1的功率与入射功率的比值</li>
+                        </ul>
+                        <p class="text-gray-600 dark:text-gray-400 mt-4">S参数通常通过网络分析仪测量，是设计和评估高频电路性能的关键工具。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <p class="text-gray-600 dark:text-gray-400 text-sm">© IECUBE Tutorial 2025</p>
+                <p class="text-gray-500 dark:text-gray-500 text-xs mt-2">本内容为人工智能生成，观点为转述原作者，不代表本公司立场，仅供参考和批判</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 图片加载完成后显示
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                if (img.complete) {
+                    img.classList.add('loaded');
+                } else {
+                    img.addEventListener('load', function() {
+                        this.classList.add('loaded');
+                    });
+                }
+            });
+        });
+        
+        // 滚动触发动画
+        const fadeElements = document.querySelectorAll('.fade-in');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        fadeElements.forEach(el => {
+            el.style.opacity = 0;
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
