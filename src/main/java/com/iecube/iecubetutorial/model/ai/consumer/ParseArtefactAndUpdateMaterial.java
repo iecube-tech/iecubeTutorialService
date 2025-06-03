@@ -36,6 +36,7 @@ public class ParseArtefactAndUpdateMaterial implements Runnable {
         while(true){
             try{
                 ParseArtefactDto parseArtefactDto = NewParseTask.take();
+                log.info("parse artefactId 任务：{}",parseArtefactDto);
                 handelParseArtefactDto(parseArtefactDto);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -45,6 +46,11 @@ public class ParseArtefactAndUpdateMaterial implements Runnable {
 
     public void handelParseArtefactDto(ParseArtefactDto parseArtefactDto) {
         MaterialEntity material = materialService.getMaterial(parseArtefactDto.getMaterialId());
+        if(material == null){
+            log.warn("根据{}获取的material为null， 任务失败",parseArtefactDto.getMaterialId());
+            return;
+        }
+        log.info("material: {},{},{},{} ", material.getId(),material.getUserId(), material.getName(),material.getTitle());
         if(!parseArtefactDto.getStatus().equals(MaterialStatus.FAILED.getStatus())){
             String content;
             try{

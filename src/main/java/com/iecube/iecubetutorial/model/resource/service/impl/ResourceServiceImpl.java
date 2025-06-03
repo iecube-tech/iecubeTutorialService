@@ -67,6 +67,7 @@ public class ResourceServiceImpl implements ResourceService {
             resource.setType("text/html");
             resource.setMd5(md5);
             resource.setCreateTime(new Date());
+            log.info("文件处理成功：{}", fileName);
             return resource;
         } catch (IOException | NoSuchAlgorithmException e) {
             log.error("处理文件失败：{},{}",fileName,e.getMessage());

@@ -85,12 +85,12 @@ public class MaterialServiceImpl implements MaterialService {
         // todo 和 生产消费者模型 w6建立websocket连接，处理生成任务  连接之后 material.setStatus(MaterialStatus.GENERATING.getStatus()); 更新状态
         try {
             NewConnectTask.put(materialChat);
-            log.info("创建W6任务：{}",chatId);
+            log.info("创建W6任务：交由w6-connect处理：{}",chatId);
         } catch (InterruptedException e) {
             throw new FailedToCreateTaskException(e.getMessage());
         }
 
-        // 调用ai
+        // 调用agent
         w6ApiService.usePageMaker(chatId, materialQo.getTitle(), materialQo.getKnowledgePoints(), instruction);
     }
 
@@ -125,9 +125,7 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public void handelUpload(MaterialEntity materialEntity) {
-//        log.error("materialEntity status:{}", materialEntity.getStatus());
         if(materialEntity.getStatus().equals(MaterialStatus.DONE.getStatus())){
-//            log.error("ohaaaaaaaaahhhhahahahah");
             Resource resource = resourceService.writeHtmlToFile(materialEntity.getHtml());
             Resource nRe =  resourceService.saveResource(resource);
             materialEntity.setResource(nRe.getId());

@@ -134,11 +134,11 @@ public class W6ApiServiceImpl implements W6ApiService {
                 log.info("获取ai message json格式 {}", artefactId);
                 return checkResult.getBodyData();
             }else {
-                log.warn("获取ai message json格式 {}", artefactId);
+                log.warn("获取ai message json格式 WARNING {}", artefactId);
                 throw new AiAPiResponseException("访问AI资源失败："+checkResult.getErrorReason());
             }
         }catch (Exception e){
-            log.error("获取ai message json格式 {}", artefactId);
+            log.error("获取ai message json格式 ERROR {}", artefactId);
             throw new AiAPiResponseException("访问AI资源失败："+e.getMessage());
         }
     }

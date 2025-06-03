@@ -35,5 +35,6 @@ build/
 
 ### resource ###
 ./resource/
+/resource
 ### application ###
 src/main/resources/application.yaml

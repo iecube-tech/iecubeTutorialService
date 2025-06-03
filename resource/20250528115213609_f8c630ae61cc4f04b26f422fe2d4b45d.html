@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高等数学：求极值</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .katex-display {
+            margin: 1em 0;
+        }
+        
+        .hover-scale {
+            transition: transform 0.2s ease-in-out;
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+        
+        .dark .bg-gradient-to-br {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+        
+        .animation-canvas {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        
+        .dark .animation-canvas {
+            border-color: #374151;
+        }
+        
+        .interactive-button {
+            transition: all 0.3s ease;
+        }
+        
+        .interactive-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .dark .interactive-button:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 min-h-screen transition-colors duration-300">
+    <!-- 暗黑模式切换按钮 -->
+    <button id="theme-toggle" class="fixed top-4 right-4 z-50 p-3 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300 hover-scale">
+        <i class="fas fa-moon dark:hidden text-gray-600"></i>
+        <i class="fas fa-sun hidden dark:block text-yellow-500"></i>
+    </button>
+
+    <!-- 主内容容器 -->
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- 页面标题 -->
+        <header class="text-center mb-12 fade-in">
+            <h1 class="text-4xl md:text-6xl font-bold text-gray-800 dark:text-white mb-4">
+                <i class="fas fa-chart-line text-blue-600 mr-4"></i>
+                函数的极值
+            </h1>
+            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                探索函数的极大值和极小值，理解导数在求极值中的重要作用
+            </p>
+        </header>
+
+        <!-- 核心概念卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 fade-in hover-scale">
+                <div class="text-center">
+                    <i class="fas fa-mountain text-4xl text-green-500 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">极大值</h3>
+                    <p class="text-gray-600 dark:text-gray-300">函数在某点的值大于其邻域内所有其他点的值</p>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 fade-in hover-scale">
+                <div class="text-center">
+                    <i class="fas fa-valley text-4xl text-red-500 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">极小值</h3>
+                    <p class="text-gray-600 dark:text-gray-300">函数在某点的值小于其邻域内所有其他点的值</p>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 fade-in hover-scale">
+                <div class="text-center">
+                    <i class="fas fa-search text-4xl text-purple-500 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">驻点</h3>
+                    <p class="text-gray-600 dark:text-gray-300">导数等于零或不存在的点，是极值的候选点</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 核心知识点 -->
+        <section class="bg-white dark:bg-gray-800 rounded-xl p-8 mb-12 shadow-lg fade-in">
+            <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-6">
+                <i class="fas fa-question-circle text-blue-600 mr-3"></i>
+                如何求解函数的极值？
+            </h2>
+            
+            <div class="space-y-6">
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">费马引理</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">
+                        如果函数 f(x) 在点 x₀ 处可导且取得极值，则必有 f'(x₀) = 0。
+                    </p>
+                    <div class="katex-display text-center">
+                        f'(x_0) = 0
+                    </div>
+                </div>
+
+                <div class="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">求极值的一般步骤</h3>
+                    <ol class="list-decimal list-inside space-y-3 text-gray-700 dark:text-gray-300">
+                        <li><strong>求导数：</strong>计算 f'(x)</li>
+                        <li><strong>找驻点：</strong>求解 f'(x) = 0 的解</li>
+                        <li><strong>判断性质：</strong>使用一阶或二阶导数判别法</li>
+                        <li><strong>求极值：</strong>将驻点代入原函数求出极值</li>
+                    </ol>
+                </div>
+
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">二阶导数判别法</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">
+                        设 f'(x₀) = 0，f''(x₀) 存在：
+                    </p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+                        <li>若 f''(x₀) > 0，则 x₀ 为极小值点</li>
+                        <li>若 f''(x₀) < 0，则 x₀ 为极大值点</li>
+                        <li>若 f''(x₀) = 0，则需要进一步判断</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 交互式极值演示 -->
+        <section class="bg-white dark:bg-gray-800 rounded-xl p-8 mb-12 shadow-lg fade-in">
+            <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-6">
+                <i class="fas fa-play-circle text-green-600 mr-3"></i>
+                交互式极值演示
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">函数图像</h3>
+                    <canvas id="extremeChart" width="400" height="300" class="animation-canvas w-full"></canvas>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">参数控制</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                函数类型
+                            </label>
+                            <select id="functionType" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                <option value="quadratic">二次函数: f(x) = ax² + bx + c</option>
+                                <option value="cubic">三次函数: f(x) = ax³ + bx² + cx + d</option>
+                                <option value="sine">正弦函数: f(x) = a·sin(bx + c) + d</option>
+                            </select>
+                        </div>
+                        
+                        <div id="parameters" class="space-y-3">
+                            <!-- 参数控制器将由JavaScript动态生成 -->
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <button id="animateBtn" class="interactive-button flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg">
+                                <i class="fas fa-play mr-2"></i>开始动画
+                            </button>
+                            <button id="resetBtn" class="interactive-button flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg">
+                                <i class="fas fa-undo mr-2"></i>重置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="extremeInfo" class="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <h4 class="font-semibold text-gray-800 dark:text-white mb-2">极值分析：</h4>
+                <div id="extremeResults" class="text-gray-700 dark:text-gray-300">
+                    请选择函数类型并调整参数来查看极值分析结果
+                </div>
+            </div>
+        </section>
+
+        <!-- 实例分析 -->
+        <section class="bg-white dark:bg-gray-800 rounded-xl p-8 mb-12 shadow-lg fade-in">
+            <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-6">
+                <i class="fas fa-calculator text-purple-600 mr-3"></i>
+                经典案例分析
+            </h2>
+            
+            <div class="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-lg mb-6">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+                    例题：求函数 f(x) = x³ - 3x² + 2 的极值
+                </h3>
+                
+                <div class="space-y-4 text-gray-700 dark:text-gray-300">
+                    <div>
+                        <strong>步骤1：求导数</strong>
+                        <div class="katex-display text-center">
+                            f'(x) = 3x^2 - 6x = 3x(x-2)
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <strong>步骤2：求驻点</strong>
+                        <p>令 f'(x) = 0，得：3x(x-2) = 0</p>
+                        <p>解得：x = 0 或 x = 2</p>
+                    </div>
+                    
+                    <div>
+                        <strong>步骤3：二阶导数判别</strong>
+                        <div class="katex-display text-center">
+                            f''(x) = 6x - 6
+                        </div>
+                        <ul class="list-disc list-inside space-y-1 mt-2">
+                            <li>f''(0) = -6 < 0，所以 x = 0 为极大值点</li>
+                            <li>f''(2) = 6 > 0，所以 x = 2 为极小值点</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <strong>步骤4：求极值</strong>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>极大值：f(0) = 0³ - 3×0² + 2 = 2</li>
+                            <li>极小值：f(2) = 2³ - 3×2² + 2 = 8 - 12 + 2 = -2</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 可视化该案例 -->
+            <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                <h4 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">函数图像可视化</h4>
+                <canvas id="exampleChart" width="600" height="400" class="animation-canvas w-full"></canvas>
+            </div>
+        </section>
+
+        <!-- 应用场景 -->
+        <section class="bg-white dark:bg-gray-800 rounded-xl p-8 mb-12 shadow-lg fade-in">
+            <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-6">
+                <i class="fas fa-lightbulb text-yellow-600 mr-3"></i>
+                实际应用场景
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-6 rounded-lg hover-scale">
+                    <i class="fas fa-industry text-3xl text-blue-600 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">优化生产成本</h3>
+                    <p class="text-gray-700 dark:text-gray-300">通过建立成本函数模型，求出使总成本最小的生产量，实现经济效益最大化。</p>
+                </div>
+                
+                <div class="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 rounded-lg hover-scale">
+                    <i class="fas fa-chart-line text-3xl text-green-600 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">利润最大化</h3>
+                    <p class="text-gray-700 dark:text-gray-300">在商业决策中，通过求解利润函数的极值来确定最优价格策略。</p>
+                </div>
+                
+                <div class="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-6 rounded-lg hover-scale">
+                    <i class="fas fa-rocket text-3xl text-purple-600 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">物理学应用</h3>
+                    <p class="text-gray-700 dark:text-gray-300">在运动学中找到最高点，在热力学中寻找平衡态等物理问题的求解。</p>
+                </div>
+                
+                <div class="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-6 rounded-lg hover-scale">
+                    <i class="fas fa-drafting-compass text-3xl text-red-600 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">工程设计</h3>
+                    <p class="text-gray-700 dark:text-gray-300">在结构设计中寻找最优材料用量，在机械设计中确定最佳参数配置。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 思考题区域 -->
+        <section class="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-xl p-8 mb-12 shadow-lg fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+                <i class="fas fa-brain text-orange-600 mr-3"></i>
+                思考与探索
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover-scale">
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">思考题 1</h3>
+                    <p class="text-gray-700 dark:text-gray-300">为什么函数在极值点处的导数必须为零？这个条件是充分的吗？</p>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover-scale">
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">思考题 2</h3>
+                    <p class="text-gray-700 dark:text-gray-300">如果函数在某点不可导，该点还可能是极值点吗？请举例说明。</p>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover-scale">
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">延伸问题 1</h3>
+                    <p class="text-gray-700 dark:text-gray-300">在多元函数中，极值的判别方法有何不同？海塞矩阵起什么作用？</p>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover-scale">
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">延伸问题 2</h3>
+                    <p class="text-gray-700 dark:text-gray-300">条件极值问题如何用拉格朗日乘数法求解？有哪些实际应用？</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 页脚信息 -->
+    <footer class="bg-gray-100 dark:bg-gray-900 py-8">
+        <div class="container mx-auto px-4 text-center">
+            <div class="text-gray-800 dark:text-white mb-2">
+                © 2025 IECUBE Tutorial - 高等数学教学演示
+            </div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+                本内容为人工智能生成，观点为转述原作者，不代表本公司立场，仅供参考和批判
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 主题切换功能
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        
+        // 检查系统主题偏好
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // 初始化主题
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && prefersDark)) {
+            htmlElement.classList.add('dark');
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            localStorage.setItem('theme', htmlElement.classList.contains('dark') ? 'dark' : 'light');
+        });
+
+        // KaTeX渲染
+        document.addEventListener('DOMContentLoaded', function() {
+            const mathElements = document.querySelectorAll('.katex-display');
+            mathElements.forEach(element => {
+                const math = element.textContent.trim();
+                katex.render(math, element, {
+                    displayMode: true,
+                    throwOnError: false
+                });
+            });
+        });
+
+        // 交互式极值演示
+        class ExtremeValueDemo {
+            constructor() {
+                this.canvas = document.getElementById('extremeChart');
+                this.ctx = this.canvas.getContext('2d');
+                this.functionType = document.getElementById('functionType');
+                this.parametersDiv = document.getElementById('parameters');
+                this.extremeResults = document.getElementById('extremeResults');
+                this.animateBtn = document.getElementById('animateBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                
+                this.currentFunction = 'quadratic';
+                this.parameters = {};
+                this.animationId = null;
+                this.animationProgress = 0;
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupCanvas();
+                this.setupEventListeners();
+                this.updateParameters();
+                this.draw();
+            }
+            
+            setupCanvas() {
+                const rect = this.canvas.getBoundingClientRect();
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height;
+            }
+            
+            setupEventListeners() {
+                this.functionType.addEventListener('change', () => {
+                    this.currentFunction = this.functionType.value;
+                    this.updateParameters();
+                    this.draw();
+                });
+                
+                this.animateBtn.addEventListener('click', () => {
+                    this.startAnimation();
+                });
+                
+                this.resetBtn.addEventListener('click', () => {
+                    this.resetParameters();
+                    this.draw();
+                });
+                
+                window.addEventListener('resize', () => {
+                    this.setupCanvas();
+                    this.draw();
+                });
+            }
+            
+            updateParameters() {
+                const parameterSets = {
+                    quadratic: [
+                        { name: 'a', value: 1, min: -3, max: 3, step: 0.1 },
+                        { name: 'b', value: 0, min: -5, max: 5, step: 0.1 },
+                        { name: 'c', value: 0, min: -5, max: 5, step: 0.1 }
+                    ],
+                    cubic: [
+                        { name: 'a', value: 1, min: -2, max: 2, step: 0.1 },
+                        { name: 'b', value: -3, min: -5, max: 5, step: 0.1 },
+                        { name: 'c', value: 0, min: -5, max: 5, step: 0.1 },
+                        { name: 'd', value: 0, min: -5, max: 5, step: 0.1 }
+                    ],
+                    sine: [
+                        { name: 'a', value: 1, min: 0.1, max: 3, step: 0.1 },
+                        { name: 'b', value: 1, min: 0.1, max: 3, step: 0.1 },
+                        { name: 'c', value: 0, min: -Math.PI, max: Math.PI, step: 0.1 },
+                        { name: 'd', value: 0, min: -3, max: 3, step: 0.1 }
+                    ]
+                };
+                
+                const params = parameterSets[this.currentFunction];
+                this.parametersDiv.innerHTML = '';
+                
+                params.forEach(param => {
+                    this.parameters[param.name] = param.value;
+                    
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            ${param.name}: <span id="${param.name}-value">${param.value}</span>
+                        </label>
+                        <input type="range" 
+                               id="${param.name}-slider" 
+                               min="${param.min}" 
+                               max="${param.max}" 
+                               step="${param.step}" 
+                               value="${param.value}"
+                               class="w-full"/>
+                    `;
+                    this.parametersDiv.appendChild(div);
+                    
+                    const slider = document.getElementById(`${param.name}-slider`);
+                    const valueSpan = document.getElementById(`${param.name}-value`);
+                    
+                    slider.addEventListener('input', (e) => {
+                        this.parameters[param.name] = parseFloat(e.target.value);
+                        valueSpan.textContent = e.target.value;
+                        this.draw();
+                    });
+                });
+            }
+            
+            resetParameters() {
+                this.updateParameters();
+            }
+            
+            evaluateFunction(x) {
+                switch(this.currentFunction) {
+                    case 'quadratic':
+                        return this.parameters.a * x * x + this.parameters.b * x + this.parameters.c;
+                    case 'cubic':
+                        return this.parameters.a * x * x * x + this.parameters.b * x * x + this.parameters.c * x + this.parameters.d;
+                    case 'sine':
+                        return this.parameters.a * Math.sin(this.parameters.b * x + this.parameters.c) + this.parameters.d;
+                    default:
+                        return 0;
+                }
+            }
+            
+            findCriticalPoints() {
+                const points = [];
+                const step = 0.01;
+                const range = 10;
+                
+                for (let x = -range; x <= range; x += step) {
+                    const h = 0.001;
+                    const derivative = (this.evaluateFunction(x + h) - this.evaluateFunction(x - h)) / (2 * h);
+                    
+                    if (Math.abs(derivative) < 0.01) {
+                        // 检查是否已经有相近的点
+                        const exists = points.some(p => Math.abs(p.x - x) < 0.1);
+                        if (!exists) {
+                            const secondDerivative = (this.evaluateFunction(x + h) - 2 * this.evaluateFunction(x) + this.evaluateFunction(x - h)) / (h * h);
+                            points.push({
+                                x: x,
+                                y: this.evaluateFunction(x),
+                                type: secondDerivative > 0 ? 'minimum' : 'maximum'
+                            });
+                        }
+                    }
+                }
+                
+                return points;
+            }
+            
+            draw() {
+                const ctx = this.ctx;
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                // 清空画布
+                ctx.clearRect(0, 0, width, height);
+                
+                // 坐标系设置
+                const xMin = -5, xMax = 5;
+                const yMin = -5, yMax = 5;
+                
+                const xScale = width / (xMax - xMin);
+                const yScale = height / (yMax - yMin);
+                const xCenter = width / 2;
+                const yCenter = height / 2;
+                
+                // 绘制坐标轴
+                ctx.strokeStyle = '#e5e7eb';
+                ctx.lineWidth = 1;
+                
+                // x轴
+                ctx.beginPath();
+                ctx.moveTo(0, yCenter);
+                ctx.lineTo(width, yCenter);
+                ctx.stroke();
+                
+                // y轴
+                ctx.beginPath();
+                ctx.moveTo(xCenter, 0);
+                ctx.lineTo(xCenter, height);
+                ctx.stroke();
+                
+                // 绘制网格
+                ctx.strokeStyle = '#f3f4f6';
+                ctx.lineWidth = 0.5;
+                
+                for (let i = xMin; i <= xMax; i++) {
+                    if (i !== 0) {
+                        const x = xCenter + i * xScale / (xMax - xMin) * width;
+                        ctx.beginPath();
+                        ctx.moveTo(x, 0);
+                        ctx.lineTo(x, height);
+                        ctx.stroke();
+                    }
+                }
+                
+                for (let i = yMin; i <= yMax; i++) {
+                    if (i !== 0) {
+                        const y = yCenter - i * yScale / (yMax - yMin) * height;
+                        ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(width, y);
+                        ctx.stroke();
+                    }
+                }
+                
+                // 绘制函数曲线
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                let firstPoint = true;
+                for (let x = xMin; x <= xMax; x += 0.01) {
+                    const y = this.evaluateFunction(x);
+                    
+                    if (y >= yMin && y <= yMax) {
+                        const canvasX = xCenter + (x - 0) * xScale;
+                        const canvasY = yCenter - (y - 0) * yScale;
+                        
+                        if (firstPoint) {
+                            ctx.moveTo(canvasX, canvasY);
+                            firstPoint = false;
+                        } else {
+                            ctx.lineTo(canvasX, canvasY);
+                        }
+                    }
+                }
+                ctx.stroke();
+                
+                // 找到并标记极值点
+                const criticalPoints = this.findCriticalPoints();
+                
+                criticalPoints.forEach(point => {
+                    const canvasX = xCenter + (point.x - 0) * xScale;
+                    const canvasY = yCenter - (point.y - 0) * yScale;
+                    
+                    if (canvasX >= 0 && canvasX <= width && canvasY >= 0 && canvasY <= height) {
+                        ctx.fillStyle = point.type === 'maximum' ? '#ef4444' : '#22c55e';
+                        ctx.beginPath();
+                        ctx.arc(canvasX, canvasY, 6, 0, 2 * Math.PI);
+                        ctx.fill();
+                        
+                        // 标签
+                        ctx.fillStyle = '#1f2937';
+                        ctx.font = '12px sans-serif';
+                        const label = `(${point.x.toFixed(2)}, ${point.y.toFixed(2)})`;
+                        ctx.fillText(label, canvasX + 10, canvasY - 10);
+                    }
+                });
+                
+                // 更新极值分析结果
+                this.updateExtremeResults(criticalPoints);
+            }
+            
+            updateExtremeResults(points) {
+                if (points.length === 0) {
+                    this.extremeResults.innerHTML = '在显示范围内未找到极值点。';
+                    return;
+                }
+                
+                let html = '<ul class="space-y-2">';
+                points.forEach((point, index) => {
+                    const typeText = point.type === 'maximum' ? '极大值' : '极小值';
+                    const color = point.type === 'maximum' ? 'text-red-600' : 'text-green-600';
+                    html += `
+                        <li class="${color}">
+                            <strong>${typeText}：</strong>
+                            在 x = ${point.x.toFixed(3)} 处，f(x) = ${point.y.toFixed(3)}
+                        </li>
+                    `;
+                });
+                html += '</ul>';
+                
+                this.extremeResults.innerHTML = html;
+            }
+            
+            startAnimation() {
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                }
+                
+                this.animationProgress = 0;
+                this.animateBtn.textContent = '动画进行中...';
+                this.animateBtn.disabled = true;
+                
+                const animate = () => {
+                    this.animationProgress += 0.02;
+                    
+                    if (this.animationProgress < 1) {
+                        this.draw();
+                        this.animationId = requestAnimationFrame(animate);
+                    } else {
+                        this.animateBtn.textContent = '开始动画';
+                        this.animateBtn.disabled = false;
+                    }
+                };
+                
+                animate();
+            }
+        }
+        
+        // 案例可视化图表
+        class ExampleChart {
+            constructor() {
+                this.canvas = document.getElementById('exampleChart');
+                this.ctx = this.canvas.getContext('2d');
+                this.init();
+            }
+            
+            init() {
+                this.setupCanvas();
+                this.draw();
+                window.addEventListener('resize', () => {
+                    this.setupCanvas();
+                    this.draw();
+                });
+            }
+            
+            setupCanvas() {
+                const rect = this.canvas.getBoundingClientRect();
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height;
+            }
+            
+            evaluateFunction(x) {
+                return x * x * x - 3 * x * x + 2;
+            }
+            
+            draw() {
+                const ctx = this.ctx;
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                // 清空画布
+                ctx.clearRect(0, 0, width, height);
+                
+                // 坐标系设置
+                const xMin = -1, xMax = 3;
+                const yMin = -3, yMax = 3;
+                
+                const xScale = width / (xMax - xMin);
+                const yScale = height / (yMax - yMin);
+                
+                // 绘制坐标轴和网格
+                ctx.strokeStyle = '#e5e7eb';
+                ctx.lineWidth = 1;
+                
+                // 坐标轴
+                const xAxisY = height - (-yMin) * yScale;
+                const yAxisX = (-xMin) * xScale;
+                
+                ctx.beginPath();
+                ctx.moveTo(0, xAxisY);
+                ctx.lineTo(width, xAxisY);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(yAxisX, 0);
+                ctx.lineTo(yAxisX, height);
+                ctx.stroke();
+                
+                // 绘制函数曲线
+                ctx.strokeStyle = '#8b5cf6';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                let firstPoint = true;
+                for (let x = xMin; x <= xMax; x += 0.01) {
+                    const y = this.evaluateFunction(x);
+                    const canvasX = (x - xMin) * xScale;
+                    const canvasY = height - (y - yMin) * yScale;
+                    
+                    if (firstPoint) {
+                        ctx.moveTo(canvasX, canvasY);
+                        firstPoint = false;
+                    } else {
+                        ctx.lineTo(canvasX, canvasY);
+                    }
+                }
+                ctx.stroke();
+                
+                // 标记极值点
+                const extremePoints = [
+                    { x: 0, y: 2, type: 'maximum' },
+                    { x: 2, y: -2, type: 'minimum' }
+                ];
+                
+                extremePoints.forEach(point => {
+                    const canvasX = (point.x - xMin) * xScale;
+                    const canvasY = height - (point.y - yMin) * yScale;
+                    
+                    ctx.fillStyle = point.type === 'maximum' ? '#ef4444' : '#22c55e';
+                    ctx.beginPath();
+                    ctx.arc(canvasX, canvasY, 8, 0, 2 * Math.PI);
+                    ctx.fill();
+                    
+                    // 标签
+                    ctx.fillStyle = '#1f2937';
+                    ctx.font = '14px sans-serif';
+                    const label = `${point.type === 'maximum' ? '极大值' : '极小值'}(${point.x}, ${point.y})`;
+                    ctx.fillText(label, canvasX + 15, canvasY - 10);
+                });
+                
+                // 添加标题
+                ctx.fillStyle = '#374151';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('f(x) = x³ - 3x² + 2', 20, 30);
+            }
+        }
+        
+        // 初始化演示
+        document.addEventListener('DOMContentLoaded', function() {
+            new ExtremeValueDemo();
+            new ExampleChart();
+            
+            // 添加滚动动画
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            document.querySelectorAll('.fade-in').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = 'all 0.6s ease-out';
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>

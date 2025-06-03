@@ -84,9 +84,23 @@ public class AiClientWebSocketHandler extends TextWebSocketHandler {
         String text = message.getPayload();
 //        log.info("message:{}",text);
         try{
-            String chatId = SessionIdToChatId.get(session.getId());
-//            log.error("chatId:{}",chatId);
-            MaterialEntity material = ChatIdToMaterial.get(chatId);
+            String chatId = SessionIdToChatId.get(session.getId()); // 从中间件中取  由 w6-connect put
+            MaterialEntity material = ChatIdToMaterial.get(chatId); // 从中间件中取  由 w6-connect put
+            if(chatId==null){
+                log.warn("SessionIdToChatId 获取到的chatId为null，任务失败，断开连接");
+                session.close();
+                return;
+            }
+            if(material == null){  // material 检查
+                log.warn("ChatIdToMaterial 获取到的material为null，尝试重新数据库获取：material");
+                material = materialService.getMaterial(chatId);
+                if(material == null){
+                    log.warn("根据:{}从数据库获取到的material为null，任务失败，断开连接", chatId);
+                    session.close();
+                    return;
+                }
+                log.info("根据:{}从数据库获取到的material为{}", chatId, material);
+            }
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rec =  objectMapper.readTree(text);
             switch (rec.get("type").asText()){
@@ -100,12 +114,14 @@ public class AiClientWebSocketHandler extends TextWebSocketHandler {
                             dto.setError(artefactId.isEmpty()?"获取AI返回的文件ID错误":null);
                             dto.setMaterialId(material.getId());
                             NewParseTask.put(dto);
+                            log.info("W6:{},current： 输出最终结果，artefactId：{}",chatId,artefactId);
+                            log.info("AI 输出完成, 交给 parse-artefactId 处理:{}",dto);
                             session.close();
                         }
                     }
                     break;
                 case "activity-start":
-                    log.info("W6:{}开始输出",chatId);
+                    log.info("W6:{}开始输出", chatId);
                     material.setStatus(MaterialStatus.GENERATING.getStatus());
                     material.setUpdateTime(new Date());
                     materialService.handelUpload(material);
@@ -114,7 +130,7 @@ public class AiClientWebSocketHandler extends TextWebSocketHandler {
                     String artefactId="";
                     if(rec.get("payload").get("role").asText().equals("assistant")){
                         artefactId = rec.get("payload").get("artefacts").get(0).get("id").asText();
-                        log.info("W6:{}输出最终结果，artefactId：{}",chatId,artefactId);
+                        log.info("W6:{}， message-ack，输出最终结果，artefactId：{}",chatId,artefactId);
                     }
                     // 生产 parseArtefactDto数据
                     ParseArtefactDto dto = new ParseArtefactDto();
@@ -123,6 +139,7 @@ public class AiClientWebSocketHandler extends TextWebSocketHandler {
                     dto.setError(artefactId.isEmpty()?"获取AI返回的文件ID错误":null);
                     dto.setMaterialId(material.getId());
                     NewParseTask.put(dto);
+                    log.info("AI 输出完成, 交给 parse-artefactId 处理:{}",dto);
                     break;
                 case "activity-stop":
                     log.info("W6:{}结束输出，即将断开",chatId);
@@ -141,11 +158,15 @@ public class AiClientWebSocketHandler extends TextWebSocketHandler {
         super.afterConnectionClosed(session, status);
         this.scheduler.shutdown(); // 关闭调度器
         String chatId = SessionIdToChatId.get(session.getId());
-        log.info("W6:{} 断开连接",chatId);
+        log.info("W6:{} 断开连接,清理缓存",chatId);
         if(chatId != null){
             ChatIdToSession.remove(chatId);
             ChatIdToMaterial.remove(chatId);
+
         }
         SessionIdToChatId.remove(session.getId());
+        log.info("ChatIdToSession 清理检查，剩余数量：{}",ChatIdToSession.size());
+        log.info("SessionIdToChatId 清理检查，剩余数量：{}",SessionIdToChatId.size());
+        log.info("ChatIdToMaterial 清理检查，剩余数量：{}",ChatIdToMaterial.size());
     }
 }
