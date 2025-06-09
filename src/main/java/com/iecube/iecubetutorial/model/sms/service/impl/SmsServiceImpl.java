@@ -82,8 +82,10 @@ public class SmsServiceImpl implements SmsService {
             // 响应包含服务端响应的 body 和 headers
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode res = objectMapper.readTree(toJSONString(sendSmsResponse));
-            log.info("111111");
-            log.info(res.toString());
+//            log.info("111111");
+            if(!res.get("body").get("code").asText().equals("OK")){
+                log.info(res.toString());
+            }
             return res.get("body").get("code").asText().equals("OK");
         } catch (Exception e) {
             throw new SendSMSMessageException(e.getMessage());

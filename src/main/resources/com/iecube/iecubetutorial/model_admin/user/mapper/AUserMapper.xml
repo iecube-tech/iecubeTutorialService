@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model_admin.user.mapper.AUserMapper">
+
+    <resultMap id="AUser" type="com.iecube.iecubetutorial.model_admin.user.entity.AUser">
+        <result column="create_time" property="createTime"></result>
+        <result column="last_operate_time" property="lastOperateTime"></result>
+        <result column="last_operator" property="lastOperator"></result>
+
+    </resultMap>
+
+    <insert id="addUser" keyProperty="phone">
+        INSERT INTO a_a_user (phone,name, status,role,removed, create_time,creator, last_operate_time, last_operator)
+        VALUES (#{phone},#{name}, #{status},#{role},0,#{createTime},#{creator}, #{lastOperateTime}, #{lastOperator})
+    </insert>
+
+    <select id="getUserByPhone" resultMap="AUser">
+        SELECT phone,name, status,role, removed, create_time,creator, last_operate_time, last_operator FROM a_a_user WHERE phone=#{phone}
+    </select>
+
+    <select id="getAllUsers" resultMap="AUser">
+        SELECT phone,name, status,role,removed, create_time,creator, last_operate_time, last_operator FROM a_a_user
+    </select>
+
+    <update id="updateUser">
+        UPDATE a_a_user SET name=#{name},
+                            status=#{status},
+                            role=#{role},
+                            last_operate_time=#{lastOperateTime},
+                            last_operator=#{lastOperator}
+                        WHERE phone=#{phone}
+    </update>
+
+    <delete id="deleteUser">
+        UPDATE a_a_user SET removed=#{removed},
+                            last_operate_time=#{lastOperateTime},
+                            last_operator=#{lastOperator}
+        WHERE phone=#{phone}
+    </delete>
+
+</mapper>

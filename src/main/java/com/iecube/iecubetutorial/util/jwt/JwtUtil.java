@@ -10,7 +10,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
-@Component
+//@Component
 @Slf4j
 public class JwtUtil {
     private final String secretKey="asdfghjkl";

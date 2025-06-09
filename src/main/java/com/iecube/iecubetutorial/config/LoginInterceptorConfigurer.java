@@ -1,6 +1,7 @@
 package com.iecube.iecubetutorial.config;
 
 import com.iecube.iecubetutorial.interceptor.AuthInterceptor;
+import com.iecube.iecubetutorial.interceptor.PermissionInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -13,10 +14,16 @@ import java.util.List;
 public class LoginInterceptorConfigurer implements WebMvcConfigurer {
 
     private AuthInterceptor authInterceptor;
+    private PermissionInterceptor permissionInterceptor;
 
     @Autowired
     public void InterceptorConfig(AuthInterceptor authInterceptor) {
         this.authInterceptor = authInterceptor;
+    }
+
+    @Autowired
+    public void PermissionInterceptor(PermissionInterceptor permissionInterceptor) {
+        this.permissionInterceptor = permissionInterceptor;
     }
 
     @Override
@@ -32,6 +39,10 @@ public class LoginInterceptorConfigurer implements WebMvcConfigurer {
         patterns.add("/account/login");
         patterns.add("/swagger-ui/**");
         patterns.add("/v3/**");
+        patterns.add("/sm/user/login");
+        patterns.add("/sm/user/refresh");
+
         registry.addInterceptor(authInterceptor).addPathPatterns("/**").excludePathPatterns(patterns);
+        registry.addInterceptor(permissionInterceptor).addPathPatterns("/**").excludePathPatterns(patterns);
     }
 }
