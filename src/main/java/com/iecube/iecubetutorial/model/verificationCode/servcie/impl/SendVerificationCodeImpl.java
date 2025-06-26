@@ -60,7 +60,7 @@ public class SendVerificationCodeImpl implements SendVerificationCode {
 
     private boolean genAndSendRegisterCode(String phoneNumber, String code) {
         // 校验手机号是否已经注册
-        User user = userMapper.getUserByPhone(phoneNumber);
+        User user = userMapper.getUserByAccount(phoneNumber);
         if(user!=null){
             throw new PhoneUnavailableException("该手机号已注册，请登录");
         }
@@ -69,7 +69,7 @@ public class SendVerificationCodeImpl implements SendVerificationCode {
 
     private boolean genAndSendLoginCode(String phoneNumber, String code) {
         // 校验手机号是否已注册
-        User user = userMapper.getUserByPhone(phoneNumber);
+        User user = userMapper.getUserByAccount(phoneNumber);
         if(user==null){
             throw new PhoneUnavailableException("该手机号尚未注册，请注册");
         }

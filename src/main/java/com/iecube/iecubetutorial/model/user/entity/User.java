@@ -7,10 +7,8 @@ import java.util.Date;
 @Data
 public class User {
     private Long id;
-    private String role;
+    private String account;
+    private String password;
+    private String salt;
     private String name;
-    private String phone;
-    private String school;
-    private String collage;
-    private Date createTime;
 }

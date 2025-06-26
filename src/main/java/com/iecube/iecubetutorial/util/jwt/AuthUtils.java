@@ -21,8 +21,8 @@ public class AuthUtils {
 
     public static final String ACCESS_TOKE_KEY = "x-access-token";
 
-    private static final String USER_REDIS_KEY_PIX = "tutorial_USER_";
-    private static final String USER_TOKEN_REDIS_KEY_PIX = "tutorial_USER_TOKEN_";
+    private static final String USER_REDIS_KEY_PIX = "xmu:tutorial_USER_";
+    private static final String USER_TOKEN_REDIS_KEY_PIX = "xmu:tutorial_USER_TOKEN_";
 
     private static final ThreadLocal<CurrentUser> LOCAL_USER = new ThreadLocal<>();
 
@@ -46,7 +46,7 @@ public class AuthUtils {
         try {
             redisTemplate.opsForValue()
                     .set(
-                            getUserRedisKey(currentUser.getId(), currentUser.getPhone()),
+                            getUserRedisKey(currentUser.getId(), currentUser.getAccount()),
                             new ObjectMapper().writeValueAsString(currentUser),
                             48,
                             TimeUnit.HOURS
@@ -57,7 +57,7 @@ public class AuthUtils {
         }
         redisTemplate.opsForValue()
                 .set(
-                        getUserTokenRedisKey(currentUser.getId(), currentUser.getPhone()),
+                        getUserTokenRedisKey(currentUser.getId(), currentUser.getAccount()),
                         token,
                         48,
                         TimeUnit.HOURS
@@ -119,7 +119,7 @@ public class AuthUtils {
     }
 
     public static String getCurrentUserPhone(){
-        return getCurrentUser().getPhone();
+        return getCurrentUser().getAccount();
     }
 
     private static String getUserRedisKey(Long userId, String phone) {

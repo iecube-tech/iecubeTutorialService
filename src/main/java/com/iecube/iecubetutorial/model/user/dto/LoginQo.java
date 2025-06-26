@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class LoginQo {
-    private String phone;
-    private String invitationCode;
-    private String verifyCode;
+    private String account;
+    private String password;
 }
