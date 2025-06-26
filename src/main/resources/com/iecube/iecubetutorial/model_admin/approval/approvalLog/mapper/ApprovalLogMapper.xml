@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model_admin.approval.approvalLog.mapper.ApprovalLogMapper">
+
+    <resultMap id="ApprovalLog" type="com.iecube.iecubetutorial.model_admin.approval.approvalLog.entity.ApprovalLog">
+        <result column="appeoval_id" property="appeovalId"></result>
+        <result column="create_time" property="createTime"></result>
+        <result column="last_operate_time" property="lastOperateTime"></result>
+        <result column="last_operator" property="lastOperator"></result>
+    </resultMap>
+
+    <insert id="addLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO a_approval_log (`id`, `approval_id`, `action`, `remark`,
+                                    `removed`, `create_time`, `creator`,`last_operate_time`,`last_operator`)
+        VALUES (NULL, #{approvalId},#{action},#{remark},
+                #{removed},#{createTime},#{creator},#{lastOperateTime},#{lastOperator})
+    </insert>
+
+    <select id="getApprovalLogByApprovalIds" resultMap="ApprovalLog">
+        SELECT `id`, `approval_id`, `action`, `remark`,
+               `removed`, `create_time`, `creator`,`last_operate_time`,`last_operator`
+        FROM a_approval_log
+        WHERE approval_id IN
+        <foreach collection="approvalIdList" item="approvalId" open="(" separator="," close=")">
+            #{approvalId}
+        </foreach>
+    </select>
+
+    <select id="getApprovalLogByApprovalId" resultMap="ApprovalLog">
+        SELECT `id`, `approval_id`, `action`, `remark`,
+        `removed`, `create_time`, `creator`,`last_operate_time`,`last_operator`
+        FROM a_approval_log
+        WHERE approval_id=#{approvalId}
+    </select>
+</mapper>

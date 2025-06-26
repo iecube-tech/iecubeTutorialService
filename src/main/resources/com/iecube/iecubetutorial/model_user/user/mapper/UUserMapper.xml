@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model_user.user.mapper.UUserMapper">
+
+    <resultMap id="UUser" type="com.iecube.iecubetutorial.model_user.user.entity.UUser">
+        <result column="create_time" property="createTime"></result>
+        <result column="last_operate_time" property="lastOperateTime"></result>
+        <result column="last_operator" property="lastOperator"></result>
+    </resultMap>
+
+    <insert id="createUUser" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO u_a_user (phone, name, email, status,
+                                          removed, create_time, creator, last_operate_time, last_operator)
+        VALUES (#{phone}, #{name}, #{email}, #{status},
+                0, #{createTime}, #{creator}, #{lastOperateTime}, #{lastOperator})
+    </insert>
+
+    <insert id="createUUserBatch" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO u_a_user (phone, name, email, status,
+                              removed, create_time, creator, last_operate_time, last_operator)
+        VALUES
+            <foreach collection="list" separator="," item="item">
+                (#{item.phone}, #{item.name}, #{item.email}, #{item.status},
+                0, #{item.createTime}, #{item.creator}, #{item.lastOperateTime}, #{item.lastOperator})
+            </foreach>
+    </insert>
+
+    <select id="getUUserByPhone" resultMap="UUser">
+        SELECT phone, name, email, status,
+               removed, create_time, creator, last_operate_time, last_operator
+        FROM u_a_user WHERE phone=#{phone}
+    </select>
+</mapper>

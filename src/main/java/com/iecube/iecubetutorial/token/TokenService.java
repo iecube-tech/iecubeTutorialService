@@ -59,7 +59,7 @@ public class TokenService {
     /**
      * 生成用户访问令牌
      */
-    private String generateAccessToken(String userType, String phone, Long accountId, String role) {
+    public String generateAccessToken(String userType, String phone, Long accountId, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("phone", phone);
         claims.put("accountId", accountId);
@@ -89,7 +89,7 @@ public class TokenService {
      * 存储访问令牌到Redis
      */
     private void storeAccessToken(String userType, String phone, String refreshToken) {
-        String key = userType+"_ACCESS_TOKEN:" + phone;
+        String key = "TUTORIAL_" + userType+"_ACCESS_TOKEN:" + phone;
         redisService.set(key, refreshToken, tokenExpire);
     }
 
@@ -97,7 +97,7 @@ public class TokenService {
      * 存储刷新令牌到Redis
      */
     private void storeRefreshToken(String userType, String phone, String refreshToken) {
-        String key = userType+"_REFRESH_TOKEN:" + phone;
+        String key = "TUTORIAL_" + userType+"_REFRESH_TOKEN:" + phone;
         redisService.set(key, refreshToken, refreshTokenExpire);
     }
 
@@ -105,7 +105,7 @@ public class TokenService {
      * 验证刷新令牌有效性
      */
     public boolean validateRefreshToken(String userType, String phone, String refreshToken) {
-        String key = userType+"_REFRESH_TOKEN:" + phone;
+        String key = "TUTORIAL_" + userType+"_REFRESH_TOKEN:" + phone;
         String storedToken = redisService.get(key);
 
         // 检查Redis中是否存在且匹配

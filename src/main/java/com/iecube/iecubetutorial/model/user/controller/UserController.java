@@ -29,7 +29,7 @@ public class UserController extends BaseController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    @Operation(summary = "用户注册")
+    @Operation(summary = "用户注册", hidden = true)
     @PostMapping("/register")
     public JsonResult<Void> register(@RequestBody RegisterQo registerQo) {
         if(registerQo.getPhone() == null){
@@ -42,13 +42,13 @@ public class UserController extends BaseController {
         return new JsonResult<>(OK);
     }
 
-    @Operation(summary = "手机号是否已注册")
+    @Operation(summary = "手机号是否已注册", hidden = true)
     @PostMapping("/hasregister")
     public JsonResult<Boolean> isRegister(String phone) {
         return new JsonResult<>(OK, userService.phoneExists(phone));
     }
 
-    @Operation(summary = "用户登录")
+    @Operation(summary = "用户登录", hidden = true)
     @PostMapping("/login")
     public JsonResult<LoginVo> login(@RequestBody LoginQo loginQo) {
         if(loginQo.getPhone() == null){
@@ -65,14 +65,14 @@ public class UserController extends BaseController {
         return new JsonResult<>(OK, loginVo);
     }
 
-    @Operation(summary = "用户登出")
+    @Operation(summary = "用户登出", hidden = true)
     @PostMapping("/logout")
     public JsonResult<Void> logout() {
         AuthUtils.rm(stringRedisTemplate);
         return new JsonResult<>(OK);
     }
 
-    @Operation(summary = "批量创建内测用户，单次最大数量限制100人")
+    @Operation(summary = "批量创建内测用户，单次最大数量限制100人", hidden = true)
     @PostMapping("/user/import")
     public JsonResult<UserImportVo> importExcel(@RequestBody MultipartFile file){
         UserImportVo vo =userService.processExcel(file);

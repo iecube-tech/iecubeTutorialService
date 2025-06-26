@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model_user.points.mapper.PointsMapper">
+
+    <resultMap id="Points" type="com.iecube.iecubetutorial.model_user.points.entity.Points">
+        <result column="o_sec_id" property="oSecId"></result>
+        <result column="expire_date" property="expireDate"></result>
+        <result column="create_time" property="createTime"></result>
+        <result column="last_operate_time" property="lastOperateTime"></result>
+        <result column="last_operator" property="lastOperator"></result>
+    </resultMap>
+
+    <insert id="createPoints" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO u_a_point (id, o_sec_id, amount, `status`, expire_date,
+                               `removed`, create_time, creator, last_operate_time, last_operator)
+        VALUES (NULL, #{oSecId},#{amount},#{status},#{expireDate},
+                0,#{createTime},#{creator},#{lastOperateTime},#{lastOperator})
+    </insert>
+
+    <update id="updatePoints">
+        UPDATE u_a_point SET amount=#{amount},
+                             status=#{status},
+                             expire_date=#{expireDate},
+                             last_operate_time=#{lastOperateTime},
+                             last_operator=#{lastOperator}
+        WHERE id=#{id}
+    </update>
+
+    <select id="findValidPointsByOSecId" resultMap="Points">
+        SELECT id, o_sec_id, amount, `status`, expire_date,
+               `removed`, create_time, creator, last_operate_time, last_operator
+        FROM u_a_point
+        WHERE o_sec_id=#{oSecId} AND `status`="ACTIVE" AND `removed`=0
+    </select>
+
+    <select id="findAllPointsByOSecId" resultMap="Points">
+        SELECT id, o_sec_id, amount, `status`, expire_date,
+               `removed`, create_time, creator, last_operate_time, last_operator
+        FROM u_a_point
+        WHERE o_sec_id=#{oSecId} AND `removed`=0
+    </select>
+</mapper>

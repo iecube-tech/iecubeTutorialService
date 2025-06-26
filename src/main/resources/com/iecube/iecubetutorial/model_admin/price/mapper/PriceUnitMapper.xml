@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model_admin.price.mapper.PriceUnitMapper">
+
+    <resultMap id="PriceUnit" type="com.iecube.iecubetutorial.model_admin.price.entity.PriceUnit">
+        <result column="type_cn" property="typeCn"></result>
+        <result column="target_units" property="targetUnits"></result>
+        <result column="target_units_cn" property="targetUnitsCn"></result>
+        <result column="need_units" property="needUnits"></result>
+        <result column="need_units_cn" property="needUnitsCn"></result>
+        <result column="create_time" property="createTime"></result>
+        <result column="last_operate_time" property="lastOperateTime"></result>
+        <result column="last_operator" property="lastOperator"></result>
+    </resultMap>
+
+    <select id="getPriceUnits" resultMap="PriceUnit">
+        SELECT `id`, `type`, `type_cn`, `target`, `target_units`, `target_units_cn`, `need`, `need_units`,
+               `need_units_cn`,`active`,`removed`, `create_time`, `creator`,`last_operate_time`,`last_operator`
+        FROM a_price_unit
+    </select>
+
+    <select id="GeneratePriceUnit" parameterType="java.lang.Double">
+        SELECT `need` FROM a_price_unit WHERE `type`='CONSUME' AND active=1
+    </select>
+
+    <select id="RechargePriceUnit" parameterType="java.lang.Double">
+        SELECT `need` FROM a_price_unit WHERE `type`='RECHARGE' AND active=1
+    </select>
+
+    <update id="UpdatePriceUnit">
+        UPDATE a_price_unit SET need=#{need},
+                                last_operate_time=#{lastOperateTime},
+                                last_operator=#{lastOperator}
+                            WHERE `type`=#{type}
+    </update>
+
+</mapper>

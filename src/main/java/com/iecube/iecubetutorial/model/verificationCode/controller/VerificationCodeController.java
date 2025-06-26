@@ -16,7 +16,7 @@ public class VerificationCodeController extends BaseController {
     @Autowired
     private SendVerificationCode sendVerificationCode;
 
-    @Operation(summary = "发送验证码")
+    @Operation(summary = "发送验证码", hidden = true)
     @PostMapping("/send")
     public JsonResult<Void> sendVerificationCode(@RequestBody VCodeQo vCodeQo) {
         sendVerificationCode.generateAndSendCode(vCodeQo.getPhone(), vCodeQo.getUsage());

@@ -11,17 +11,23 @@ public interface AUserService {
 
     void sendVCode(String phone);
 
-    TokenDto Login(ALoginQo loginQo);
+    TokenDto Login(ALoginQo ALoginQo);
 
     TokenDto refreshToken(String refreshToken);
 
     AUser CreateUser(AUserQo aUserQo, String operator);
 
-    AUser UpdateUser(AUser user, String operator );
+    AUser UpdateUser(AUserQo aUserQo, String operator );
 
     AUser getUserByPhone(String phone);
 
-    AUser deleteUser(AUser user, String operator);
+    List<AUser> deleteUser(AUserQo aUserQo, String operator);
+
+    AUser disableUser(AUserQo aUserQo, String operator);
+
+    AUser enableUser(AUserQo aUserQo, String operator);
 
     List<AUser> GetAllUsers();
+
+    List<AUser> GetAdminUsers();
 }

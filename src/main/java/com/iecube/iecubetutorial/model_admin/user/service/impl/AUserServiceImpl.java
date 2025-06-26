@@ -1,8 +1,11 @@
 package com.iecube.iecubetutorial.model_admin.user.service.impl;
 
 import com.iecube.iecubetutorial.config.JwtUtil;
+import com.iecube.iecubetutorial.config.ThreadLocalUtil;
 import com.iecube.iecubetutorial.exception.AuthException;
+import com.iecube.iecubetutorial.exception.InsertException;
 import com.iecube.iecubetutorial.exception.PhoneUnavailableException;
+import com.iecube.iecubetutorial.exception.UpdateException;
 import com.iecube.iecubetutorial.model.sms.service.SmsService;
 import com.iecube.iecubetutorial.model_admin.user.enmu.UserStatus;
 import com.iecube.iecubetutorial.model_admin.user.entity.AUser;
@@ -19,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -55,26 +59,26 @@ public class AUserServiceImpl implements AUserService {
           throw new PhoneUnavailableException("该手机号不可用");
         }
         String code = generateCode();
-        String cacheKey = "CODE:ADMIN:" + phone;
+        String cacheKey = "TUTORIAL:CODE:ADMIN:" + phone;
         if(smsService.sendLoginSms(phone, code)){
             redisService.set(cacheKey, code, CodeExpire);
         }
     }
 
     @Override
-    public TokenDto Login(ALoginQo loginQo) {
-        String cacheKey = "CODE:ADMIN:" + loginQo.getPhone();
+    public TokenDto Login(ALoginQo ALoginQo) {
+        String cacheKey = "TUTORIAL:CODE:ADMIN:" + ALoginQo.getPhone();
         String cacheCode = redisService.get(cacheKey);
-        if (cacheCode == null || !cacheCode.equals(loginQo.getCode())) {
+        if (cacheCode == null || !cacheCode.equals(ALoginQo.getCode())) {
             throw new AuthException("验证码错误或已过期");
         }
-        AUser aUser = aUserMapper.getUserByPhone(loginQo.getPhone());
+        AUser aUser = aUserMapper.getUserByPhone(ALoginQo.getPhone());
         if (aUser == null) {
             throw new AuthException("管理员不存在");
         }
-        Map<String, String> tokens = tokenService.generateTokenPair(UserType, loginQo.getPhone(), null, aUser.getRole());
+        Map<String, String> tokens = tokenService.generateTokenPair(UserType, ALoginQo.getPhone(), null, aUser.getRole());
         redisService.delete(cacheKey);
-        return new TokenDto(tokens.get("accessToken"), tokens.get("refreshToken"));
+        return new TokenDto(tokens.get("accessToken"), tokens.get("refreshToken"), aUser);
     }
 
     @Override
@@ -91,33 +95,97 @@ public class AUserServiceImpl implements AUserService {
         }
         // 生成新的Token对
         Map<String, String> newTokens = tokenService.refreshToken(userType,phone,accountId,role);
-        return new TokenDto(newTokens.get("accessToken"), newTokens.get("refreshToken"));
+        AUser aUser = aUserMapper.getUserByPhone(phone);
+        return new TokenDto(newTokens.get("accessToken"), newTokens.get("refreshToken"), aUser);
     }
 
     @Override
     public AUser CreateUser(AUserQo aUserQo, String operator) {
-
-        return null;
+        AUser aUser = new AUser();
+        aUser.setName(aUserQo.getName());
+        aUser.setPhone(aUserQo.getPhone());
+        aUser.setRole(aUserQo.getRole());
+        aUser.setStatus(UserStatus.ENABLED.getStatus());
+        aUser.setRemoved(0);
+        aUser.setCreator(operator);
+        aUser.setCreateTime(Instant.now());
+        aUser.setLastOperator(operator);
+        aUser.setLastOperateTime(Instant.now());
+        int res = aUserMapper.addUser(aUser);
+        if(res!=1){
+            throw new InsertException("新增数据异常");
+        }
+        return aUser;
     }
 
     @Override
-    public AUser UpdateUser(AUser user, String operator) {
-        return null;
+    public AUser UpdateUser(AUserQo aUserQo, String operator) {
+        AUser user = this.getUserByPhone(aUserQo.getPhone());
+        if(user==null){
+            throw new UpdateException("请求的数据不存在");
+        }
+        user.setName(aUserQo.getName());
+        user.setRole(aUserQo.getRole());
+        user.setLastOperator(operator);
+        user.setLastOperateTime(Instant.now());
+        int res = aUserMapper.updateUser(user);
+        if(res!=1){
+            throw new UpdateException("更新数据异常");
+        }
+        return user;
     }
 
     @Override
     public AUser getUserByPhone(String phone) {
-        return null;
+        return aUserMapper.getUserByPhone(phone);
     }
 
     @Override
-    public AUser deleteUser(AUser user, String operator) {
-        return null;
+    public List<AUser> deleteUser(AUserQo aUserQo, String operator) {
+        AUser user = this.getUserByPhone(aUserQo.getPhone());
+        user.setLastOperator(operator);
+        user.setLastOperateTime(Instant.now());
+        int res = aUserMapper.deleteUser(user.getPhone(), ThreadLocalUtil.getPhone(), Instant.now());
+        if(res!=1){
+            throw new UpdateException("更新数据异常");
+        }
+        return this.GetAllUsers();
+    }
+
+    @Override
+    public AUser disableUser(AUserQo aUserQo, String operator) {
+        AUser user = this.getUserByPhone(aUserQo.getPhone());
+        user.setStatus(UserStatus.DISABLED.getStatus());
+        user.setLastOperator(operator);
+        user.setLastOperateTime(Instant.now());
+        int res = aUserMapper.updateUser(user);
+        if(res!=1){
+            throw new UpdateException("更新数据异常");
+        }
+        return user;
+    }
+
+    @Override
+    public AUser enableUser(AUserQo aUserQo, String operator) {
+        AUser user = this.getUserByPhone(aUserQo.getPhone());
+        user.setStatus(UserStatus.ENABLED.getStatus());
+        user.setLastOperator(operator);
+        user.setLastOperateTime(Instant.now());
+        int res = aUserMapper.updateUser(user);
+        if(res!=1){
+            throw new UpdateException("更新数据异常");
+        }
+        return user;
     }
 
     @Override
     public List<AUser> GetAllUsers() {
-        return List.of();
+        return aUserMapper.getAllUsers();
+    }
+
+    @Override
+    public List<AUser> GetAdminUsers() {
+        return aUserMapper.getAdminUsers();
     }
 
     private String generateCode() {

@@ -32,17 +32,15 @@ public class LoginInterceptorConfigurer implements WebMvcConfigurer {
         //配置白名单： List集合
         // addPathPatterns("表示要拦截的url是什么").excludePathPatterns("list集合 表示白名单")
         List<String> patterns = new ArrayList<>();
-        patterns.add("/sms/code/send");
-        patterns.add("/invitation/code/apply");
-        patterns.add("/account/register");
-        patterns.add("/account/hasregister");
-        patterns.add("/account/login");
         patterns.add("/swagger-ui/**");
         patterns.add("/v3/**");
-        patterns.add("/sm/user/login");
-        patterns.add("/sm/user/refresh");
+        patterns.add("/auth/login");
+        patterns.add("/auth/refresh");
+        patterns.add("/su/auth/login");
+        patterns.add("/su/auth/refresh");
+
 
         registry.addInterceptor(authInterceptor).addPathPatterns("/**").excludePathPatterns(patterns);
-        registry.addInterceptor(permissionInterceptor).addPathPatterns("/**").excludePathPatterns(patterns);
+//        registry.addInterceptor(permissionInterceptor).addPathPatterns("/**").excludePathPatterns(patterns);
     }
 }

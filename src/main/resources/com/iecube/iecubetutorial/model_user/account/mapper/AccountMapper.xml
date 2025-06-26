@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model_user.account.mapper.AccountMapper">
+
+    <resultMap id="Account" type="com.iecube.iecubetutorial.model_user.account.entity.Account">
+        <result column="o_sec_id" property="oSecId"></result>
+        <result column="create_time" property="createTime"></result>
+        <result column="last_operate_time" property="lastOperateTime"></result>
+        <result column="last_operator" property="lastOperator"></result>
+    </resultMap>
+
+    <resultMap id="AccountVo" type="com.iecube.iecubetutorial.model_user.account.vo.AccountVo">
+        <result column="o_sec_id" property="oSecId"></result>
+        <result column="o_sec_name" property="oSecName"></result>
+        <result column="o_sec_type" property="oSecType"></result>
+        <result column="create_time" property="createTime"></result>
+        <result column="last_operate_time" property="lastOperateTime"></result>
+        <result column="last_operator" property="lastOperator"></result>
+    </resultMap>
+
+    <insert id="createAccount" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO u_a_account (`id`, `o_sec_id`, `phone`, `role`, `status`,
+            `removed`, `creator`, `create_time`,  `last_operator`, `last_operate_time`)
+        VALUES (NULL,#{oSecId},#{phone},#{role},#{status},
+                0,#{creator},#{createTime},#{lastOperator},#{lastOperateTime})
+    </insert>
+
+    <insert id="createAccountBatch" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO u_a_account (`id`, `o_sec_id`, `phone`, `role`, `status`,
+                                 `removed`, `creator`, `create_time`,  `last_operator`, `last_operate_time`)
+        VALUES
+            <foreach collection="list" separator="," item="item">
+                (NULL,#{item.oSecId},#{item.phone},#{item.role},#{item.status},
+                0,#{item.creator},#{item.createTime},#{item.lastOperator},#{item.lastOperateTime})
+            </foreach>
+    </insert>
+
+    <select id="getAccount" resultMap="Account">
+        SELECT `id`, `o_sec_id`, `phone`, `role`, `status`,
+               `removed`, `creator`, `create_time`,  `last_operator`, `last_operate_time`
+        FROM u_a_account WHERE phone=#{phone} AND o_sec_id=#{oSecId}
+    </select>
+
+    <select id="getAccountListByUser" resultMap="Account">
+        SELECT `id`, `o_sec_id`, `phone`, `role`, `status`,
+               `removed`, `creator`, `create_time`,  `last_operator`, `last_operate_time`
+        FROM u_a_account WHERE phone=#{phone}
+    </select>
+
+    <select id="getAccountVosByOSecId" resultMap="AccountVo">
+        SELECT ac.`id`, ac.`o_sec_id`, ac.`phone`, ac.`role`, ac.`status`,
+               us.`name`,us.`email`,
+               os.`name` AS o_sec_name, os.`type` AS o_sec_type,
+               ac.`removed`, ac.`creator`, ac.`create_time`,  ac.`last_operator`, ac.`last_operate_time`
+        FROM u_a_account ac
+            INNER JOIN u_a_user us ON ac.`phone`=us.`phone`
+            INNER JOIN u_a_organization_sec os ON ac.`o_sec_id`=os.`id`
+        WHERE ac.`o_sec_id`=#{oSecId}
+    </select>
+
+    <select id="getById" resultMap="Account">
+        SELECT `id`, `o_sec_id`, `phone`, `role`, `status`,
+               `removed`, `creator`, `create_time`,  `last_operator`, `last_operate_time`
+        FROM u_a_account WHERE id=#{id}
+    </select>
+</mapper>

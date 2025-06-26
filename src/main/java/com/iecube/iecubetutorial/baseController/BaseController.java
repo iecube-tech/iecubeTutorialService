@@ -1,5 +1,6 @@
 package com.iecube.iecubetutorial.baseController;
 
+import com.iecube.iecubetutorial.config.ThreadLocalUtil;
 import com.iecube.iecubetutorial.exception.ServiceException;
 import com.iecube.iecubetutorial.exception.AuthException;
 import com.iecube.iecubetutorial.util.JsonResult;
@@ -14,6 +15,14 @@ public class BaseController {
 
     public final Long currentUserId(){
         return AuthUtils.getCurrentUserId();
+    }
+
+    public final String currentUserPhone(){
+        return ThreadLocalUtil.getPhone();
+    }
+
+    public final Long currentUserAccountId(){
+        return ThreadLocalUtil.getAccountId();
     }
 
     public JsonResult<String> handleParamsError(String param){

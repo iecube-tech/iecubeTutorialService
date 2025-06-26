@@ -15,7 +15,7 @@ public class InvitationCodeController extends BaseController {
     @Autowired
     private InvitationCodeService invitationCodeService;
 
-    @Operation(summary = "申请邀请码")
+    @Operation(summary = "申请邀请码", hidden = true)
     @PostMapping("/apply")
     public JsonResult<Void> applyCode(String email){
         invitationCodeService.applyCode(email);

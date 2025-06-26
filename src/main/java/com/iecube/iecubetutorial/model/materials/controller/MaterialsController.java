@@ -19,7 +19,7 @@ public class MaterialsController extends BaseController {
     @Autowired
     private MaterialService materialService;
 
-    @Operation(summary = "生成讲义")
+    @Operation(summary = "生成讲义" ,hidden = true)
     @PostMapping("/generate")
     public JsonResult<Void> generate(@RequestBody MaterialQo materialQo) {
         Long userId = currentUserId();
@@ -27,7 +27,7 @@ public class MaterialsController extends BaseController {
         return new JsonResult<>(OK);
     }
 
-    @Operation(summary = "请求用户生成的讲义")
+    @Operation(summary = "请求用户生成的讲义", hidden = true)
     @GetMapping("/created")
     public JsonResult<List<MaterialVo>> created(){
         Long userId = currentUserId();
@@ -35,7 +35,7 @@ public class MaterialsController extends BaseController {
         return new JsonResult<>(OK, vos);
     }
 
-    @Operation(summary = "更新生成的讲义html文件内容")
+    @Operation(summary = "更新生成的讲义html文件内容", hidden = true)
     @PostMapping("/update")
     public JsonResult<MaterialVo> updateMaterial(@RequestBody UpMaterialQo upMaterialQo) {
         Long userId = currentUserId();
@@ -43,7 +43,7 @@ public class MaterialsController extends BaseController {
         return new JsonResult<>(OK, materialVo);
     }
 
-    @Operation(summary = "用户删除生成的讲义")
+    @Operation(summary = "用户删除生成的讲义", hidden = true)
     @DeleteMapping("/del/{id}")
     public JsonResult<List<MaterialVo>> delMaterial(@PathVariable Long id) {
         Long userId = currentUserId();

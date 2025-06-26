@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model_user.organization_top.mapper.OrgTopMapper">
+
+    <resultMap id="OrgTop" type="com.iecube.iecubetutorial.model_user.organization_top.entity.OrgTop">
+        <result column="create_time" property="createTime"></result>
+        <result column="last_operate_time" property="lastOperateTime"></result>
+        <result column="last_operator" property="lastOperator"></result>
+    </resultMap>
+
+    <insert id="createOrgTop" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO u_a_organization_top (id, `name`, type, `status`, removed, create_time, creator, last_operate_time, last_operator)
+        VALUES (NULL, #{name}, #{type}, #{status}, 0, #{createTime}, #{creator}, #{lastOperateTime}, #{lastOperator})
+    </insert>
+
+    <select id="getNotRemoved" resultMap="OrgTop">
+        SELECT id, name, type, status, create_time, removed, creator, last_operate_time, last_operator
+        FROM u_a_organization_top
+        WHERE removed=0
+    </select>
+
+    <select id="getById" resultMap="OrgTop">
+        SELECT id, name, type, status, create_time, removed, creator, last_operate_time, last_operator
+        FROM u_a_organization_top
+        WHERE id=#{id}
+    </select>
+
+    <update id="updateOrgTop">
+        UPDATE u_a_organization_top SET `name`=#{name},
+                                        last_operate_time=#{lastOperateTime},
+                                        last_operator=#{lastOperator}
+        WHERE id=#{id}
+    </update>
+
+    <update id="deleteOrgTop">
+        UPDATE u_a_organization_top SET `removed`=1  WHERE id=#{id}
+    </update>
+
+</mapper>

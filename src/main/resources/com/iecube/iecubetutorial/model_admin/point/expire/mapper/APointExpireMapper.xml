@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model_admin.point.expire.mapper.APointExpireMapper">
+
+    <resultMap id="ExpireDays" type="com.iecube.iecubetutorial.model_admin.point.expire.entity.ExpireDays">
+        <result column="create_time" property="createTime"></result>
+        <result column="last_operate_time" property="lastOperateTime"></result>
+        <result column="last_operator" property="lastOperator"></result>
+    </resultMap>
+
+    <insert id="newExpireDays" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO a_point_expire ( `id`, `days`,
+                                    `removed`, `create_time`, `creator`,`last_operate_time`,`last_operator`)
+        VALUES (NULL, #{days},0,#{createTime},#{creator}, #{lastOperateTime}, #{lastOperator} )
+    </insert>
+
+    <select id="getExpireDays" resultMap="ExpireDays">
+        SELECT `id`, `days`,`removed`, `create_time`, `creator`,`last_operate_time`,`last_operator`
+        FROM a_point_expire
+        WHERE removed=0
+    </select>
+
+    <update id="removeExpireDays">
+        UPDATE a_point_expire SET removed=1 WHERE removed=0
+    </update>
+</mapper>

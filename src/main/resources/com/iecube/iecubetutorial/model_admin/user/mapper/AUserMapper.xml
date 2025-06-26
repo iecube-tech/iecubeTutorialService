@@ -22,7 +22,11 @@
     </select>
 
     <select id="getAllUsers" resultMap="AUser">
-        SELECT phone,name, status,role,removed, create_time,creator, last_operate_time, last_operator FROM a_a_user
+        SELECT phone,name, status,role,removed, create_time,creator, last_operate_time, last_operator FROM a_a_user WHERE removed=0
+    </select>
+
+    <select id="getAdminUsers" resultMap="AUser">
+        SELECT phone,name, status,role,removed, create_time,creator, last_operate_time, last_operator FROM a_a_user WHERE removed=0 AND `role`="ADMIN"
     </select>
 
     <update id="updateUser">
@@ -35,7 +39,7 @@
     </update>
 
     <delete id="deleteUser">
-        UPDATE a_a_user SET removed=#{removed},
+        UPDATE a_a_user SET removed=1,
                             last_operate_time=#{lastOperateTime},
                             last_operator=#{lastOperator}
         WHERE phone=#{phone}
