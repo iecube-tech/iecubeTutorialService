@@ -1,10 +1,15 @@
 package com.iecube.iecubetutorial.config;
 
 import com.iecube.iecubetutorial.exception.AuthException;
+import com.iecube.iecubetutorial.model_admin.user.enmu.AUserRole;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class ThreadLocalUtil {
     private static final ThreadLocal<Map<String, Object>> THREAD_LOCAL = ThreadLocal.withInitial(HashMap::new);
 
@@ -20,9 +25,14 @@ public class ThreadLocalUtil {
         THREAD_LOCAL.remove();
     }
 
+    public static void echo() {
+        System.out.println(THREAD_LOCAL);
+    }
+
     // 快捷方法
     public static String getPhone() {
         if(get("phone") == null){
+            log.error("当前用户手机号为空");
             throw new AuthException("没有权限");
         }
         return (String) get("phone");
@@ -33,16 +43,21 @@ public class ThreadLocalUtil {
     }
 
     public static Long getAccountId() {
-        if(get("accountId") == null){
+        List<String > managerList = new ArrayList<>();
+        managerList.add(AUserRole.OPERATOR.getRole());
+        managerList.add(AUserRole.ADMIN.getRole());
+        managerList.add(AUserRole.SUPER.getRole());
+        if(get("accountId") == null && !managerList.contains(getUserType())){
+            log.error("当前账户ID号为空");
             throw new AuthException("没有权限");
         }
-        return (Long) get("accountId");
+        if(get("accountId") == null){
+            return null;
+        }
+        return Long.valueOf((Integer) get("accountId"));
     }
 
     public static String getRole() {
-        if(get("role") == null){
-            throw new AuthException("没有权限");
-        }
         return (String) get("role");
     }
 }

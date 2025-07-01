@@ -7,5 +7,5 @@ import org.apache.ibatis.annotations.Mapper;
 public interface APointExpireMapper {
     int newExpireDays(ExpireDays expireDays);
     ExpireDays getExpireDays();
-    int removeExpireDays(ExpireDays expireDays);
+    int removeExpireDays();
 }

@@ -5,6 +5,7 @@ import com.iecube.iecubetutorial.model_admin.operator.qo.AddUUserQo;
 import com.iecube.iecubetutorial.model_admin.operator.qo.OrgSecQo;
 import com.iecube.iecubetutorial.model_admin.operator.qo.RechargeQo;
 import com.iecube.iecubetutorial.model_admin.operator.vo.OrganizationVo;
+import com.iecube.iecubetutorial.model_admin.price.qo.PriceChangeQo;
 import com.iecube.iecubetutorial.model_admin.user.entity.AUser;
 import com.iecube.iecubetutorial.model_user.account.vo.AccountVo;
 import com.iecube.iecubetutorial.model_user.organization_sec.entity.OrgSec;
@@ -12,6 +13,7 @@ import com.iecube.iecubetutorial.model_user.organization_top.entity.OrgTop;
 import com.iecube.iecubetutorial.model_user.organization_top.qo.OrgTopQo;
 import com.iecube.iecubetutorial.model_user.points.entity.Points;
 import com.iecube.iecubetutorial.model_user.points.vo.ConsumePointVo;
+import com.iecube.iecubetutorial.model_user.points.vo.YearMonthConsumptionResponse;
 
 import java.util.List;
 
@@ -69,6 +71,14 @@ public interface OperatorService {
      */
     ConsumePointVo getConsumePoint(Long oSecId);
 
+
+    /**
+     * 根据二级组织获取账单
+     * @param oSecId 二级组织Id
+     * @return 按年月分组的账单
+     */
+    YearMonthConsumptionResponse getOrgSecBill(Long oSecId);
+
     /**
      * 创建一级组织
      * @param orgTopQo 创建一级组织
@@ -110,4 +120,11 @@ public interface OperatorService {
      * @return 可兑换的积分
      */
     double computePoints(double rmb);
+
+    /**
+     * 定价变更
+     * @param priceChangeQo 新定价
+     * @return 提审表单
+     */
+    Approval changePriceQo(PriceChangeQo priceChangeQo);
 }

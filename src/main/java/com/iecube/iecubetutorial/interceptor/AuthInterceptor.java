@@ -37,10 +37,10 @@ public class AuthInterceptor implements HandlerInterceptor {
 //        log.warn("ip:{} ==> {}", request.getHeader("X-Forwarded-For"), request.getHeader("User-Agent"));
 
         // token 验证 要验证这个token的fresh token在不在Redis中， 如果redis中没有这个token的refresh的token  则没有登录
-        System.out.println(request.getRequestURI());
+//        System.out.println(request.getRequestURI());
         String token = request.getHeader("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
-            System.out.println("111");
+            log.warn("缺少有效的认证凭证");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "缺少有效的认证凭证");
             return false;
         }
@@ -54,7 +54,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             String userType = (String) claims.get("userType");
             String storedToken = redisService.get( "TUTORIAL_"+userType+"_REFRESH_TOKEN:" + phone);
             if (storedToken==null) {
-                System.out.println("444");
+                log.warn("没有找到存储的对应的token");
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "请重新登录");
                 return false;
             }
@@ -70,7 +70,8 @@ public class AuthInterceptor implements HandlerInterceptor {
             if(claims.get("userType").equals("USER")){
                 // 用户端完整的登录校验
                 if(claims.get("accountId") == null && !request.getRequestURI().equals("/su/auth/relogin")){
-                    response.sendError(HttpServletResponse.SC_TEMPORARY_REDIRECT, "/relogin");
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "请重新登录");
+                    return false;
                 }
             }
 
@@ -80,8 +81,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             ThreadLocalUtil.set("accountId", claims.get("accountId"));
             ThreadLocalUtil.set("role", claims.get("role"));
         }catch (Exception e){
-            System.out.println("555");
-            System.out.println(e.getMessage());
+            log.warn("登录验证异常: {}", e.getMessage());
             if(e instanceof ExpiredJwtException){
                 response.setHeader("Token-Status", "EXPIRATION");
             }

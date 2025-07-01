@@ -18,4 +18,6 @@ public interface AccountService {
     Account getAccount(String phone, Long oSecId);
 
     Account getAccount(Long id);
+
+    List<AccountVo> getOrgSecUserMByOrgSecId(Long oSecId);
 }

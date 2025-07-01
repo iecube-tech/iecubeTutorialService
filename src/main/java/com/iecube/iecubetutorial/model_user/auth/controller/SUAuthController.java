@@ -4,10 +4,10 @@ import com.iecube.iecubetutorial.Auth.ApiPermissions;
 import com.iecube.iecubetutorial.baseController.BaseController;
 import com.iecube.iecubetutorial.exception.AuthException;
 import com.iecube.iecubetutorial.model_admin.user.qo.ALoginQo;
+import com.iecube.iecubetutorial.model_user.account.vo.AccountVo;
 import com.iecube.iecubetutorial.model_user.auth.dto.AuthDto;
 import com.iecube.iecubetutorial.model_user.auth.service.SUAuthService;
 import com.iecube.iecubetutorial.model_user.organization_sec.entity.OrgSec;
-import com.iecube.iecubetutorial.token.TokenDto;
 import com.iecube.iecubetutorial.util.JsonResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -53,7 +53,6 @@ public class SUAuthController extends BaseController {
     }
 
     @Operation(summary = "用户端选择组织登录/切换组织 [USER_M, USER]", description = "当用户在多个组织中存在角色时， /login 返回 login=false, 以及用户所在的组织列表， 此时需要用户选择登录哪一个组织下的账户。")
-    @ApiPermissions("{USER, USER_M}")
     @PostMapping("/relogin")
     public JsonResult<AuthDto> reLogin(Long orgSecId){
         if(orgSecId==null){
@@ -64,7 +63,7 @@ public class SUAuthController extends BaseController {
     }
 
     @Operation(summary = "用户端用户获取所在组织[USER_M, USER]")
-    @ApiPermissions("{USER, USER_M}")
+    @ApiPermissions({"USER_M","USER"})
     @GetMapping("/orgs")
     public JsonResult<List<OrgSec>> getOrgs(){
         return new JsonResult<>(OK, authService.accountOrgSecList());
@@ -90,6 +89,14 @@ public class SUAuthController extends BaseController {
         }
         AuthDto authDto = authService.refreshToken(refreshToken);
         return new JsonResult<>(OK, authDto);
+    }
+
+
+    @GetMapping("/colleague")
+    @Operation(summary = "用户端用户获取所在组织人员列表 [USER_M, USER]")
+    @ApiPermissions({"USER_M","USER"})
+    public JsonResult<List<AccountVo>> getOrgSecUserList(){
+        return new JsonResult<>(OK, authService.getUserListByAccount());
     }
 
 }

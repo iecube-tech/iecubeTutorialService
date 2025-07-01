@@ -19,4 +19,6 @@ public interface AccountMapper {
     List<Account> getAccountListByUser(String phone);
 
     Account getById(Long id);
+
+    List<AccountVo> getOrgSecUserMByOrgSecId(Long oSecId);
 }

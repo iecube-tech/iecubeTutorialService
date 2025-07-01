@@ -1,6 +1,9 @@
 package com.iecube.iecubetutorial.model_admin.price.service;
 
+import com.iecube.iecubetutorial.model_admin.approval.approval.entity.Approval;
 import com.iecube.iecubetutorial.model_admin.price.entity.PriceUnit;
+import com.iecube.iecubetutorial.model_admin.price.qo.PriceChangeQo;
+import com.iecube.iecubetutorial.model_admin.user.entity.AUser;
 
 import java.util.List;
 
@@ -17,7 +20,5 @@ public interface PriceUnitService {
      * @return **元每积分
      */
     double RechargePriceUnit();
-
-
 
 }

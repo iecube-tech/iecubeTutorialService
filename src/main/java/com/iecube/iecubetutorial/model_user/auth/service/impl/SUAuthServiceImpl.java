@@ -9,6 +9,7 @@ import com.iecube.iecubetutorial.model_admin.user.enmu.UserStatus;
 import com.iecube.iecubetutorial.model_admin.user.entity.AUser;
 import com.iecube.iecubetutorial.model_user.account.entity.Account;
 import com.iecube.iecubetutorial.model_user.account.service.AccountService;
+import com.iecube.iecubetutorial.model_user.account.vo.AccountVo;
 import com.iecube.iecubetutorial.model_user.auth.dto.AuthDto;
 import com.iecube.iecubetutorial.model_user.auth.service.SUAuthService;
 import com.iecube.iecubetutorial.model_user.organization_sec.entity.OrgSec;
@@ -200,6 +201,12 @@ public class SUAuthServiceImpl implements SUAuthService {
         authDto.setAccessToken(newTokens.get("accessToken"));
         authDto.setRefreshToken(newTokens.get("refreshToken"));
         return authDto;
+    }
+
+    @Override
+    public List<AccountVo> getUserListByAccount() {
+        Account account = accountService.getAccount(ThreadLocalUtil.getAccountId());
+        return accountService.getAccountsByOSecId(account.getOSecId());
     }
 
     private String generateCode() {

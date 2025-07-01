@@ -109,6 +109,10 @@ public class AiClientWebSocketHandler extends TextWebSocketHandler {
                         if(rec.get("current").get("messages").get(0).get("role").asText().equals("assistant")){
                             String artefactId = rec.get("current").get("messages").get(0).get("artefacts").get(0).get("id").asText();
                             ParseArtefactDto dto = new ParseArtefactDto();
+                            if(artefactId.isEmpty()){
+                                material.setStatus(MaterialStatus.FAILED.getStatus());
+                                materialService.handelUpload(material);
+                            }
                             dto.setArtefactId(artefactId);
                             dto.setStatus(artefactId.isEmpty()?MaterialStatus.FAILED.getStatus():MaterialStatus.DONE.getStatus());
                             dto.setError(artefactId.isEmpty()?"获取AI返回的文件ID错误":null);
@@ -134,6 +138,10 @@ public class AiClientWebSocketHandler extends TextWebSocketHandler {
                     }
                     // 生产 parseArtefactDto数据
                     ParseArtefactDto dto = new ParseArtefactDto();
+                    if(artefactId.isEmpty()){
+                        material.setStatus(MaterialStatus.FAILED.getStatus());
+                        materialService.handelUpload(material);
+                    }
                     dto.setArtefactId(artefactId);
                     dto.setStatus(artefactId.isEmpty()?MaterialStatus.FAILED.getStatus():MaterialStatus.DONE.getStatus());
                     dto.setError(artefactId.isEmpty()?"获取AI返回的文件ID错误":null);

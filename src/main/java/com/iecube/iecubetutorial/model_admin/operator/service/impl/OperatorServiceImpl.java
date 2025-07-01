@@ -15,6 +15,7 @@ import com.iecube.iecubetutorial.model_admin.operator.qo.RechargeQo;
 import com.iecube.iecubetutorial.model_admin.operator.service.OperatorService;
 import com.iecube.iecubetutorial.model_admin.operator.vo.OrgSecVO;
 import com.iecube.iecubetutorial.model_admin.operator.vo.OrganizationVo;
+import com.iecube.iecubetutorial.model_admin.price.qo.PriceChangeQo;
 import com.iecube.iecubetutorial.model_admin.price.service.PriceUnitService;
 import com.iecube.iecubetutorial.model_admin.user.entity.AUser;
 import com.iecube.iecubetutorial.model_admin.user.service.AUserService;
@@ -29,6 +30,7 @@ import com.iecube.iecubetutorial.model_user.organization_top.service.OrgTopServi
 import com.iecube.iecubetutorial.model_user.points.entity.Points;
 import com.iecube.iecubetutorial.model_user.points.service.PointsService;
 import com.iecube.iecubetutorial.model_user.points.vo.ConsumePointVo;
+import com.iecube.iecubetutorial.model_user.points.vo.YearMonthConsumptionResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -148,6 +150,11 @@ public class OperatorServiceImpl implements OperatorService {
     }
 
     @Override
+    public YearMonthConsumptionResponse getOrgSecBill(Long oSecId) {
+        return pointsService.getAllConsumptionsGroupedByYearMonth(oSecId);
+    }
+
+    @Override
     public List<OrganizationVo> createOrganizationTop(OrgTopQo orgTopQo) {
         OrgTop orgTop = new OrgTop();
         orgTop.setName(orgTopQo.getName());
@@ -250,5 +257,26 @@ public class OperatorServiceImpl implements OperatorService {
             throw new ServiceException("充值定价为0，无法计算");
         }
         return rmb/rechargePriceUnit;
+    }
+
+    @Override
+    public Approval changePriceQo(PriceChangeQo priceChangeQo) {
+        AUser createUser = userService.getUserByPhone(ThreadLocalUtil.getPhone());
+        AUser approver = userService.getUserByPhone(priceChangeQo.getApprover());
+        ApprovalDto approvalDto = new ApprovalDto();
+        approvalDto.setApprover(approver);
+        approvalDto.setCreator(createUser);
+        approvalDto.setPriceChangeQo(priceChangeQo);
+        try{
+            Approval approval = new Approval();
+            approval.setApprovalType("PRICE_CHANGE");
+            approval.setApproverPhone(priceChangeQo.getApprover());
+            approval.setStatus("PENDING");
+            approval.setContent(objectMapper.writeValueAsString(approvalDto));
+            return approvalService.createApproval(approval);
+        }catch (JsonProcessingException e) {
+            log.error("orgSecQo序列化异常：{}", e.getMessage());
+            throw new JsonException("序列化异常");
+        }
     }
 }

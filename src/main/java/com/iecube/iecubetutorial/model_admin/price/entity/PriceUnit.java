@@ -8,10 +8,10 @@ public class PriceUnit extends BaseEntity {
     private Long id;
     private String type;
     private String typeCn;
-    private String target;
+    private double target;
     private String targetUnits;
     private String targetUnitsCn;
-    private String need;
+    private double need;
     private String needUnits;
     private String needUnitsCn;
     private int active;

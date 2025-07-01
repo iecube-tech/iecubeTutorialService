@@ -33,6 +33,7 @@
         UPDATE a_a_user SET name=#{name},
                             status=#{status},
                             role=#{role},
+                            removed=#{removed},
                             last_operate_time=#{lastOperateTime},
                             last_operator=#{lastOperator}
                         WHERE phone=#{phone}

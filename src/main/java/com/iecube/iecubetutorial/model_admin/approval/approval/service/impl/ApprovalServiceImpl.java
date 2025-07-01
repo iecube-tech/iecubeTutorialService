@@ -18,6 +18,11 @@ import com.iecube.iecubetutorial.model_admin.operator.qo.AddUUserQo;
 import com.iecube.iecubetutorial.model_admin.operator.qo.OrgSecQo;
 import com.iecube.iecubetutorial.model_admin.operator.qo.RechargeQo;
 import com.iecube.iecubetutorial.model_admin.operator.qo.UUserQo;
+import com.iecube.iecubetutorial.model_admin.point.expire.service.impl.APointExpireServiceImpl;
+import com.iecube.iecubetutorial.model_admin.price.entity.PriceUnit;
+import com.iecube.iecubetutorial.model_admin.price.mapper.PriceUnitMapper;
+import com.iecube.iecubetutorial.model_admin.price.qo.PriceChangeQo;
+import com.iecube.iecubetutorial.model_admin.price.service.PriceUnitService;
 import com.iecube.iecubetutorial.model_user.account.entity.Account;
 import com.iecube.iecubetutorial.model_user.account.service.AccountService;
 import com.iecube.iecubetutorial.model_user.enmu.UserStatus;
@@ -60,6 +65,12 @@ public class ApprovalServiceImpl implements ApprovalService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private PriceUnitMapper priceUnitMapper;
+
+    @Autowired
+    private APointExpireServiceImpl pointExpireService;
 
     @Override
     public List<Approval> getByApprover() {
@@ -158,7 +169,7 @@ public class ApprovalServiceImpl implements ApprovalService {
                     handleRechargeApproval(approval);
                     break;
                 case "PRICE_CHANGE":
-
+                    handlePricingApproval(approval);
                     break;
             }
         } catch (Exception e) {
@@ -217,7 +228,47 @@ public class ApprovalServiceImpl implements ApprovalService {
     }
 
     private void handlePricingApproval(Approval approval) {
-
+        try{
+            ApprovalDto approvalDto = objectMapper.readValue(approval.getContent(),ApprovalDto.class);
+            PriceChangeQo priceChangeQo = approvalDto.getPriceChangeQo();
+            priceUnitMapper.disableAll();
+            PriceUnit recharge = new PriceUnit();
+            recharge.setType("RECHARGE");
+            recharge.setTypeCn("充值");
+            recharge.setTarget(1);
+            recharge.setTargetUnits("point");
+            recharge.setTargetUnitsCn("积分");
+            recharge.setNeed(priceChangeQo.getHowRmbToOnePoint());
+            recharge.setNeedUnits("RMB");
+            recharge.setNeedUnitsCn("人民币");
+            recharge.setActive(1);
+            recharge.setRemoved(0);
+            recharge.setCreateTime(Instant.now());
+            recharge.setCreator(approval.getCreator());
+            recharge.setLastOperateTime(Instant.now());
+            recharge.setLastOperator(priceChangeQo.getApprover());
+            priceUnitMapper.createPrice(recharge);
+            PriceUnit consume = new PriceUnit();
+            consume.setType("CONSUME");
+            consume.setTypeCn("消费");
+            consume.setTarget(1);
+            consume.setTargetUnits("generate");
+            consume.setTargetUnitsCn("生成");
+            consume.setNeed(priceChangeQo.getHowPointsToOneGenerate());
+            consume.setNeedUnits("point");
+            consume.setNeedUnitsCn("积分");
+            consume.setActive(1);
+            consume.setRemoved(0);
+            consume.setCreateTime(Instant.now());
+            consume.setCreator(approval.getCreator());
+            consume.setLastOperateTime(Instant.now());
+            consume.setLastOperator(priceChangeQo.getApprover());
+            priceUnitMapper.createPrice(consume);
+            pointExpireService.changeExpireDays(priceChangeQo.getExpireDays(), approval.getCreator(),  priceChangeQo.getApprover());
+        }catch (JsonProcessingException e){
+            log.error("objectMapper.readValue Exception", e);
+            throw new JsonException("json序列化异常");
+        }
     }
 
     private boolean ApprovalStatusCanNotApprove(Approval approval) {

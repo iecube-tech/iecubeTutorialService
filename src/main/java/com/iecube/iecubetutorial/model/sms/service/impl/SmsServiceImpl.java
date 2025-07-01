@@ -34,6 +34,9 @@ public class SmsServiceImpl implements SmsService {
     @Value("${aliyun.sms.login-template-code}")
     private String loginTemplateCode;  // 你的模板CODE
 
+    @Value("${aliyun.sms.notify-template-code}")
+    private String notifyTemplateCode;  // 你的模板CODE
+
     private Client createClient() throws Exception {
         Config config = new Config();
         // 配置 AccessKey ID
@@ -86,6 +89,27 @@ public class SmsServiceImpl implements SmsService {
             if(!res.get("body").get("code").asText().equals("OK")){
                 log.info(res.toString());
             }
+            return res.get("body").get("code").asText().equals("OK");
+        } catch (Exception e) {
+            throw new SendSMSMessageException(e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean sendExpireDaysNotifySms(String phoneNumber, String name, Long day) {
+        try {
+            Client client = createClient();
+            // 构造API请求对象，请替换请求参数值
+            SendSmsRequest sendSmsRequest = new SendSmsRequest()
+                    .setPhoneNumbers(phoneNumber)
+                    .setSignName(signName)
+                    .setTemplateCode(notifyTemplateCode)
+                    .setTemplateParam("{\"name\":\"" + name + "\", \"days\":\"" + day + "\"}"); // TemplateParam为序列化后的JSON字符串。
+            // 获取响应对象
+            SendSmsResponse sendSmsResponse = client.sendSms(sendSmsRequest);
+            // 响应包含服务端响应的 body 和 headers
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode res = objectMapper.readTree(toJSONString(sendSmsResponse));
             return res.get("body").get("code").asText().equals("OK");
         } catch (Exception e) {
             throw new SendSMSMessageException(e.getMessage());

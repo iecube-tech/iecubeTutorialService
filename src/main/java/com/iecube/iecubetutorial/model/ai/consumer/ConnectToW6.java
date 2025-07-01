@@ -62,7 +62,7 @@ public class ConnectToW6 implements Runnable {
             try{
                 String chatId = NewConnectTask.take().getChatId();
                 MaterialEntity material = materialService.getMaterial(chatId);
-                log.info("w6-connect 任务：{}：{},{},{},{}", chatId, material.getId(),material.getUserId(), material.getName(),material.getTitle());
+                log.info("w6-connect 任务：对话：{}：目标id：{}, 账户id：{},{},{}", chatId, material.getId(),material.getUserId(), material.getName(),material.getTitle());
                 ChatIdToMaterial.put(chatId,material); // todo  一直put可能导致内存泄漏
                 log.info("ChatIdToMaterial 数量检查：{}", ChatIdToMaterial.size());
                 log.info("有 {} 个进行中的w6 webSocket 连接",ChatIdToSession.size());

@@ -18,6 +18,10 @@ import com.iecube.iecubetutorial.model.resource.entity.Resource;
 import com.iecube.iecubetutorial.model.resource.mapper.ResourceMapper;
 import com.iecube.iecubetutorial.model.resource.service.ResourceService;
 import com.iecube.iecubetutorial.model.user.exception.AuthException;
+import com.iecube.iecubetutorial.model_user.account.entity.Account;
+import com.iecube.iecubetutorial.model_user.account.service.AccountService;
+import com.iecube.iecubetutorial.model_user.points.exception.PointsNotEnoughException;
+import com.iecube.iecubetutorial.model_user.points.service.PointsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,6 +51,12 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Autowired
     private ResourceService resourceService;
+    
+    @Autowired
+    private AccountService accountService;
+
+    @Autowired
+    private PointsService pointsService;
 
     private final BlockingQueue<MaterialChat> NewConnectTask;
 
@@ -58,9 +68,13 @@ public class MaterialServiceImpl implements MaterialService {
 
 
     @Override
-    public void generateMaterial(MaterialQo materialQo, Long userId) {
+    public void generateMaterial(MaterialQo materialQo, Long accountId) {
+        Account account = accountService.getAccount(accountId);
+        if(!pointsService.pointsEnough(account)){
+            throw new PointsNotEnoughException("余额不足");
+        }
         MaterialEntity material = new MaterialEntity(); // material
-        material.setUserId(userId);
+        material.setUserId(accountId);
         material.setName(materialQo.getName());
         material.setTitle(materialQo.getTitle());
         material.setKnowledgePoint(materialQo.getKnowledgePoints());
@@ -95,8 +109,8 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public List<MaterialVo> getMaterials(Long userId) {
-        List<MaterialEntity> entities = materialMapper.getMaterials(userId);
+    public List<MaterialVo> getMaterials(Long accountId) {
+        List<MaterialEntity> entities = materialMapper.getMaterials(accountId);
         List<MaterialVo> vos = new ArrayList<>();
         entities.forEach(entity -> {
             MaterialVo vo = entityToVo(entity);
@@ -134,12 +148,12 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public MaterialVo updateMaterial(UpMaterialQo upMaterialQo, Long userId) {
+    public MaterialVo updateMaterial(UpMaterialQo upMaterialQo, Long accountId) {
         if(upMaterialQo.getId()==null){
             throw new AuthException("没有权限");
         }
         MaterialEntity materialEntity = materialMapper.getMaterial(upMaterialQo.getId());
-        if(!userId.equals(materialEntity.getUserId())){
+        if(!accountId.equals(materialEntity.getUserId())){
             throw new AuthException("没有权限");
         }
         Resource resource = resourceMapper.getResource(materialEntity.getResource());
@@ -155,19 +169,19 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public List<MaterialVo> deleteMaterial(Long id, Long userId) {
+    public List<MaterialVo> deleteMaterial(Long id, Long accountId) {
         if(id==null){
             throw new AuthException("没有权限");
         }
         MaterialEntity materialEntity = materialMapper.getMaterial(id);
-        if(!userId.equals(materialEntity.getUserId())){
+        if(!accountId.equals(materialEntity.getUserId())){
             throw new AuthException("没有权限");
         }
         int res = materialMapper.deleteMaterial(id);
         if(res!=1){
             throw new DeleteException("服务错误， 删除数据异常");
         }
-        return this.getMaterials(userId);
+        return this.getMaterials(accountId);
     }
 
     @Override

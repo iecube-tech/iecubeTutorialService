@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum AUserRole {
-    SUPER("SUPER","超级管理员"), ADMIN("ADMIN","管理员"), USER("USER","运营");
+    SUPER("SUPER","超级管理员"), ADMIN("ADMIN","管理员"), OPERATOR("OPERATOR","运营");
 
     private final String role;
     private final String label;

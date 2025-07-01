@@ -19,7 +19,7 @@
     <select id="getPriceUnits" resultMap="PriceUnit">
         SELECT `id`, `type`, `type_cn`, `target`, `target_units`, `target_units_cn`, `need`, `need_units`,
                `need_units_cn`,`active`,`removed`, `create_time`, `creator`,`last_operate_time`,`last_operator`
-        FROM a_price_unit
+        FROM a_price_unit WHERE active=1
     </select>
 
     <select id="GeneratePriceUnit" parameterType="java.lang.Double">
@@ -36,5 +36,17 @@
                                 last_operator=#{lastOperator}
                             WHERE `type`=#{type}
     </update>
+
+    <update id="disableAll">
+        UPDATE a_price_unit SET active=0 WHERE active=1
+    </update>
+    
+    <insert id="createPrice">
+        INSERT INTO a_price_unit (`id`, `type`, `type_cn`, `target`, `target_units`, `target_units_cn`, `need`, `need_units`,
+                                  `need_units_cn`,`active`,
+                                  `removed`, `create_time`, `creator`,`last_operate_time`,`last_operator`)
+        values (NULl, #{type},#{typeCn},#{target},#{targetUnits},#{targetUnitsCn},#{need},#{needUnits},#{needUnitsCn},#{active},
+                #{removed},#{createTime},#{creator},#{lastOperateTime},#{lastOperator})
+    </insert>
 
 </mapper>

@@ -8,5 +8,5 @@ import java.util.List;
 @Data
 public class ConsumePointVo {
     private double consumeTotal;
-    private List<PointsRecord> consumedRecord;
+    private List<PointRecordVo> consumedRecord;
 }

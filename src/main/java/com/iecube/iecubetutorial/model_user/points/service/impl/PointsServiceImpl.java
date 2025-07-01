@@ -2,22 +2,31 @@ package com.iecube.iecubetutorial.model_user.points.service.impl;
 
 import com.iecube.iecubetutorial.config.ThreadLocalUtil;
 import com.iecube.iecubetutorial.model.materials.entity.MaterialEntity;
+import com.iecube.iecubetutorial.model.sms.service.SmsService;
 import com.iecube.iecubetutorial.model_admin.point.expire.service.APointExpireService;
 import com.iecube.iecubetutorial.model_admin.price.service.PriceUnitService;
 import com.iecube.iecubetutorial.model_user.account.entity.Account;
+import com.iecube.iecubetutorial.model_user.account.service.AccountService;
+import com.iecube.iecubetutorial.model_user.account.vo.AccountVo;
 import com.iecube.iecubetutorial.model_user.organization_sec.entity.OrgSec;
 import com.iecube.iecubetutorial.model_user.points.enmu.PointStatus;
 import com.iecube.iecubetutorial.model_user.points.enmu.PointType;
 import com.iecube.iecubetutorial.model_user.points.entity.Points;
 import com.iecube.iecubetutorial.model_user.points.entity.PointsRecord;
+import com.iecube.iecubetutorial.model_user.points.exception.PointsNotEnoughException;
 import com.iecube.iecubetutorial.model_user.points.mapper.PointsMapper;
 import com.iecube.iecubetutorial.model_user.points.mapper.PointsRecordMapper;
 import com.iecube.iecubetutorial.model_user.points.service.PointsService;
 import com.iecube.iecubetutorial.model_user.points.vo.ConsumePointVo;
+import com.iecube.iecubetutorial.model_user.points.vo.PointRecordVo;
+import com.iecube.iecubetutorial.model_user.points.vo.YearMonthConsumptionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -34,6 +43,12 @@ public class PointsServiceImpl implements PointsService {
 
     @Autowired
     private PriceUnitService priceUnitService;
+
+    @Autowired
+    private AccountService accountService;
+
+    @Autowired
+    private SmsService smsService;
 
     @Override
     public void createPoints(OrgSec orgSec, double points, String creator) {
@@ -70,9 +85,11 @@ public class PointsServiceImpl implements PointsService {
 
     @Override
     public void consumePoints(Account account, MaterialEntity material) {
+        Points point = pointsMapper.findValidPointsByOSecId(account.getOSecId());
         double price = priceUnitService.GeneratePriceUnit();
-
-
+        point.setAmount(point.getAmount() - price);
+        pointsMapper.updatePoints(point);
+        this.pointsRecord(PointType.CONSUME.name(), account.getOSecId(), account, price,material);
     }
 
     @Override
@@ -81,12 +98,18 @@ public class PointsServiceImpl implements PointsService {
     }
 
     @Override
+    public Points getPointsValidByAccount() {
+        Account account = accountService.getAccount(ThreadLocalUtil.getAccountId());
+        return getPointsValid(account.getOSecId());
+    }
+
+    @Override
     public ConsumePointVo getConsumePoint(Long oSecId) {
-        List<PointsRecord> ConsumeRecords = this.getSecPointsRecords(oSecId).stream()
+        List<PointRecordVo> ConsumeRecords = this.getSecPointsRecords(oSecId).stream()
                 .filter(r-> PointType.CONSUME.name().equals(r.getType()))
                 .toList();
         double total = 0.0;
-        for(PointsRecord record : ConsumeRecords) {
+        for(PointRecordVo record : ConsumeRecords) {
             total += record.getPoints();
         }
         ConsumePointVo consumePointVo  = new ConsumePointVo();
@@ -96,33 +119,99 @@ public class PointsServiceImpl implements PointsService {
     }
 
     @Override
+    public ConsumePointVo getConsumePointByAccount() {
+        Account account = accountService.getAccount(ThreadLocalUtil.getAccountId());
+        return getConsumePoint(account.getOSecId());
+    }
+
+    @Override
     public List<Points> getAllPoints(Long oSecId) {
         return pointsMapper.findAllPointsByOSecId(oSecId);
     }
 
     @Override
-    public List<PointsRecord> getSecPointsRecords(Long oSecId) {
-        return pointsRecordMapper.getByOSecId(oSecId);
+    public List<PointRecordVo> getSecPointsRecords(Long oSecId) {
+        List<PointRecordVo> consume = pointsRecordMapper.oSecConsume(oSecId);
+        List<PointRecordVo> recharge = pointsRecordMapper.oSecRecharge(oSecId);
+        List<PointRecordVo> all = new ArrayList<>();
+        all.addAll(recharge);
+        all.addAll(consume);
+        return all.stream()
+                .sorted(Comparator.comparing(PointRecordVo::getCreateTime).reversed())
+                .toList();
     }
 
     @Override
-    public List<PointsRecord> getAccountPointsRecords(Long accountId) {
-        return pointsRecordMapper.getByAccount(accountId);
+    public List<PointRecordVo> getAccountPointsRecords() {
+        Long accountId = ThreadLocalUtil.getAccountId();
+        Account account = accountService.getAccount(accountId);
+        return getSecPointsRecords(account.getOSecId());
     }
 
     @Override
     public boolean pointsEnough(Account account) {
-        Points point = pointsMapper.findValidPointsByOSecId(account.getId());
+        Points point = pointsMapper.findValidPointsByOSecId(account.getOSecId());
         double price = priceUnitService.GeneratePriceUnit();
         if(point == null) {
-            return false;
+            throw new PointsNotEnoughException("余额不足");
         }
-        return point.getAmount() > price;
+        if(point.getAmount() < price){
+            throw new PointsNotEnoughException("余额不足");
+        }
+        return true;
     }
 
     @Override
-    public void checkAndNotifyExpiringPoints() {
+    public YearMonthConsumptionResponse getAllConsumptionsGroupedByYearMonth(Long oSecId) {
+        List<PointRecordVo> sortedAll = getSecPointsRecords(oSecId);
+        YearMonthConsumptionResponse response = new YearMonthConsumptionResponse();
+        // 按年月分组
+        for (PointRecordVo record : sortedAll) {
+            response.addRecord(record);
+        }
+        return response;
+    }
 
+    @Override
+    public YearMonthConsumptionResponse getAllConsumptionsGroupedByYearMonth() {
+        Account account = accountService.getAccount(ThreadLocalUtil.getAccountId());
+        List<PointRecordVo> sortedAll = getSecPointsRecords(account.getOSecId());
+        YearMonthConsumptionResponse response = new YearMonthConsumptionResponse();
+        // 按年月分组
+        for (PointRecordVo record : sortedAll) {
+            response.addRecord(record);
+        }
+        return response;
+    }
+
+    @Override
+    public void notifyExpiringPoints() {
+        //每天的18点执行，通知用户60/30/1天后到期
+        Instant currentDate = LocalDateTime.now(ZoneId.systemDefault()).atZone(ZoneId.systemDefault()).toInstant();
+        List<Points> willExpiredPoints = pointsMapper.willExpiredIn60Days(currentDate);
+        if(willExpiredPoints.isEmpty()) {
+            return;
+        }
+        willExpiredPoints.forEach(point ->{
+            //根据二级组织查询管理员
+            List<AccountVo> accountVoList = accountService.getOrgSecUserMByOrgSecId(point.getOSecId());
+            Instant expireTime = point.getExpireDate();
+            LocalDate expireTimeL = expireTime.atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate currentTime = LocalDate.now(ZoneId.systemDefault());
+            long daysDifference = ChronoUnit.DAYS.between(currentTime, expireTimeL);
+            accountVoList.forEach(accountVo -> {
+                smsService.sendExpireDaysNotifySms(accountVo.getPhone(), accountVo.getOSecName(),daysDifference-1);
+            });
+        });
+    }
+
+    @Override
+    public void expirePoints() {
+        Instant currentTime = LocalDateTime.now(ZoneId.systemDefault())
+                .withSecond(30)
+                .atZone(ZoneId.systemDefault())
+                .toInstant();
+        pointsMapper.expiredPoints(currentTime);
     }
 
     private void pointsRecord(String type, Long oSecId, Account account, double point, MaterialEntity material) {
@@ -141,9 +230,9 @@ public class PointsServiceImpl implements PointsService {
      * @return Instant 过期日期的22点
      */
     private Instant computeExpireDate(int days) {
-        // 获取当前本地日期，设置时间为22点，再加上180天
+        // 获取当前本地日期，设置时间为22点，再加上181天
         LocalDateTime localDateTime = LocalDateTime.now(ZoneId.systemDefault())
-                .plusDays(days)
+                .plusDays(days+1)
                 .withHour(22)
                 .withMinute(0)
                 .withSecond(0)

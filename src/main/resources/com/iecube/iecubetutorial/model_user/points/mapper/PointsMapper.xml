@@ -42,4 +42,16 @@
         FROM u_a_point
         WHERE o_sec_id=#{oSecId} AND `removed`=0
     </select>
+
+    <select id="willExpiredIn60Days" resultMap="Points">
+        SELECT id, o_sec_id, amount, `status`, expire_date,
+               `removed`, create_time, creator, last_operate_time, last_operator
+        FROM u_a_point
+        WHERE DATE(expire_date) = DATE(DATE_ADD(#{currentTime}, INTERVAL 60 DAY))
+        AND `status`="ACTIVE"
+    </select>
+
+    <update id="expiredPoints">
+        UPDATE u_a_point SET `status`="EXPIRED" WHERE expire_date &lt; #{currentTime} AND `status`="ACTIVE"
+    </update>
 </mapper>

@@ -12,6 +12,19 @@
         <result column="create_time" property="createTime"></result>
     </resultMap>
 
+    <resultMap id="PointsRecordVo" type="com.iecube.iecubetutorial.model_user.points.vo.PointRecordVo">
+        <result column="o_sec_id" property="oSecId"></result>
+        <result column="account_id" property="accountId"></result>
+        <result column="material_id" property="materialId"></result>
+        <result column="create_time" property="createTime"></result>
+        <result column="sec_name" property="secName"></result>
+        <result column="top_name" property="topName"></result>
+        <result column="user_name" property="userName"></result>
+        <result column="material_name" property="materialName"></result>
+        <result column="material_title" property="materialTitle"></result>
+        <result column="material_knowledge_point" property="materialKnowledgePoint"></result>
+    </resultMap>
+
     <insert id="create" keyProperty="id" useGeneratedKeys="true">
         INSERT INTO u_a_point_record (id, o_sec_id, account_id, `type`, points, material_id, create_time)
         values (NULL, #{oSecId}, #{accountId}, #{type}, #{points}, #{materialId}, #{createTime})
@@ -27,5 +40,25 @@
         SELECT id, o_sec_id, account_id, `type`, points, material_id, create_time
         FROM u_a_point_record
         WHERE account_id=#{accountId} ORDER BY create_time
+    </select>
+    
+    <select id="oSecConsume" resultMap="PointsRecordVo">
+        SELECT re.id, re.type, re.points, re.create_time, re.o_sec_id, re.account_id, re.material_id, sec.`name` AS sec_name, top.`name` AS top_name,
+               u.`name` AS user_name, u.phone, m.`name` AS material_name, m.title AS material_title, m.knowledge_point AS material_knowledge_point
+        FROM `u_a_point_record` re
+            INNER JOIN `u_a_organization_sec` sec ON re.o_sec_id=sec.id
+            INNER JOIN `u_a_organization_top` top ON sec.p_id=top.id
+            INNER JOIN  `u_a_account` account ON re.account_id=account.id
+            INNER JOIN `u_a_user` u ON account.phone=u.phone
+            INNER JOIN `materials` m ON re.material_id=m.id
+        WHERE re.o_sec_id=#{oSecId} AND re.type='CONSUME' ORDER BY create_time DESC;
+    </select>
+
+    <select id="oSecRecharge" resultMap="PointsRecordVo">
+        SELECT re.id, re.type, re.points, re.create_time, re.o_sec_id, re.account_id, re.material_id, sec.`name` AS secName, top.`name` AS topName
+        FROM `u_a_point_record` re
+            INNER JOIN `u_a_organization_sec` sec ON re.o_sec_id=sec.id
+            INNER JOIN `u_a_organization_top` top ON sec.p_id=top.id
+        WHERE re.o_sec_id=#{oSecId} AND re.type='RECHARGE' ORDER BY create_time DESC;
     </select>
 </mapper>

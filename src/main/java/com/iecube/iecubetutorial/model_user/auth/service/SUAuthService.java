@@ -1,7 +1,9 @@
 package com.iecube.iecubetutorial.model_user.auth.service;
 
+import com.iecube.iecubetutorial.model_user.account.vo.AccountVo;
 import com.iecube.iecubetutorial.model_user.auth.dto.AuthDto;
 import com.iecube.iecubetutorial.model_user.organization_sec.entity.OrgSec;
+import com.iecube.iecubetutorial.model_user.user.entity.UUser;
 
 import java.util.List;
 
@@ -16,4 +18,6 @@ public interface SUAuthService {
     List<OrgSec> accountOrgSecList();
 
     AuthDto refreshToken(String refreshToken);
+
+    List<AccountVo> getUserListByAccount();
 }

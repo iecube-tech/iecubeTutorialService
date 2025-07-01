@@ -4,8 +4,9 @@ import com.iecube.iecubetutorial.model.materials.entity.MaterialEntity;
 import com.iecube.iecubetutorial.model_user.account.entity.Account;
 import com.iecube.iecubetutorial.model_user.organization_sec.entity.OrgSec;
 import com.iecube.iecubetutorial.model_user.points.entity.Points;
-import com.iecube.iecubetutorial.model_user.points.entity.PointsRecord;
 import com.iecube.iecubetutorial.model_user.points.vo.ConsumePointVo;
+import com.iecube.iecubetutorial.model_user.points.vo.PointRecordVo;
+import com.iecube.iecubetutorial.model_user.points.vo.YearMonthConsumptionResponse;
 
 import java.util.List;
 
@@ -28,26 +29,87 @@ public interface PointsService {
      */
     void rechargePoints(OrgSec orgSec, double points, String creator);
 
-    // 消费积分
+    /**
+     * 扣除积分
+     * @param account 账户
+     * @param material 扣费的条目
+     */
     void consumePoints(Account account, MaterialEntity material);
 
-    // 获取组织有效积分余额
+    /**
+     * 获取组织的剩余积分
+     * @param oSecId 组织id
+     * @return Points
+     */
     Points getPointsValid(Long oSecId);
 
-    // 获取组织消费的总积分 及消耗明细
+
+    Points getPointsValidByAccount();
+
+    /**
+     * 获取组织消费的总积分 及消耗明细
+     * @param oSecId 组织Id
+     * @return ConsumePointVo
+     */
     ConsumePointVo getConsumePoint(Long oSecId);
 
-    // 获取组织所有积分记录
+    /**
+     * 用户 获取组织消费的总积分 及消耗明细
+     * @return ConsumePointVo
+     */
+    ConsumePointVo getConsumePointByAccount();
+
+    /**
+     * 获取组织所有有效 失效 总积分
+     * @param oSecId 组织id
+     * @return List<Points>
+     */
     List<Points> getAllPoints(Long oSecId);
 
-    // 获取组织账单
-    List<PointsRecord> getSecPointsRecords(Long oSecId);
+    /**
+     * 获取组织账单
+     * @param oSecId 组织id
+     * @return List<PointsRecord>
+     */
+    List<PointRecordVo> getSecPointsRecords(Long oSecId);
 
-    // 获取账户账单
-    List<PointsRecord> getAccountPointsRecords(Long accountId);
+    /**
+     * 账户获取组织账单
+     * @return List<PointsRecord>
+     */
+    List<PointRecordVo> getAccountPointsRecords();
 
+    /**
+     * 积分是否充足
+     * @param account 账户
+     * @return 充足 true 不够 抛出异常
+     */
     boolean pointsEnough(Account account);
 
-    // 检查并通知即将到期的积分
-    void checkAndNotifyExpiringPoints();
+    /**
+     * 二级组织按年月返回 账单
+     * @param oSecId 二级组织id
+     * @return YearMonthConsumptionResponse
+     */
+    YearMonthConsumptionResponse getAllConsumptionsGroupedByYearMonth(Long oSecId);
+
+    /**
+     * 账户按年月返回 账单
+     * @return YearMonthConsumptionResponse
+     */
+    YearMonthConsumptionResponse getAllConsumptionsGroupedByYearMonth();
+
+    //todo 通知即将到期的积分
+
+    /**
+     * 每天18点执行， 通知用户积分60天后到期
+     */
+    void notifyExpiringPoints();
+
+    // todo 过期积分
+
+    /**
+     * 每天22点01执行，过期积分
+     */
+    void expirePoints();
 }

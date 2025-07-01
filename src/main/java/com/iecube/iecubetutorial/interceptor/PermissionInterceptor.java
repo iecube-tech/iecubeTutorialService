@@ -35,6 +35,11 @@ public class PermissionInterceptor implements HandlerInterceptor {
         // 获取用户类型
         String userType = ThreadLocalUtil.getUserType();
         String role = ThreadLocalUtil.getRole();
+        if(role == null || role.isEmpty()){
+            System.out.println("n");
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "没有权限");
+            return false;
+        }
         Long accountId = ThreadLocalUtil.getAccountId();
         String phone = ThreadLocalUtil.getPhone();
         log.info("[REQUEST] {},{},{},{},{},{}", userType, role, accountId, phone, method, requestPath);

@@ -20,4 +20,8 @@ public interface PriceUnitMapper {
      * @return **元每积分
      */
     double RechargePriceUnit();
+
+    void disableAll();
+
+    int createPrice(PriceUnit priceUnit);
 }

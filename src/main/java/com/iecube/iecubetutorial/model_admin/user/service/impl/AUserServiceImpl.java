@@ -101,6 +101,20 @@ public class AUserServiceImpl implements AUserService {
 
     @Override
     public AUser CreateUser(AUserQo aUserQo, String operator) {
+        AUser existUser = aUserMapper.getUserByPhone(aUserQo.getPhone());
+        if(existUser!=null && existUser.getRemoved().equals(0)){
+            throw new PhoneUnavailableException("电话号码已存在");
+        }
+        if(existUser!=null && existUser.getRemoved().equals(1)){
+            existUser.setName(aUserQo.getName());
+            existUser.setRole(aUserQo.getRole());
+            existUser.setRemoved(0);
+            int res = aUserMapper.updateUser(existUser);
+            if(res!=1){
+                throw new UpdateException("更新数据异常");
+            }
+            return existUser;
+        }
         AUser aUser = new AUser();
         aUser.setName(aUserQo.getName());
         aUser.setPhone(aUserQo.getPhone());

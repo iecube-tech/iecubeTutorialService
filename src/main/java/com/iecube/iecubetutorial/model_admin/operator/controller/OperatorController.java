@@ -3,6 +3,8 @@ package com.iecube.iecubetutorial.model_admin.operator.controller;
 
 import com.iecube.iecubetutorial.Auth.ApiPermissions;
 import com.iecube.iecubetutorial.baseController.BaseController;
+import com.iecube.iecubetutorial.config.ThreadLocalUtil;
+import com.iecube.iecubetutorial.exception.ServiceException;
 import com.iecube.iecubetutorial.exception.UpdateException;
 import com.iecube.iecubetutorial.model_admin.approval.approval.entity.Approval;
 import com.iecube.iecubetutorial.model_admin.operator.qo.AddUUserQo;
@@ -11,6 +13,7 @@ import com.iecube.iecubetutorial.model_admin.operator.qo.RechargeQo;
 import com.iecube.iecubetutorial.model_admin.operator.service.OperatorService;
 import com.iecube.iecubetutorial.model_admin.operator.vo.OrganizationVo;
 import com.iecube.iecubetutorial.model_admin.operator.vo.userTypeVo;
+import com.iecube.iecubetutorial.model_admin.price.qo.PriceChangeQo;
 import com.iecube.iecubetutorial.model_admin.user.entity.AUser;
 import com.iecube.iecubetutorial.model_user.account.vo.AccountVo;
 import com.iecube.iecubetutorial.model_user.enmu.UserType;
@@ -19,6 +22,7 @@ import com.iecube.iecubetutorial.model_user.organization_top.entity.OrgTop;
 import com.iecube.iecubetutorial.model_user.organization_top.qo.OrgTopQo;
 import com.iecube.iecubetutorial.model_user.points.entity.Points;
 import com.iecube.iecubetutorial.model_user.points.vo.ConsumePointVo;
+import com.iecube.iecubetutorial.model_user.points.vo.YearMonthConsumptionResponse;
 import com.iecube.iecubetutorial.util.JsonResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -110,6 +114,13 @@ public class OperatorController extends BaseController {
         return new JsonResult<>(OK, operatorService.getConsumePoint(oSecId));
     }
 
+    @Operation(summary = "根据二级组织查询账单 [OPERATOR]", description = "role限制：[OPERATOR]")
+    @ApiPermissions({"OPERATOR"})
+    @GetMapping("/org/points/bill/{oSecId}")
+    public JsonResult<YearMonthConsumptionResponse> getOrgSecBill(@PathVariable Long oSecId){
+        return new JsonResult<>(OK, operatorService.getOrgSecBill(oSecId));
+    }
+
     @Operation(summary = "创建一级组织 [OPERATOR]", description = "role限制：[OPERATOR]")
     @ApiPermissions({"OPERATOR"})
     @PostMapping("/org/top/create")
@@ -153,6 +164,20 @@ public class OperatorController extends BaseController {
     @PostMapping("/points/recharge/org")
     public JsonResult<Approval> recharge(@RequestBody RechargeQo rechargeQo){
         return new JsonResult<>(OK,operatorService.recharge(rechargeQo));
+    }
+
+    // todo 修改定价
+    @PostMapping("/price/change")
+    @Operation(summary = "更改定价提交审批 [ADMIN]", description = "role限制: [ADMIN]", tags = {"管理端定价"})
+    @ApiPermissions({"ADMIN"})
+    public JsonResult<Approval> priceUnitChange(@RequestBody PriceChangeQo priceChangeQo){
+        if(priceChangeQo.getApprover() == null || priceChangeQo.getApprover().isEmpty()){
+            throw new ServiceException("请选择审批人");
+        }
+        if(priceChangeQo.getApprover().equals(ThreadLocalUtil.getPhone())){
+            throw new ServiceException("请更改审批人");
+        }
+        return new JsonResult<>(OK, operatorService.changePriceQo(priceChangeQo));
     }
 
 

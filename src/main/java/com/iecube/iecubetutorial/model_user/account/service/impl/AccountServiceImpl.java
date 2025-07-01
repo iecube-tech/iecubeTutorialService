@@ -5,7 +5,6 @@ import com.iecube.iecubetutorial.model_user.account.entity.Account;
 import com.iecube.iecubetutorial.model_user.account.mapper.AccountMapper;
 import com.iecube.iecubetutorial.model_user.account.service.AccountService;
 import com.iecube.iecubetutorial.model_user.account.vo.AccountVo;
-import com.iecube.iecubetutorial.model_user.user.entity.UUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -63,5 +62,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Account getAccount(Long id) {
         return accountMapper.getById(id);
+    }
+
+    @Override
+    public List<AccountVo> getOrgSecUserMByOrgSecId(Long oSecId) {
+        return accountMapper.getOrgSecUserMByOrgSecId(oSecId);
     }
 }

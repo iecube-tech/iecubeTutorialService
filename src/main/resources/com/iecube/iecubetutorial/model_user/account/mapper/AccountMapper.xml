@@ -66,4 +66,15 @@
                `removed`, `creator`, `create_time`,  `last_operator`, `last_operate_time`
         FROM u_a_account WHERE id=#{id}
     </select>
+
+    <select id="getOrgSecUserMByOrgSecId" resultMap="AccountVo">
+        SELECT ac.`id`, ac.`o_sec_id`, ac.`phone`, ac.`role`, ac.`status`,
+               us.`name`,us.`email`,
+               os.`name` AS o_sec_name, os.`type` AS o_sec_type,
+               ac.`removed`, ac.`creator`, ac.`create_time`,  ac.`last_operator`, ac.`last_operate_time`
+        FROM u_a_account ac
+                 INNER JOIN u_a_user us ON ac.`phone`=us.`phone`
+                 INNER JOIN u_a_organization_sec os ON ac.`o_sec_id`=os.`id`
+        WHERE ac.`o_sec_id`=#{oSecId} AND ac.`role`="USER_M" AND ac.`status`="ENABLED"
+    </select>
 </mapper>
