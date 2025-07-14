@@ -18,4 +18,6 @@ public interface MaterialMapper {
     MaterialEntity getMaterial(Long id);
 
     MaterialEntity getMaterialByChatId(String chatId);
+
+    List<MaterialEntity> getAllMaterials();
 }

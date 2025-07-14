@@ -53,7 +53,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             String phone = (String) claims.get("phone");
             String userType = (String) claims.get("userType");
             String storedToken = redisService.get( "TUTORIAL_"+userType+"_REFRESH_TOKEN:" + phone);
-            if (storedToken==null) {
+            if (storedToken==null && !request.getRequestURI().equals("/su/auth/relogin")) {
                 log.warn("没有找到存储的对应的token");
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "请重新登录");
                 return false;

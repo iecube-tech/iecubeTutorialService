@@ -80,6 +80,7 @@ public class AiClientWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        // 处理AI消息
         super.handleTextMessage(session, message);
         String text = message.getPayload();
 //        log.info("message:{}",text);
@@ -131,6 +132,7 @@ public class AiClientWebSocketHandler extends TextWebSocketHandler {
                     materialService.handelUpload(material);
                     break;
                 case "message-ack" :
+                    // AI输出了完整的结果
                     String artefactId="";
                     if(rec.get("payload").get("role").asText().equals("assistant")){
                         artefactId = rec.get("payload").get("artefacts").get(0).get("id").asText();
@@ -146,7 +148,7 @@ public class AiClientWebSocketHandler extends TextWebSocketHandler {
                     dto.setStatus(artefactId.isEmpty()?MaterialStatus.FAILED.getStatus():MaterialStatus.DONE.getStatus());
                     dto.setError(artefactId.isEmpty()?"获取AI返回的文件ID错误":null);
                     dto.setMaterialId(material.getId());
-                    NewParseTask.put(dto);
+                    NewParseTask.put(dto); // 处理AI输出的文本消息
                     log.info("AI 输出完成, 交给 parse-artefactId 处理:{}",dto);
                     break;
                 case "activity-stop":

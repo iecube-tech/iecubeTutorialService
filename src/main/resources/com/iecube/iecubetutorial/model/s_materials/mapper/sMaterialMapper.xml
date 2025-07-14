@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model.s_materials.mapper.SMaterialMapper">
+
+    <resultMap id="sMaterial" type="com.iecube.iecubetutorial.model.s_materials.entity.SMaterial">
+        <result column="knowledge_point" property="knowledgePoint"></result>
+        <result column="material_id" property="materialId"></result>
+        <result column="create_time" property="createTime"></result>
+        <result column="last_operator" property="lastOperator"></result>
+        <result column="last_operate_time" property="lastOperateTime"></result>
+    </resultMap>
+
+    <insert id="Insert" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO s_material (id, title, name, knowledge_point, outline, instruction, html,
+                                material_id, cover, resource, removed, create_time, creator,
+                                last_operate_time, last_operator)
+        values (NULL, #{title}, #{name}, #{knowledgePoint}, #{outline}, #{instruction}, #{html},
+                #{materialId}, #{cover}, #{resource}, 0, #{createTime}, #{creator},
+                #{lastOperateTime}, #{lastOperator})
+    </insert>
+
+    <update id="deleteByPrimaryKey">
+        UPDATE s_material SET removed=1 WHERE id=#{id}
+    </update>
+
+    <select id="selectByPrimaryKey" resultMap="sMaterial">
+        SELECT id, title, name, knowledge_point, outline, instruction, html,
+               material_id, cover, resource, removed, create_time, creator,
+               last_operate_time, last_operator
+        FROM s_material
+        WHERE id=#{id}
+    </select>
+
+    <select id="selectAll" resultMap="sMaterial">
+        SELECT id, title, name, knowledge_point, outline, instruction, html,
+               material_id, cover, resource, removed, create_time, creator,
+               last_operate_time, last_operator
+        FROM s_material WHERE s_material.removed=0
+    </select>
+
+    <select id="selectByKeyword" resultMap="sMaterial">
+        SELECT id, title, name, knowledge_point, outline, instruction, html,
+               material_id, cover, resource, removed, create_time, creator,
+               last_operate_time, last_operator
+        FROM s_material
+        WHERE MATCH(`name`,`knowledge_point`) AGAINST(#{keyword} IN NATURAL LANGUAGE MODE) AND s_material.removed=0
+    </select>
+
+    <select id="selectByTag" resultMap="sMaterial">
+        SELECT s_material.id, s_material.title, s_material.name, s_material.knowledge_point, s_material.outline,
+               s_material.instruction, s_material.html, s_material.material_id, s_material.cover,
+               s_material.resource, s_material.removed, s_material.create_time, s_material.creator,
+               s_material.last_operate_time, s_material.last_operator
+        FROM s_material INNER JOIN s_material_tag ON s_material.id=s_material_tag.s_material_id
+        WHERE s_material_tag.tag_id=#{tagId} AND s_material.removed=0
+    </select>
+</mapper>

@@ -38,6 +38,7 @@ public class LoginInterceptorConfigurer implements WebMvcConfigurer {
         patterns.add("/auth/refresh");
         patterns.add("/su/auth/login");
         patterns.add("/su/auth/refresh");
+        patterns.add("/file");
 
         List<String> noPermissionList = new ArrayList<>();
         noPermissionList.add("/su/auth/relogin");

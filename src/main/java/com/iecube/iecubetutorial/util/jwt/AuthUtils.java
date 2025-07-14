@@ -3,7 +3,7 @@ package com.iecube.iecubetutorial.util.jwt;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import com.iecube.iecubetutorial.model.user.exception.AuthException;
+import com.iecube.iecubetutorial.exception.AuthException;
 import com.iecube.iecubetutorial.util.exception.SystemException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 

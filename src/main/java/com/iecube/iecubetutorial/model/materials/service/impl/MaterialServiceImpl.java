@@ -17,7 +17,7 @@ import com.iecube.iecubetutorial.model.materials.vo.MaterialVo;
 import com.iecube.iecubetutorial.model.resource.entity.Resource;
 import com.iecube.iecubetutorial.model.resource.mapper.ResourceMapper;
 import com.iecube.iecubetutorial.model.resource.service.ResourceService;
-import com.iecube.iecubetutorial.model.user.exception.AuthException;
+import com.iecube.iecubetutorial.exception.AuthException;
 import com.iecube.iecubetutorial.model_user.account.entity.Account;
 import com.iecube.iecubetutorial.model_user.account.service.AccountService;
 import com.iecube.iecubetutorial.model_user.points.exception.PointsNotEnoughException;
@@ -96,15 +96,18 @@ public class MaterialServiceImpl implements MaterialService {
         if(res2!=1){
             throw new InsertException("服务错误，新增数据异常");
         }
-        // todo 和 生产消费者模型 w6建立websocket连接，处理生成任务  连接之后 material.setStatus(MaterialStatus.GENERATING.getStatus()); 更新状态
+        // 数据准备工作完毕
+        //和 生产消费者模型 AI建立websocket连接，处理生成任务  连接之后 material.setStatus(MaterialStatus.GENERATING.getStatus()); 更新状态
+
+        // 创建新的任务：开始准备接收AI对话，接收，并处理AI消息
         try {
             NewConnectTask.put(materialChat);
-            log.info("创建W6任务：交由w6-connect处理：{}",chatId);
+            log.info("创建AI任务：交由AI处理：{}",chatId);
         } catch (InterruptedException e) {
             throw new FailedToCreateTaskException(e.getMessage());
         }
 
-        // 调用agent
+        // 调用AI模型，给AI模型下发指令
         w6ApiService.usePageMaker(chatId, materialQo.getTitle(), materialQo.getKnowledgePoints(), instruction);
     }
 
@@ -188,6 +191,25 @@ public class MaterialServiceImpl implements MaterialService {
     public String decrypt(String encryptedText) {
         byte[] decryptedBytes = Base64.getDecoder().decode(encryptedText);
         return new String(decryptedBytes, StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public List<MaterialVo> getAllMaterials() {
+        List<MaterialEntity> entities = materialMapper.getAllMaterials();
+        List<MaterialVo> vos = new ArrayList<>();
+        entities.forEach(entity -> {
+            MaterialVo vo = entityToVo(entity);
+            vo.setHtml(null); // todo 暂时不需要返回html文本 不传输
+            vo.getResource().setId(entity.getResource());
+            vos.add(vo);
+        });
+        vos.forEach(vo->{
+            if(vo.getResource().getId()!=null){
+                Resource resource = resourceMapper.getResource(vo.getResource().getId());
+                vo.setResource(resource==null?new Resource():resource);
+            }
+        });
+        return vos;
     }
 
     private MaterialVo entityToVo(MaterialEntity entity) {

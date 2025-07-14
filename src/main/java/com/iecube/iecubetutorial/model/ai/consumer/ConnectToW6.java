@@ -81,7 +81,7 @@ public class ConnectToW6 implements Runnable {
         headers.add(headerFiled, headerVal);
         try {
             URI uri = new URI(url);
-            WebSocketSession session = client.doHandshake(w6WebSocketHandler, headers, uri).get();
+            WebSocketSession session = client.doHandshake(w6WebSocketHandler, headers, uri).get(); // 和AI模型建立消息通道
             ChatIdToSession.put(chatId,session);
             SessionIdToChatId.put(session.getId(), chatId);
             session.setTextMessageSizeLimit(10485760);

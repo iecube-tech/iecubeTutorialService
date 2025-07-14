@@ -49,4 +49,10 @@
         FROM materials m INNER JOIN material_chat mc ON m.id=mc.material_id
         WHERE mc.chat_id=#{chatId} and m.deleted=0
     </select>
+
+    <select id="getAllMaterials" resultMap="MaterialEntity">
+        SELECT id,user_id,name,title,knowledge_point,instruction,status,deleted,html,resource, create_time,update_time
+        FROM materials
+        WHERE deleted=0 ORDER BY id DESC
+    </select>
 </mapper>

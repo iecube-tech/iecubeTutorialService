@@ -1,6 +1,7 @@
 package com.iecube.iecubetutorial.model.resource.service;
 
 import com.iecube.iecubetutorial.model.resource.entity.Resource;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface ResourceService {
 
@@ -11,4 +12,6 @@ public interface ResourceService {
     void deleteResource(Long resourceId);
 
     Resource updateResource(String htmlContentBase64, Resource resource);
+
+    Resource uploadFile(MultipartFile file);
 }

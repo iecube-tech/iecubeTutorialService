@@ -82,6 +82,6 @@ public class ParseArtefactAndUpdateMaterial implements Runnable {
             material.setHtml(parseArtefactDto.getError());
             material.setUpdateTime(new Date());
         }
-        materialService.handelUpload(material);
+        materialService.handelUpload(material);  // 将AI输出的文本内容转化为文件
     }
 }

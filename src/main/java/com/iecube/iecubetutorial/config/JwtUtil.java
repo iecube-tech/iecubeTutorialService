@@ -1,6 +1,5 @@
 package com.iecube.iecubetutorial.config;
 
-import com.iecube.iecubetutorial.model.user.exception.AuthException;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

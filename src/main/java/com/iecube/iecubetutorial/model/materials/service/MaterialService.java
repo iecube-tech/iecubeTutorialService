@@ -24,4 +24,6 @@ public interface MaterialService {
     List<MaterialVo> deleteMaterial(Long id, Long userId);
 
     String decrypt(String encryptedText);
+
+    List<MaterialVo> getAllMaterials();
 }

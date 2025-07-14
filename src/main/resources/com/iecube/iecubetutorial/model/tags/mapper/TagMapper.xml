@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model.tags.mapper.TagMapper">
+
+    <resultMap id="Tag" type="com.iecube.iecubetutorial.model.tags.entity.Tag">
+        <result property="createTime" column="create_time"></result>
+    </resultMap>
+
+
+    <insert id="insertTag" >
+        INSERT INTO s_tags (id, name, create_time) values (NULL, #{name}, #{createTime})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM s_tags WHERE id=#{id}
+    </delete>
+
+    <select id="getAll" resultMap="Tag">
+        SELECT id, name, create_time FROM s_tags
+    </select>
+
+</mapper>
