@@ -19,8 +19,8 @@ public class TagController extends BaseController {
     @Autowired
     private TagService tagService;
 
-    @Operation(summary = "查询标签 [ADMIN,OPERATOR]")
-    @ApiPermissions({"ADMIN", "OPERATOR"})
+    @Operation(summary = "查询标签 [ADMIN, OPERATOR, USER_M, USER]")
+    @ApiPermissions({"ADMIN", "OPERATOR", "USER_M","USER"})
     @GetMapping
     public JsonResult<List<Tag>> getAllTags(){
         return new JsonResult<>(OK, tagService.getAllTags());

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model.mOutline.mapper.MOutlineMapper">
+    <resultMap id="MOutline" type="com.iecube.iecubetutorial.model.mOutline.entity.MOutline">
+        <result column="project_id" property="projectId"></result>
+        <result column="knowledge_point" property="knowledgePoint"></result>
+        <result column="chat_id" property="chatId"></result>
+        <result column="sent_token" property="sentToken"></result>
+        <result column="recv_token" property="recvToken"></result>
+        <result column="create_time" property="createTime"></result>
+    </resultMap>
+
+    <insert id="insertOutline">
+        INSERT INTO m_outline (`id`, `project_id`, `name`, `title`, `knowledge_point`, `outline`,
+                               `chat_id`, `sent_token`, `recv_token`, `create_time`)
+        VALUES (#{id}, #{projectId}, #{name}, #{title}, #{knowledgePoint}, #{outline},
+                #{chatId}, #{sentToken}, #{recvToken}, #{createTime})
+    </insert>
+
+    <update id="updateOutline">
+        UPDATE m_outline SET  `knowledge_point`=#{knowledgePoint},
+                              `outline`=#{outline},
+                              `chat_id`=#{chatId},
+                              `sent_token`=#{sentToken},
+                              `recv_token`=#{recvToken}
+                         WHERE id=#{id}
+    </update>
+
+    <select id="getOutlineById" resultMap="MOutline">
+        SELECT `id`, `project_id`, `name`, `title`, `knowledge_point`, `outline`,
+               `chat_id`, `sent_token`, `recv_token`, `create_time`
+        FROM m_outline
+        WHERE id=#{id}
+    </select>
+
+    <select id="getOutlineByPId" resultMap="MOutline">
+        SELECT `id`, `project_id`, `name`, `title`, `knowledge_point`, `outline`,
+               `chat_id`, `sent_token`, `recv_token`, `create_time`
+        FROM m_outline
+        WHERE `project_id`=#{projectId}
+    </select>
+</mapper>

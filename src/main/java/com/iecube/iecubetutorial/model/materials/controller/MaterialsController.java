@@ -32,7 +32,7 @@ public class MaterialsController extends BaseController {
         return new JsonResult<>(OK);
     }
 
-    @Operation(summary = "请求用户生成的讲义 [USER, USER_M]")
+    @Operation(summary = "请求用户生成的讲义 [USER, USER_M]  ***********将要弃用***********" )
     @ApiPermissions({"USER_M","USER"})
     @GetMapping("/created")
     public JsonResult<List<MaterialVo>> created(){
@@ -41,7 +41,7 @@ public class MaterialsController extends BaseController {
         return new JsonResult<>(OK, vos);
     }
 
-    @Operation(summary = "更新生成的讲义html文件内容 [USER, USER_M]")
+    @Operation(summary = "更新生成的讲义html文件内容 [USER, USER_M]  ***********将要弃用*********** ")
     @ApiPermissions({"USER_M","USER"})
     @PostMapping("/update")
     public JsonResult<MaterialVo> updateMaterial(@RequestBody UpMaterialQo upMaterialQo) {
@@ -50,7 +50,7 @@ public class MaterialsController extends BaseController {
         return new JsonResult<>(OK, materialVo);
     }
 
-    @Operation(summary = "用户删除生成的讲义[USER, USER_M]")
+    @Operation(summary = "用户删除生成的讲义[USER, USER_M]  ***********将要弃用***********")
     @ApiPermissions({"USER_M","USER"})
     @DeleteMapping("/del/{id}")
     public JsonResult<List<MaterialVo>> delMaterial(@PathVariable Long id) {

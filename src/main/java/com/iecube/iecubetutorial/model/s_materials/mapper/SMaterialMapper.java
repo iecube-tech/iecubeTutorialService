@@ -15,7 +15,7 @@ public interface SMaterialMapper {
 
     List<SMaterial> selectAll();
 
-    List<SMaterial> selectByKeyword(String keyword);
+    List<SMaterial> selectByKeyword(String title, String knowledgePoint);
 
     List<SMaterial> selectByTag(Long tagId);
 }

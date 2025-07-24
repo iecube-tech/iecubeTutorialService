@@ -181,6 +181,11 @@ public class ResourceServiceImpl implements ResourceService {
         return this.saveResource(resource);
     }
 
+    @Override
+    public Resource getResourceById(Long resourceId) {
+        return resourceMapper.getResource(resourceId);
+    }
+
     private String saveFile(MultipartFile file) {
         String timestamp = String.format("%1$tY%1$tm%1$td%1$tH%1$tM%1$tS%1$tL", new Date());
         String uuid = UUID.randomUUID().toString().replace("-", "");

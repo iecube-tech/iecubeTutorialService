@@ -165,8 +165,8 @@ public class SMaterialServiceImpl implements SMaterialService {
     }
 
     @Override
-    public List<SMaterialVo> getMaterialsByKeyWords(String keyWords) {
-        List<SMaterial> sMaterialList = sMaterialMapper.selectByKeyword(keyWords);
+    public List<SMaterialVo> getMaterialsByKeyWords(String title, String knowledgePoint) {
+        List<SMaterial> sMaterialList = sMaterialMapper.selectByKeyword(title, knowledgePoint);
         List<SMaterialVo> sMaterialVoList = new ArrayList<>();
         sMaterialList.forEach(sMaterial -> {
             sMaterialVoList.add(entityToVo(sMaterial));
@@ -182,6 +182,17 @@ public class SMaterialServiceImpl implements SMaterialService {
             sMaterialVoList.add(entityToVo(sMaterial));
         });
         return sMaterialVoList;
+    }
+
+    @Override
+    public SMaterial getBYId(Long id) {
+        return sMaterialMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public SMaterialVo getById(Long id) {
+        SMaterial sMaterial = sMaterialMapper.selectByPrimaryKey(id);
+        return entityToVo(sMaterial);
     }
 
     // 读取文件内容

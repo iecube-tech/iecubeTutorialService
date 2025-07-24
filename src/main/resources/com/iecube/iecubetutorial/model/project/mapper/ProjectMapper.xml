@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model.project.mapper.ProjectMapper">
+    <resultMap id="Project" type="com.iecube.iecubetutorial.model.project.entity.Project">
+        <result column="knowledge_point" property="knowledgePoint"></result>
+        <result column="material_id" property="materialId"></result>
+        <result column="s_material_id" property="sMaterialId"></result>
+        <result column="create_time" property="createTime"></result>
+        <result column="last_operator" property="lastOperator"></result>
+        <result column="last_operate_time" property="lastOperateTime"></result>
+    </resultMap>
+
+    <resultMap id="ProjectVo" type="com.iecube.iecubetutorial.model.project.vo.ProjectVo">
+        <result column="knowledge_point" property="knowledgePoint"></result>
+        <result column="create_time" property="createTime"></result>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO project (id, user_id, name,title,knowledge_point,source,material_id,s_material_id,
+                             removed,create_time)
+        VALUES(#{id}, #{userId}, #{name}, #{title}, #{knowledgePoint}, #{source}, #{materialId}, #{sMaterialId},
+               0, #{createTime})
+    </insert>
+
+    <select id="getByCreator">
+        SELECT id, user_id, name,title,knowledge_point,source,material_id,s_material_id,
+               removed,create_time
+        FROM project
+        WHERE user_id=#{userId} AND removed=0 ORDER BY create_time DESC
+    </select>
+
+    <select id="getById">
+        SELECT id, user_id, name,title,knowledge_point,source,material_id,s_material_id,
+               removed,create_time
+        FROM project
+        WHERE id=#{id}
+    </select>
+
+    <select id="getByMaterial">
+        SELECT id, user_id, name,title,knowledge_point,source,material_id,s_material_id,
+               removed,create_time
+        FROM project
+        WHERE material_id=#{materialId}
+    </select>
+
+    <update id="delete">
+        UPDATE project SET removed=1 WHERE id=#{id}
+    </update>
+
+    <select id="getProjectVoByUserId" resultMap="ProjectVo">
+        SELECT
+            p.id AS id,
+            p.name AS name,
+            p.title AS title,
+            p.knowledge_point AS knowledge_point,
+            p.create_time AS create_time,
+            'Material' AS type,
+            m.`status` AS `status`
+        FROM project p
+                 LEFT JOIN materials m ON m.id = p.material_id
+        WHERE p.source = 'Material' AND  p.user_id=#{userId} AND p.removed=0
+
+        UNION ALL
+
+        SELECT
+            p.id AS id,
+            p.name AS name,
+            p.title AS title,
+            p.knowledge_point AS knowledge_point,
+            p.create_time AS create_time,
+            'Collection' AS type,
+            'DONE' AS `status`
+        FROM project p
+                 LEFT JOIN s_material sm ON p.s_material_id = sm.id
+        WHERE p.source = 'Collection' AND p.user_id=#{userId} AND p.removed=0
+        ORDER BY create_time DESC
+    </select>
+
+
+</mapper>

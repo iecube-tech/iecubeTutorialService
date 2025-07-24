@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -45,24 +46,40 @@ public class SMaterialsController extends BaseController {
     }
 
     @GetMapping
-    @Operation(summary = "获取案例集中所有的内容 [OPERATOR]")
-    @ApiPermissions({"OPERATOR"})
+    @Operation(summary = "获取案例集中所有的内容 [OPERATOR, USER_M, USER]")
+    @ApiPermissions({"OPERATOR", "USER_M", "USER"})
     public JsonResult<List<SMaterialVo>> getAllMaterials(){
         return new JsonResult<>(OK, sMaterialService.getAllMaterials());
     }
 
     @GetMapping("/find")
-    @Operation(summary = "根据关键词查找 [OPERATOR]")
+    @Operation(summary = "根据关键词查找 [OPERATOR, USER_M, USER]")
     @ApiPermissions({"OPERATOR", "USER", "USER_M"})
-    public JsonResult<List<SMaterialVo>> getMaterialsByKeyWords(String keywords){
-        return new JsonResult<>(OK, sMaterialService.getMaterialsByKeyWords(keywords));
+    public JsonResult<List<SMaterialVo>> getMaterialsByKeyWords(String title, String knowledgePoint ){
+        if(title==null){
+            title = "";
+        }
+        if(knowledgePoint==null){
+            knowledgePoint = "";
+        }
+        if(title.isEmpty() && knowledgePoint.isEmpty()){
+            return new JsonResult<>(OK, new ArrayList<>());
+        }
+        return new JsonResult<>(OK, sMaterialService.getMaterialsByKeyWords(title, knowledgePoint));
     }
 
     @PostMapping("/find")
-    @Operation(summary = "根据标签查找 [OPERATOR]")
+    @Operation(summary = "根据标签查找 [OPERATOR, USER_M, USER]")
     @ApiPermissions({"OPERATOR", "USER", "USER_M"})
     public JsonResult<List<SMaterialVo>> getMaterialsByTag(@RequestBody Tag tag){
         return new JsonResult<>(OK, sMaterialService.getMaterialsByTag(tag));
+    }
+
+    @GetMapping("{id}")
+    @Operation(summary = "根据Id查找案例集中的案例 [OPERATOR, USER_M, USER]")
+    @ApiPermissions({"OPERATOR", "USER", "USER_M"})
+    public JsonResult<SMaterialVo> getMaterialById(@PathVariable Long id){
+        return new JsonResult<>(OK, sMaterialService.getById(id));
     }
 
 

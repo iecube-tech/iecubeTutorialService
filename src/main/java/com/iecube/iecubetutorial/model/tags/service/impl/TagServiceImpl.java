@@ -8,6 +8,7 @@ import com.iecube.iecubetutorial.model.tags.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -22,6 +23,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<Tag> addTag(Tag tag) {
+        tag.setCreateTime(Instant.now());
         int res = tagMapper.insertTag(tag);
         if(res!=1){
             throw new InsertException("新增数据异常");

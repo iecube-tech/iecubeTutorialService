@@ -1,5 +1,6 @@
 package com.iecube.iecubetutorial.model.s_materials.service;
 
+import com.iecube.iecubetutorial.model.s_materials.entity.SMaterial;
 import com.iecube.iecubetutorial.model.s_materials.qo.ExportQo;
 import com.iecube.iecubetutorial.model.s_materials.qo.UploadQo;
 import com.iecube.iecubetutorial.model.s_materials.vo.SMaterialVo;
@@ -18,7 +19,12 @@ public interface SMaterialService {
 
     List<SMaterialVo> getAllMaterials();
 
-    List<SMaterialVo> getMaterialsByKeyWords(String keyWords);
+    List<SMaterialVo> getMaterialsByKeyWords(String title, String knowledgePoint);
 
     List<SMaterialVo> getMaterialsByTag(Tag tag);
+
+    SMaterial getBYId(Long id);
+
+    SMaterialVo getById(Long id);
+
 }

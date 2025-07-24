@@ -14,6 +14,9 @@ import com.iecube.iecubetutorial.model.materials.qo.MaterialQo;
 import com.iecube.iecubetutorial.model.materials.qo.UpMaterialQo;
 import com.iecube.iecubetutorial.model.materials.service.MaterialService;
 import com.iecube.iecubetutorial.model.materials.vo.MaterialVo;
+import com.iecube.iecubetutorial.model.project.entity.Project;
+import com.iecube.iecubetutorial.model.project.service.ProjectService;
+import com.iecube.iecubetutorial.model.projectChild.service.ProjectChildService;
 import com.iecube.iecubetutorial.model.resource.entity.Resource;
 import com.iecube.iecubetutorial.model.resource.mapper.ResourceMapper;
 import com.iecube.iecubetutorial.model.resource.service.ResourceService;
@@ -58,6 +61,12 @@ public class MaterialServiceImpl implements MaterialService {
     @Autowired
     private PointsService pointsService;
 
+    @Autowired
+    private ProjectService projectService;
+
+    @Autowired
+    private ProjectChildService projectChildService;
+
     private final BlockingQueue<MaterialChat> NewConnectTask;
 
     private static final String SECRET_KEY = "qwertyuioplkjhgfdsa";
@@ -96,6 +105,8 @@ public class MaterialServiceImpl implements MaterialService {
         if(res2!=1){
             throw new InsertException("服务错误，新增数据异常");
         }
+        // 创建工程
+        projectService.createProjectByMaterial(material);
         // 数据准备工作完毕
         //和 生产消费者模型 AI建立websocket连接，处理生成任务  连接之后 material.setStatus(MaterialStatus.GENERATING.getStatus()); 更新状态
 
@@ -148,6 +159,9 @@ public class MaterialServiceImpl implements MaterialService {
             materialEntity.setResource(nRe.getId());
         }
         materialMapper.updateMaterial(materialEntity);
+        // 创建工程的v1版本
+        Project project = projectService.getByMaterial(materialEntity.getId());
+        projectChildService.createProjectChild(project.getId(), materialEntity.getResource());
     }
 
     @Override

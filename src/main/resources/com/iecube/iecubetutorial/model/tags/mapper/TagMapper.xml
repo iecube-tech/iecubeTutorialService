@@ -14,7 +14,7 @@
         INSERT INTO s_tags (id, name, create_time) values (NULL, #{name}, #{createTime})
     </insert>
 
-    <delete id="delete">
+    <delete id="deleteTag">
         DELETE FROM s_tags WHERE id=#{id}
     </delete>
 

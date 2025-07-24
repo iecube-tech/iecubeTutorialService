@@ -14,4 +14,6 @@ public interface ResourceService {
     Resource updateResource(String htmlContentBase64, Resource resource);
 
     Resource uploadFile(MultipartFile file);
+
+    Resource getResourceById(Long resourceId);
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model.htmlEditAi.mapper.ProjectMessageMapper">
+
+    <resultMap id="ProjectMessage" type="com.iecube.iecubetutorial.model.htmlEditAi.entity.ProjectMessage">
+        <result column="project_id" property="projectId"></result>
+        <result column="create_time" property="createTime"></result>
+    </resultMap>
+
+
+    <insert id="insert">
+        INSERT INTO project_message (id, project_id, content, type, sio, create_time)
+        VALUES (#{id}, #{projectId}, #{content}, #{type}, #{sio}, #{createTime})
+    </insert>
+
+    <select id="getByProject" resultMap="ProjectMessage">
+        SELECT id, project_id, content, type, sio, create_time
+        FROM project_message
+        WHERE project_id=#{projectId} ORDER BY create_time
+    </select>
+
+    <select id="getById" resultMap="ProjectMessage">
+        SELECT id, project_id, content, type, sio, create_time
+        FROM project_message
+        WHERE id=#{id}
+    </select>
+
+    <delete id="delete">
+        DELETE FROM project_message WHERE id=#{id}
+    </delete>
+
+
+</mapper>

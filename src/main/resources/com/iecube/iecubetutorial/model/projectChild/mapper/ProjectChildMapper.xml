@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace 属性：用于指定当前的映射文件和哪个接口进行映射， 需要指定接口的文件路径， 需要标注包的完整路径接口-->
+<mapper namespace="com.iecube.iecubetutorial.model.projectChild.mapper.ProjectChildMapper">
+    <resultMap id="ProjectChild" type="com.iecube.iecubetutorial.model.projectChild.entity.ProjectChild">
+        <result column="project_id" property="projectId"></result>
+        <result column="create_time" property="createTime"></result>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO project_child (id,project_id,version,resource,removed,create_time)
+        VALUES (#{id}, #{projectId}, #{version}, #{resource}, #{removed}, #{createTime})
+    </insert>
+
+    <select id="getByProject" resultMap="ProjectChild">
+        SELECT id,project_id,version,resource,removed,create_time
+        FROM project_child
+        WHERE project_id=#{projectId} AND removed=0 ORDER BY version
+    </select>
+
+    <select id="getById" resultMap="ProjectChild">
+        SELECT id,project_id,version,resource,removed,create_time
+        FROM project_child
+        WHERE id=#{id} AND removed=0
+    </select>
+</mapper>

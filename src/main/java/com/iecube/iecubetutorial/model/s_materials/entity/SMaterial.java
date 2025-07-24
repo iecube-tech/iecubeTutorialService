@@ -8,8 +8,8 @@ import java.time.Instant;
 @Data
 public class SMaterial extends BaseEntity {
     private long id;
-    private String title;
     private String name;
+    private String title;
     private String knowledgePoint;
     private String outline;
     private String instruction;

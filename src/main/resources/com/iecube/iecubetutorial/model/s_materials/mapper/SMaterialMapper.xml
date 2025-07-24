@@ -42,11 +42,23 @@
     </select>
 
     <select id="selectByKeyword" resultMap="sMaterial">
-        SELECT id, title, name, knowledge_point, outline, instruction, html,
-               material_id, cover, resource, removed, create_time, creator,
-               last_operate_time, last_operator
-        FROM s_material
-        WHERE MATCH(`name`,`knowledge_point`) AGAINST(#{keyword} IN NATURAL LANGUAGE MODE) AND s_material.removed=0
+        SELECT
+            *,
+            CASE
+                WHEN title LIKE CONCAT(#{title}) AND knowledge_point LIKE CONCAT(#{knowledgePoint}) THEN 4
+                WHEN title LIKE CONCAT('%', #{title}, '%') AND knowledge_point LIKE CONCAT('%', #{knowledgePoint}, '%') THEN 3
+                WHEN title LIKE CONCAT('%', #{title}, '%') THEN 2
+                WHEN knowledge_point LIKE CONCAT('%', #{knowledgePoint}, '%') THEN 1
+                ELSE 0
+                END AS match_priority
+        FROM
+            s_material
+        WHERE
+            (title LIKE CONCAT('%', #{title}, '%')
+           OR knowledge_point LIKE CONCAT('%', #{knowledgePoint}, '%'))
+           AND removed=0
+        ORDER BY
+            match_priority DESC;
     </select>
 
     <select id="selectByTag" resultMap="sMaterial">
