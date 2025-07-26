@@ -1,6 +1,5 @@
 package com.iecube.iecubetutorial.model.s_materials.qo;
 
-import com.iecube.iecubetutorial.model.resource.entity.Resource;
 import com.iecube.iecubetutorial.model.tags.entity.Tag;
 import lombok.Data;
 

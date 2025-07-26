@@ -1,5 +1,7 @@
 package com.iecube.iecubetutorial.model.materials.service;
 
+import com.iecube.iecubetutorial.model.mOutline.entity.MOutline;
+import com.iecube.iecubetutorial.model.materials.entity.MaterialChat;
 import com.iecube.iecubetutorial.model.materials.entity.MaterialEntity;
 import com.iecube.iecubetutorial.model.materials.qo.MaterialQo;
 import com.iecube.iecubetutorial.model.materials.qo.UpMaterialQo;
@@ -9,7 +11,9 @@ import java.util.List;
 
 public interface MaterialService {
 
-    void generateMaterial(MaterialQo materialQo, Long userId);
+    void genMaterialByOutline(String mOutlineId);
+
+    void oneClickGen(MOutline mOutline, MaterialChat materialChat);
 
     List<MaterialVo> getMaterials(Long userId);
 

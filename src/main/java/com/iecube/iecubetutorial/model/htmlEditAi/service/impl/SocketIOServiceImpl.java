@@ -167,8 +167,8 @@ public class SocketIOServiceImpl implements SocketIOService {
         // 处理完成 3
         socket.on("processing_complete",args->{
             // 处理 完整输出 保存消息
-            System.out.println("processing_complete");
-            System.out.println(Arrays.toString(args));
+//            System.out.println("processing_complete");
+//            System.out.println(Arrays.toString(args));
 
             // stream_end
             ProjectMessage streamEnd = new ProjectMessage();
@@ -330,7 +330,7 @@ public class SocketIOServiceImpl implements SocketIOService {
             log.info("尝试 Socket.IO重连 --> WebSocket {}", sessionId);
             connect(sessionId);
         }, reconnectDelay, TimeUnit.MILLISECONDS);
-        log.info("计划 Socket.IO {} ms 后重连 --> WebSocket {} ", sessionId, reconnectDelay);
+        log.info("计划 Socket.IO {} ms 后重连 --> WebSocket {} ", reconnectDelay, sessionId);
     }
 
     private void cancelReconnect(String sessionId) {

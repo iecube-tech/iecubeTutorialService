@@ -51,8 +51,9 @@ public class AiClientWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
+        log.debug("session: {}",session);
         URI uri = session.getUri();
-        if (uri != null) {
+        if (uri != null) { // todo 这里是空的
             String path = uri.toString();
             String chatId = path.substring(path.lastIndexOf('/') + 1);
             ChatIdToSession.put(chatId, session);

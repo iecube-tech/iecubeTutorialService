@@ -3,6 +3,7 @@ package com.iecube.iecubetutorial.model.ai.aiMiddlware;
 import com.iecube.iecubetutorial.model.ai.consumer.ConnectToW6;
 import com.iecube.iecubetutorial.model.ai.consumer.ParseArtefactAndUpdateMaterial;
 import com.iecube.iecubetutorial.model.ai.dto.ParseArtefactDto;
+import com.iecube.iecubetutorial.model.mOutline.clientService.OutlineW6Client;
 import com.iecube.iecubetutorial.model.materials.entity.MaterialChat;
 import com.iecube.iecubetutorial.model.materials.entity.MaterialEntity;
 import org.springframework.boot.CommandLineRunner;

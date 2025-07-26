@@ -4,6 +4,9 @@ import com.iecube.iecubetutorial.config.ThreadLocalUtil;
 import com.iecube.iecubetutorial.exception.AuthException;
 import com.iecube.iecubetutorial.exception.DeleteException;
 import com.iecube.iecubetutorial.exception.InsertException;
+import com.iecube.iecubetutorial.exception.ServiceException;
+import com.iecube.iecubetutorial.model.mOutline.entity.MOutline;
+import com.iecube.iecubetutorial.model.mOutline.service.MOutlineService;
 import com.iecube.iecubetutorial.model.materials.entity.MaterialEntity;
 import com.iecube.iecubetutorial.model.project.enmu.ProjectSource;
 import com.iecube.iecubetutorial.model.project.entity.Project;
@@ -45,6 +48,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private ResourceService resourceService;
 
+    @Autowired
+    private MOutlineService mOutlineService;
+
 
     @Override
     public Project createProjectByMaterial(MaterialEntity materialEntity) {
@@ -74,7 +80,16 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectDetailVo createProjectByCollection(long collectionId) {
         SMaterial sMaterial = sMaterialService.getBYId(collectionId);
         Project project = this.createProjectBySMaterial(sMaterial);
-        ProjectChild projectChild = projectChildService.createProjectChild(project.getId(),sMaterial.getResource());
+        Resource resource=null;
+        try{
+            resource = resourceService.copyResource(sMaterial.getResource());
+        }catch (Exception e){
+            throw new ServiceException(e.getMessage());
+        }
+        if(resource==null){
+            throw new ServiceException("处理文件失败");
+        }
+        ProjectChild projectChild = projectChildService.createProjectChild(project.getId(),resource.getId());
         //ProjectVo
         ProjectVo projectVo = new ProjectVo();
         projectVo.setId(project.getId());
@@ -106,6 +121,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectVos.forEach(projectVo -> {
             ProjectDetailVo projectDetailVo = new ProjectDetailVo();
             projectDetailVo.setProject(projectVo);
+            projectDetailVo.setMOutline(mOutlineService.getByProjectId(projectVo.getId()));
             List<ProjectChildVo> projectChildren = projectChildService.projectChildList(projectVo.getId());
             projectDetailVo.setProjectChildren(projectChildren);
             res.add(projectDetailVo);
@@ -147,6 +163,7 @@ public class ProjectServiceImpl implements ProjectService {
         List<ProjectChildVo> projectChildren = projectChildService.projectChildList(projectId);
         ProjectDetailVo projectDetailVo = new ProjectDetailVo();
         projectDetailVo.setProject(projectVo);
+        projectDetailVo.setMOutline(mOutlineService.getByProjectId(projectVo.getId()));
         projectDetailVo.setProjectChildren(projectChildren);
         return projectDetailVo;
     }

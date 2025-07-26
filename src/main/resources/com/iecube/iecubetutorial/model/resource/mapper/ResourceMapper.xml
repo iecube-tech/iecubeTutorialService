@@ -30,4 +30,8 @@
                             update_time=#{updateTime}
                         WHERE id=#{id}
     </update>
+
+    <select id="getResourceByFileName" resultMap="Resource">
+        SELECT id,filename,md5,type,create_time,update_time FROM resource WHERE filename=#{filename}
+    </select>
 </mapper>

@@ -15,15 +15,14 @@
 
     <insert id="insertOutline">
         INSERT INTO m_outline (`id`, `project_id`, `name`, `title`, `knowledge_point`, `outline`,
-                               `chat_id`, `sent_token`, `recv_token`, `create_time`)
+                               `chat_id`, `sent_token`, `recv_token`, `create_time`, creator, `show`)
         VALUES (#{id}, #{projectId}, #{name}, #{title}, #{knowledgePoint}, #{outline},
-                #{chatId}, #{sentToken}, #{recvToken}, #{createTime})
+                #{chatId}, #{sentToken}, #{recvToken}, #{createTime}, #{creator}, #{show})
     </insert>
 
     <update id="updateOutline">
-        UPDATE m_outline SET  `knowledge_point`=#{knowledgePoint},
-                              `outline`=#{outline},
-                              `chat_id`=#{chatId},
+        UPDATE m_outline SET  `outline`=#{outline},
+                              `project_id`=#{projectId},
                               `sent_token`=#{sentToken},
                               `recv_token`=#{recvToken}
                          WHERE id=#{id}
@@ -31,15 +30,22 @@
 
     <select id="getOutlineById" resultMap="MOutline">
         SELECT `id`, `project_id`, `name`, `title`, `knowledge_point`, `outline`,
-               `chat_id`, `sent_token`, `recv_token`, `create_time`
+               `chat_id`, `sent_token`, `recv_token`, `create_time`, `creator`, `show`
         FROM m_outline
         WHERE id=#{id}
     </select>
 
     <select id="getOutlineByPId" resultMap="MOutline">
         SELECT `id`, `project_id`, `name`, `title`, `knowledge_point`, `outline`,
-               `chat_id`, `sent_token`, `recv_token`, `create_time`
+               `chat_id`, `sent_token`, `recv_token`, `create_time`, `creator`, `show`
         FROM m_outline
         WHERE `project_id`=#{projectId}
+    </select>
+
+    <select id="getOutlineByChatId" resultMap="MOutline">
+        SELECT `id`, `project_id`, `name`, `title`, `knowledge_point`, `outline`,
+               `chat_id`, `sent_token`, `recv_token`, `create_time`, `creator`, `show`
+        FROM m_outline
+        WHERE `chat_id`=#{chatId}
     </select>
 </mapper>

@@ -76,11 +76,13 @@ public class ConnectToW6 implements Runnable {
 
     public void webSocketConnect(String chatId) {
         String url = wssBaseUrl+chatId;
+        log.debug("url:{}",url);
         WebSocketClient client = new StandardWebSocketClient();
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         headers.add(headerFiled, headerVal);
         try {
             URI uri = new URI(url);
+            log.debug("uri:{}",uri);
             WebSocketSession session = client.doHandshake(w6WebSocketHandler, headers, uri).get(); // 和AI模型建立消息通道
             ChatIdToSession.put(chatId,session);
             SessionIdToChatId.put(session.getId(), chatId);

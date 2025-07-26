@@ -2,6 +2,7 @@ package com.iecube.iecubetutorial.model.resource.service.impl;
 
 import com.iecube.iecubetutorial.exception.DeleteException;
 import com.iecube.iecubetutorial.exception.InsertException;
+import com.iecube.iecubetutorial.exception.ServiceException;
 import com.iecube.iecubetutorial.exception.UpdateException;
 import com.iecube.iecubetutorial.model.resource.entity.Resource;
 import com.iecube.iecubetutorial.model.resource.exception.*;
@@ -17,10 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -29,7 +27,7 @@ import java.util.*;
 @Service
 public class ResourceServiceImpl implements ResourceService {
 
-    @Value("${html.output.directory}")
+    @Value("${resource-location}")
     private String outputDirectory;
 
     @Autowired
@@ -96,6 +94,40 @@ public class ResourceServiceImpl implements ResourceService {
             throw new InsertException("服务错误，新增数据异常");
         }
         return resource;
+    }
+
+    @Override
+    public Resource copyResource(Long resourceId) throws IOException, ServiceException, NoSuchAlgorithmException {
+        Resource oldResource = resourceMapper.getResource(resourceId);
+        // 生成唯一文件名 (格式: timestamp_uuid.html)
+        String timestamp = String.format("%1$tY%1$tm%1$td%1$tH%1$tM%1$tS%1$tL", new Date());
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        String newfileName = timestamp + "_" + uuid + ".html";
+
+        Path directory = Paths.get(outputDirectory);
+        if (!Files.exists(directory)) {
+            Files.createDirectories(directory);
+        }
+        Path oldFilePath = directory.resolve(oldResource.getFilename());
+        // 构建完整文件路径
+        Path newfilePath = directory.resolve(newfileName.endsWith(".html") ? newfileName : newfileName + ".html");
+        // 确保源文件存在
+        if (!Files.exists(oldFilePath)) {
+            log.error("错误: 源文件不存在 - {}" , oldFilePath);
+           throw new ServiceException("未找到源文件");
+        }
+        // 复制文件，自动创建父目录并可覆盖已存在文件
+        Files.copy(oldFilePath, newfilePath,
+                StandardCopyOption.REPLACE_EXISTING,
+                StandardCopyOption.COPY_ATTRIBUTES);
+        String md5 =calculateFileMD5(newfilePath);
+        Resource resource = new Resource();
+        resource.setFilename(newfileName);
+        resource.setType("text/html");
+        resource.setMd5(md5);
+        resource.setCreateTime(new Date());
+        log.info("文件处理成功：{}", newfileName);
+        return saveResource(resource);
     }
 
     @Override
@@ -184,6 +216,11 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public Resource getResourceById(Long resourceId) {
         return resourceMapper.getResource(resourceId);
+    }
+
+    @Override
+    public Resource getResourceByFilename(String filename) {
+        return resourceMapper.getResourceByFileName(filename);
     }
 
     private String saveFile(MultipartFile file) {

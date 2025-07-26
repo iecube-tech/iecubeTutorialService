@@ -39,7 +39,8 @@ public class LoginInterceptorConfigurer implements WebMvcConfigurer {
         patterns.add("/su/auth/login");
         patterns.add("/su/auth/refresh");
         patterns.add("/file");
-//        patterns.add("/collection/{id}");
+        patterns.add("/file/resource/**");
+//        patterns.add("/outline/**");
 //        patterns.add("/project/detail");
 //        patterns.add("/project/edit");
 

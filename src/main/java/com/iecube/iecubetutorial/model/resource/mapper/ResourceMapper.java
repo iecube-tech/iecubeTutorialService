@@ -13,4 +13,6 @@ public interface ResourceMapper {
     int deleteResource(Long id);
 
     int updateResource(Resource resource);
+
+    Resource getResourceByFileName(String filename);
 }

@@ -1,16 +1,15 @@
 package com.iecube.iecubetutorial.model.materials.service.impl;
 
-import com.iecube.iecubetutorial.exception.DeleteException;
-import com.iecube.iecubetutorial.exception.InsertException;
-import com.iecube.iecubetutorial.exception.UpdateException;
+import com.iecube.iecubetutorial.exception.*;
 import com.iecube.iecubetutorial.model.ai.apiService.W6ApiService;
+import com.iecube.iecubetutorial.model.mOutline.entity.MOutline;
+import com.iecube.iecubetutorial.model.mOutline.service.MOutlineService;
 import com.iecube.iecubetutorial.model.materials.enmus.MaterialStatus;
 import com.iecube.iecubetutorial.model.materials.entity.MaterialChat;
 import com.iecube.iecubetutorial.model.materials.entity.MaterialEntity;
 import com.iecube.iecubetutorial.model.materials.exception.FailedToCreateTaskException;
 import com.iecube.iecubetutorial.model.materials.mapper.MaterialChatMapper;
 import com.iecube.iecubetutorial.model.materials.mapper.MaterialMapper;
-import com.iecube.iecubetutorial.model.materials.qo.MaterialQo;
 import com.iecube.iecubetutorial.model.materials.qo.UpMaterialQo;
 import com.iecube.iecubetutorial.model.materials.service.MaterialService;
 import com.iecube.iecubetutorial.model.materials.vo.MaterialVo;
@@ -20,7 +19,6 @@ import com.iecube.iecubetutorial.model.projectChild.service.ProjectChildService;
 import com.iecube.iecubetutorial.model.resource.entity.Resource;
 import com.iecube.iecubetutorial.model.resource.mapper.ResourceMapper;
 import com.iecube.iecubetutorial.model.resource.service.ResourceService;
-import com.iecube.iecubetutorial.exception.AuthException;
 import com.iecube.iecubetutorial.model_user.account.entity.Account;
 import com.iecube.iecubetutorial.model_user.account.service.AccountService;
 import com.iecube.iecubetutorial.model_user.points.exception.PointsNotEnoughException;
@@ -67,32 +65,28 @@ public class MaterialServiceImpl implements MaterialService {
     @Autowired
     private ProjectChildService projectChildService;
 
-    private final BlockingQueue<MaterialChat> NewConnectTask;
+    @Autowired
+    private MOutlineService mOutlineService;
 
-    private static final String SECRET_KEY = "qwertyuioplkjhgfdsa";
+    private final BlockingQueue<MaterialChat> NewConnectTask;
 
     public MaterialServiceImpl(BlockingQueue<MaterialChat> NewConnectTask){
         this.NewConnectTask=NewConnectTask;
     }
 
-
     @Override
-    public void generateMaterial(MaterialQo materialQo, Long accountId) {
-        Account account = accountService.getAccount(accountId);
-        if(!pointsService.pointsEnough(account)){
-            throw new PointsNotEnoughException("余额不足");
-        }
+    public void genMaterialByOutline(String mOutlineId){
+        MOutline mOutline = mOutlineService.getById(mOutlineId);
+        Account account = accountService.getAccount(mOutline.getCreator());
         MaterialEntity material = new MaterialEntity(); // material
-        material.setUserId(accountId);
-        material.setName(materialQo.getName());
-        material.setTitle(materialQo.getTitle());
-        material.setKnowledgePoint(materialQo.getKnowledgePoints());
-        // 解码instruction
-        String instruction = decrypt(materialQo.getInstruction());
-        material.setInstruction(instruction);
+        material.setUserId(mOutline.getCreator());
+        material.setName(mOutline.getName());
+        material.setTitle(mOutline.getTitle());
+        material.setKnowledgePoint(mOutline.getKnowledgePoint());
         material.setStatus(MaterialStatus.NOTReady.getStatus());
         material.setDeleted(0);
         material.setCreateTime(new Date());
+        material.setInstruction(null);
         int res = materialMapper.addMaterial(material);
         if(res!=1){
             throw new InsertException("服务错误，新增数据异常");
@@ -106,10 +100,14 @@ public class MaterialServiceImpl implements MaterialService {
             throw new InsertException("服务错误，新增数据异常");
         }
         // 创建工程
-        projectService.createProjectByMaterial(material);
+        Project project = projectService.createProjectByMaterial(material);
+        mOutline.setProjectId(project.getId());
+        MOutline mRes = mOutlineService.updateMOutline(mOutline);
         // 数据准备工作完毕
         //和 生产消费者模型 AI建立websocket连接，处理生成任务  连接之后 material.setStatus(MaterialStatus.GENERATING.getStatus()); 更新状态
-
+        if(!pointsService.pointsEnough(account)){
+            throw new PointsNotEnoughException("余额不足");
+        }
         // 创建新的任务：开始准备接收AI对话，接收，并处理AI消息
         try {
             NewConnectTask.put(materialChat);
@@ -117,9 +115,21 @@ public class MaterialServiceImpl implements MaterialService {
         } catch (InterruptedException e) {
             throw new FailedToCreateTaskException(e.getMessage());
         }
-
         // 调用AI模型，给AI模型下发指令
-        w6ApiService.usePageMaker(chatId, materialQo.getTitle(), materialQo.getKnowledgePoints(), instruction);
+        w6ApiService.usePageMaker(chatId, material.getTitle(), material.getKnowledgePoint(), mOutline.getOutline());
+    }
+
+    @Override
+    public void oneClickGen(MOutline mOutline, MaterialChat materialChat){
+        // 创建新的任务：开始准备接收AI对话，接收，并处理AI消息
+        try {
+            NewConnectTask.put(materialChat);
+            log.info("一键生成：创建讲义生成任务：交由AI处理：{}", materialChat.getChatId());
+        } catch (InterruptedException e) {
+            throw new FailedToCreateTaskException(e.getMessage());
+        }
+        // 调用AI模型，给AI模型下发指令
+        w6ApiService.usePageMaker(materialChat.getChatId(), mOutline.getTitle(), mOutline.getKnowledgePoint(), mOutline.getOutline());
     }
 
     @Override
@@ -157,11 +167,11 @@ public class MaterialServiceImpl implements MaterialService {
             Resource resource = resourceService.writeHtmlToFile(materialEntity.getHtml());
             Resource nRe =  resourceService.saveResource(resource);
             materialEntity.setResource(nRe.getId());
+            // 创建工程的v1版本
+            Project project = projectService.getByMaterial(materialEntity.getId());
+            projectChildService.createProjectChild(project.getId(), materialEntity.getResource());
         }
         materialMapper.updateMaterial(materialEntity);
-        // 创建工程的v1版本
-        Project project = projectService.getByMaterial(materialEntity.getId());
-        projectChildService.createProjectChild(project.getId(), materialEntity.getResource());
     }
 
     @Override

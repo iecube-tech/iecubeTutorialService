@@ -49,7 +49,7 @@ public class SMaterialServiceImpl implements SMaterialService {
     @Autowired
     private ResourceMapper resourceMapper;
 
-    @Value("${html.output.directory}")
+    @Value("${resource-location}")
     private String outputDirectory;
 
 

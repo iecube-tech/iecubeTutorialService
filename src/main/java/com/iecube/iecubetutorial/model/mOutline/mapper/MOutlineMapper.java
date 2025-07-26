@@ -9,7 +9,9 @@ public interface MOutlineMapper {
 
     int updateOutline(MOutline outline);
 
-    MOutline getOutlineById(int id);
+    MOutline getOutlineById(String id);
 
     MOutline getOutlineByPId(String projectId);
+
+    MOutline getOutlineByChatId(String chatId);
 }

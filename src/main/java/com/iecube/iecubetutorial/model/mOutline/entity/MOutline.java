@@ -16,4 +16,6 @@ public class MOutline {
     private int sentToken;
     private int recvToken;
     private Instant createTime;
+    private Long creator;
+    private boolean show;
 }

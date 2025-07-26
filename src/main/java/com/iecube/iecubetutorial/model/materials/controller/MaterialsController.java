@@ -1,18 +1,30 @@
 package com.iecube.iecubetutorial.model.materials.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iecube.iecubetutorial.Auth.ApiPermissions;
 import com.iecube.iecubetutorial.baseController.BaseController;
 import com.iecube.iecubetutorial.config.ThreadLocalUtil;
+import com.iecube.iecubetutorial.exception.ServiceException;
+import com.iecube.iecubetutorial.model.mOutline.clientService.W6ClientService;
+import com.iecube.iecubetutorial.model.mOutline.entity.MOutline;
+import com.iecube.iecubetutorial.model.mOutline.service.MOutlineService;
+import com.iecube.iecubetutorial.model.mOutline.wsConfig.WsManager;
+import com.iecube.iecubetutorial.model.mOutline.wsHandler.WsHandler;
 import com.iecube.iecubetutorial.model.materials.qo.MaterialQo;
 import com.iecube.iecubetutorial.model.materials.qo.UpMaterialQo;
 import com.iecube.iecubetutorial.model.materials.service.MaterialService;
+import com.iecube.iecubetutorial.model.materials.service.OneClickService;
 import com.iecube.iecubetutorial.model.materials.vo.MaterialVo;
 import com.iecube.iecubetutorial.util.JsonResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -23,12 +35,14 @@ public class MaterialsController extends BaseController {
     @Autowired
     private MaterialService materialService;
 
+    @Autowired
+    private OneClickService oneClickService;
+
     @Operation(summary = "生成讲义 [USER, USER_M]" )
     @ApiPermissions({"USER_M","USER"})
     @PostMapping("/generate")
     public JsonResult<Void> generate(@RequestBody MaterialQo materialQo) {
-        Long accountId = ThreadLocalUtil.getAccountId();
-        materialService.generateMaterial(materialQo, accountId);  // 接收用户输入的知识点请求，执行生成讲义任务
+        oneClickService.oneClickGenMaterial(materialQo);
         return new JsonResult<>(OK);
     }
 
