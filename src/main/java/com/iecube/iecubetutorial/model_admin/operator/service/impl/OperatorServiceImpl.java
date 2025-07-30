@@ -252,11 +252,8 @@ public class OperatorServiceImpl implements OperatorService {
 
     @Override
     public double computePoints(double rmb) {
-        double rechargePriceUnit=priceUnitService.RechargePriceUnit();
-        if( rechargePriceUnit==0 ){
-            throw new ServiceException("充值定价为0，无法计算");
-        }
-        return rmb/rechargePriceUnit;
+        double targetPointsPerRMB=priceUnitService.targetPointsPerRMB();
+        return rmb*targetPointsPerRMB;
     }
 
     @Override

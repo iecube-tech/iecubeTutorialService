@@ -39,7 +39,7 @@ public class W6ClientServiceImpl implements W6ClientService {
      * @param chatId chatId
      */
     @Override
-    public WebSocketSession connect(String chatId) throws AiAPiResponseException{
+    public WebSocketSession connect(String chatId, String projectId, Long materialId) throws AiAPiResponseException{
         String url = wssBaseUrl+chatId;
         log.debug("url:{}",url);
         WebSocketClient client = new StandardWebSocketClient();
@@ -52,10 +52,13 @@ public class W6ClientServiceImpl implements W6ClientService {
             WebSocketSession session = client.execute(outlineGenHandler,headers, uri).get();
             log.debug("outline w6 session:{}",session);
             session.getAttributes().put("chatId", chatId);
+            session.getAttributes().put("projectId", projectId==null?"":projectId);
+            session.getAttributes().put("materialId", materialId==null?"":materialId);
             wsManager.OutlineW6WSMap().put(chatId, session);
             session.setTextMessageSizeLimit(10485760);
             return session;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new AiAPiResponseException("与AI服务建立消息通道错误："+e.getMessage());
         }
     }

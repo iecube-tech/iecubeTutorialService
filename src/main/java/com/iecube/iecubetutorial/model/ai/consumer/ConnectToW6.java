@@ -2,6 +2,7 @@ package com.iecube.iecubetutorial.model.ai.consumer;
 
 import com.iecube.iecubetutorial.model.ai.exception.AiAPiResponseException;
 import com.iecube.iecubetutorial.model.ai.wsconfig.AiClientWebSocketHandler;
+import com.iecube.iecubetutorial.model.materials.enmus.MaterialStatus;
 import com.iecube.iecubetutorial.model.materials.entity.MaterialChat;
 import com.iecube.iecubetutorial.model.materials.entity.MaterialEntity;
 import com.iecube.iecubetutorial.model.materials.service.MaterialService;
@@ -60,21 +61,23 @@ public class ConnectToW6 implements Runnable {
         //使用异步IO 处理webSocket 连接
         while(true){
             try{
-                String chatId = NewConnectTask.take().getChatId();
+                MaterialChat materialChat = NewConnectTask.take();
+                String chatId = materialChat.getChatId();
                 MaterialEntity material = materialService.getMaterial(chatId);
                 log.info("w6-connect 任务：对话：{}：目标id：{}, 账户id：{},{},{}", chatId, material.getId(),material.getUserId(), material.getName(),material.getTitle());
                 ChatIdToMaterial.put(chatId,material); // todo  一直put可能导致内存泄漏
                 log.info("ChatIdToMaterial 数量检查：{}", ChatIdToMaterial.size());
                 log.info("有 {} 个进行中的w6 webSocket 连接",ChatIdToSession.size());
                 log.info("新的 w6 webSocket 连接:{}", chatId);
-                webSocketConnect(chatId);
+                webSocketConnect(materialChat);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
     }
 
-    public void webSocketConnect(String chatId) {
+    public void webSocketConnect(MaterialChat materialChat) {
+        String chatId = materialChat.getChatId();
         String url = wssBaseUrl+chatId;
         log.debug("url:{}",url);
         WebSocketClient client = new StandardWebSocketClient();
@@ -83,11 +86,15 @@ public class ConnectToW6 implements Runnable {
         try {
             URI uri = new URI(url);
             log.debug("uri:{}",uri);
-            WebSocketSession session = client.doHandshake(w6WebSocketHandler, headers, uri).get(); // 和AI模型建立消息通道
+            WebSocketSession session = client.execute(w6WebSocketHandler, headers, uri).get(); // 和AI模型建立消息通道
             ChatIdToSession.put(chatId,session);
             SessionIdToChatId.put(session.getId(), chatId);
             session.setTextMessageSizeLimit(10485760);
         } catch (Exception e) {
+            MaterialEntity material = materialService.getMaterial(chatId);
+            material.setStatus(MaterialStatus.FAILED.getStatus());
+            material.setHtml("服务错误：与AI服务建立消息通道错误："+e.getMessage());
+            materialService.handelUpload(material);
             throw new AiAPiResponseException("与AI服务建立消息通道错误："+e.getMessage());
         }
     }

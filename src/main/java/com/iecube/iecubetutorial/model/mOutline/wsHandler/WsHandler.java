@@ -56,9 +56,7 @@ public class WsHandler extends TextWebSocketHandler {
             session.getAttributes().put("mOutlineId", mOutlineId);
             wsManager.OutlineWsMap().put(chatId, session);
             log.info("WebSocket（大纲）客户端已连接: {}", session.getId());
-//            wsManager.NewOutlineConnectTask().put(chatId);
-//            w6ClientService.connect(chatId);
-            WebSocketSession w6Client = w6ClientService.connect(chatId); // 发起和w6的socket连接，并发送消息
+            WebSocketSession w6Client = w6ClientService.connect(chatId, null, null); // 发起和w6的socket连接，并发送消息
             SendTow6 sendTow6 = new SendTow6();
             sendTow6.setType("send-message");
             sendTow6.setImages(new ArrayList<>());
@@ -78,10 +76,10 @@ public class WsHandler extends TextWebSocketHandler {
                         - 知识点名称： %s
 
                         ## 参考提示词如下
-                        ==================\s
-
-                        ## 需求：通信原理课程QPSK知识点演示网页\s
-
+                        ==================
+                        
+                        ## 需求：通信原理课程QPSK知识点演示网页
+                        
                         #### 1. 课程背景与动机介绍（教学区）
                         - 页面最前面部分，要详细说明QPSK在现代数字通信系统中的地位和意义，包括：
                             - 通信原理作为工程类专业的基础课程主要研究内容，调制方式在数字通信中的作用。
@@ -89,7 +87,7 @@ public class WsHandler extends TextWebSocketHandler {
                             - 与BPSK、QAM等常见数字信号调制方式的比较和发展历程。
                             - QPSK在实际系统（如卫星通信、移动通信、Wi-Fi、LTE等）中的典型应用场景和技术优势（抗噪声、频谱效率等）。
                             - 简要论述选择QPSK进行课堂讲授的意义。
-
+                            
                         #### 2. QPSK原理与知识点详细讲解
                         - 正交相移键控QPSK的基本定义和数学模型。
                         - **插入示意图**：QPSK调制原理框图，显示串并转换、I/Q两路正交调制、信号合成
@@ -97,23 +95,21 @@ public class WsHandler extends TextWebSocketHandler {
                         - **插入示意图**：QPSK调制思想
                         - 星座图形象解读：I/Q二维空间符号分布，如何实现正交性。
                         - **插入示意图**：星座图形象解读
-
                         - QPSK与其它调制方式（BPSK、16QAM等）的对比优缺点。
                         - （可包含公式、简明推导，便于学生理解）
                         - 详细举例说明一个比特流（如“11001100”）分组到QPSK符号的映射过程。
                         - QPSK符号的解调方法（判决准则、受噪声影响的判断误差）。
-
+                        
                         #### 3. 可交互参数及仿真控制区
                         - 输入区：支持手动输入或自动生成二进制比特流（建议范围8~16位），可一键随机生成。
                         - 设置区：信噪比SNR（支持滑块或数值输入）、模拟添加高斯白噪声，以及“启动仿真”按钮。
-
-                        #### 4. 可视化演示区\s
+                        
+                        #### 4. 可视化演示区
                         - 星座图：显示调制后各符号在I/Q空间的分布，噪声影响下的点云变化。
                         - 比特流与调制/解调流程动画：高亮符号变换、解调比特对比（如出错点颜色标注）。
                         - 可选：I路、Q路调制波形及叠加噪声的时域变化图。
 
-                        #### 要求    \s
-
+                        #### 要求
                         - 交互区、知识区、绘图区版面清晰，操作流畅，方便课堂演示和学生自学。
                         - 各部分（背景、原理、演示、交互）都有清晰注释，页面显著位置有操作指南和变量意义解释。
 

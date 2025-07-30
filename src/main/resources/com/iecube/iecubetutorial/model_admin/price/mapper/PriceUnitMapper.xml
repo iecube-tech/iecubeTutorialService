@@ -6,28 +6,28 @@
 <mapper namespace="com.iecube.iecubetutorial.model_admin.price.mapper.PriceUnitMapper">
 
     <resultMap id="PriceUnit" type="com.iecube.iecubetutorial.model_admin.price.entity.PriceUnit">
-        <result column="type_cn" property="typeCn"></result>
+        <result column="source_units" property="sourceUnits"></result>
+        <result column="source_units_cn" property="sourceUnitsCn"></result>
         <result column="target_units" property="targetUnits"></result>
         <result column="target_units_cn" property="targetUnitsCn"></result>
-        <result column="need_units" property="needUnits"></result>
-        <result column="need_units_cn" property="needUnitsCn"></result>
         <result column="create_time" property="createTime"></result>
         <result column="last_operate_time" property="lastOperateTime"></result>
         <result column="last_operator" property="lastOperator"></result>
     </resultMap>
 
     <select id="getPriceUnits" resultMap="PriceUnit">
-        SELECT `id`, `type`, `type_cn`, `target`, `target_units`, `target_units_cn`, `need`, `need_units`,
-               `need_units_cn`,`active`,`removed`, `create_time`, `creator`,`last_operate_time`,`last_operator`
+        SELECT `id`, `type`, `source`, `source_units`, `source_units_cn`, `target`, `target_units`, `target_units_cn`,
+               `active`, `removed`, `create_time`, `creator`,`last_operate_time`,`last_operator`
         FROM a_price_unit WHERE active=1
     </select>
 
-    <select id="GeneratePriceUnit" parameterType="java.lang.Double">
-        SELECT `need` FROM a_price_unit WHERE `type`='CONSUME' AND active=1
+    <select id="targetTokenPerPoint" parameterType="java.lang.Double">
+        SELECT target FROM a_price_unit WHERE type='POINTTOTOKENS' AND active=1;
     </select>
 
-    <select id="RechargePriceUnit" parameterType="java.lang.Double">
-        SELECT `need` FROM a_price_unit WHERE `type`='RECHARGE' AND active=1
+    <select id="targetPointsPerRMB" parameterType="java.lang.Double">
+        SELECT target FROM a_price_unit WHERE type='RMBTOPOINTS' AND active=1;
+
     </select>
 
     <update id="UpdatePriceUnit">
@@ -42,10 +42,11 @@
     </update>
     
     <insert id="createPrice">
-        INSERT INTO a_price_unit (`id`, `type`, `type_cn`, `target`, `target_units`, `target_units_cn`, `need`, `need_units`,
-                                  `need_units_cn`,`active`,
+        INSERT INTO a_price_unit (`id`, `type`, `source`, `source_units`, `source_units_cn`, `target`, `target_units`, `target_units_cn`,
+                                  `active`,
                                   `removed`, `create_time`, `creator`,`last_operate_time`,`last_operator`)
-        values (NULl, #{type},#{typeCn},#{target},#{targetUnits},#{targetUnitsCn},#{need},#{needUnits},#{needUnitsCn},#{active},
+        values (NULl, #{type}, #{source}, #{sourceUnits}, #{sourceUnitsCn}, #{target}, #{targetUnits}, #{targetUnitsCn},
+                #{active},
                 #{removed},#{createTime},#{creator},#{lastOperateTime},#{lastOperator})
     </insert>
 

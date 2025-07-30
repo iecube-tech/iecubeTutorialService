@@ -7,12 +7,11 @@ import lombok.Data;
 public class PriceUnit extends BaseEntity {
     private Long id;
     private String type;
-    private String typeCn;
+    private int source;
+    private String sourceUnits;
+    private String sourceUnitsCn;
     private double target;
     private String targetUnits;
     private String targetUnitsCn;
-    private double need;
-    private String needUnits;
-    private String needUnitsCn;
     private int active;
 }

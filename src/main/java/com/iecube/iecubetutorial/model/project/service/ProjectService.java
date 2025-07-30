@@ -12,6 +12,8 @@ public interface ProjectService {
 
     Project getByMaterial(long materialId);
 
+    Project getById(String id);
+
     ProjectDetailVo createProjectByCollection(long collectionId);
 
     List<ProjectDetailVo> getAccountProjects();

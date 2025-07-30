@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @RunWith(SpringRunner.class)
 public class W6ServiceTest {
 
@@ -19,5 +19,10 @@ public class W6ServiceTest {
     public void test() {
         JsonNode res = w6ApiService.getJsonRes("1r7gvOqRkbzXSMm5WOpxBa");
         System.out.println(res);
+    }
+
+    @Test
+    public void test1() {
+        System.out.println(w6ApiService.computeTokenUsed("3s3n8w32CEONLn8ZBUi1rv"));
     }
 }

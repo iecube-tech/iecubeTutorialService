@@ -2,6 +2,7 @@ package com.iecube.iecubetutorial.model.materials.service.impl;
 
 import com.iecube.iecubetutorial.exception.*;
 import com.iecube.iecubetutorial.model.ai.apiService.W6ApiService;
+import com.iecube.iecubetutorial.model.mOutline.clientService.OutlineGenHandler;
 import com.iecube.iecubetutorial.model.mOutline.entity.MOutline;
 import com.iecube.iecubetutorial.model.mOutline.service.MOutlineService;
 import com.iecube.iecubetutorial.model.materials.enmus.MaterialStatus;
@@ -21,6 +22,8 @@ import com.iecube.iecubetutorial.model.resource.mapper.ResourceMapper;
 import com.iecube.iecubetutorial.model.resource.service.ResourceService;
 import com.iecube.iecubetutorial.model_user.account.entity.Account;
 import com.iecube.iecubetutorial.model_user.account.service.AccountService;
+import com.iecube.iecubetutorial.model_user.points.dto.TokenUsed;
+import com.iecube.iecubetutorial.model_user.points.enmu.PointType;
 import com.iecube.iecubetutorial.model_user.points.exception.PointsNotEnoughException;
 import com.iecube.iecubetutorial.model_user.points.service.PointsService;
 import lombok.extern.slf4j.Slf4j;
@@ -121,6 +124,22 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public void oneClickGen(MOutline mOutline, MaterialChat materialChat){
+        // 先对生成的大纲扣费
+        TokenUsed tokenUsed = w6ApiService.computeTokenUsed(mOutline.getChatId());
+        tokenUsed.setProjectId(mOutline.getProjectId());
+        try{
+            pointsService.consumePoints(mOutline.getCreator(), tokenUsed, PointType.CONSUME_OUTLINE.name());
+        }catch (PointsNotEnoughException e){
+            // 处理余额不足
+            MaterialEntity materialEntity = this.getMaterial(materialChat.getMaterialId());
+            if(materialEntity!=null){
+                materialEntity.setHtml("余额不足，大纲已生成，扣费失败");
+                materialEntity.setStatus(MaterialStatus.FAILED.getStatus());
+                this.handelUpload(materialEntity);
+            }
+            log.warn("余额不足 {}", mOutline);
+            return;
+        }
         // 创建新的任务：开始准备接收AI对话，接收，并处理AI消息
         try {
             NewConnectTask.put(materialChat);

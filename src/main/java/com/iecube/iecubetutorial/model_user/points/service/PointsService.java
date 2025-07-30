@@ -3,7 +3,9 @@ package com.iecube.iecubetutorial.model_user.points.service;
 import com.iecube.iecubetutorial.model.materials.entity.MaterialEntity;
 import com.iecube.iecubetutorial.model_user.account.entity.Account;
 import com.iecube.iecubetutorial.model_user.organization_sec.entity.OrgSec;
+import com.iecube.iecubetutorial.model_user.points.dto.TokenUsed;
 import com.iecube.iecubetutorial.model_user.points.entity.Points;
+import com.iecube.iecubetutorial.model_user.points.exception.PointsNotEnoughException;
 import com.iecube.iecubetutorial.model_user.points.vo.ConsumePointVo;
 import com.iecube.iecubetutorial.model_user.points.vo.PointRecordVo;
 import com.iecube.iecubetutorial.model_user.points.vo.YearMonthConsumptionResponse;
@@ -31,10 +33,10 @@ public interface PointsService {
 
     /**
      * 扣除积分
-     * @param account 账户
-     * @param material 扣费的条目
+     * @param accountId  账户Id
+     * @param tokenUsed 扣费的条目
      */
-    void consumePoints(Account account, MaterialEntity material);
+    void consumePoints(Long accountId, TokenUsed tokenUsed, String type) throws PointsNotEnoughException;
 
     /**
      * 获取组织的剩余积分

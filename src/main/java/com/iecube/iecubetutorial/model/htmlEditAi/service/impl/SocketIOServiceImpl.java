@@ -9,11 +9,17 @@ import com.iecube.iecubetutorial.model.htmlEditAi.enums.MessageDtoType;
 import com.iecube.iecubetutorial.model.htmlEditAi.enums.MessageType;
 import com.iecube.iecubetutorial.model.htmlEditAi.service.MessageService;
 import com.iecube.iecubetutorial.model.htmlEditAi.service.SocketIOService;
+import com.iecube.iecubetutorial.model.project.entity.Project;
+import com.iecube.iecubetutorial.model.project.service.ProjectService;
 import com.iecube.iecubetutorial.model.projectChild.entity.ProjectChild;
 import com.iecube.iecubetutorial.model.projectChild.service.ProjectChildService;
 import com.iecube.iecubetutorial.model.projectChild.vo.ProjectChildVo;
 import com.iecube.iecubetutorial.model.resource.entity.Resource;
 import com.iecube.iecubetutorial.model.resource.service.ResourceService;
+import com.iecube.iecubetutorial.model_user.points.dto.TokenUsed;
+import com.iecube.iecubetutorial.model_user.points.enmu.PointType;
+import com.iecube.iecubetutorial.model_user.points.exception.PointsNotEnoughException;
+import com.iecube.iecubetutorial.model_user.points.service.PointsService;
 import com.iecube.iecubetutorial.util.base64.Base64Util;
 import com.iecube.iecubetutorial.util.uuid.UUIDGenerator;
 import io.socket.client.IO;
@@ -49,6 +55,8 @@ public class SocketIOServiceImpl implements SocketIOService {
     private final ObjectMapper objectMapper;
     private final ResourceService resourceService;
     private final ProjectChildService projectChildService;
+    private final PointsService pointsService;
+    private final ProjectService projectService;
 
 
     @Value("${HtmlEditAI.socketIO.baseUrl}")
@@ -61,12 +69,16 @@ public class SocketIOServiceImpl implements SocketIOService {
                                WebsocketManager websocketManager,
                                ObjectMapper objectMapper,
                                ResourceService resourceService,
-                               ProjectChildService projectChildService) {
+                               ProjectChildService projectChildService,
+                               PointsService pointsService,
+                               ProjectService projectService) {
         this.messageService = messageService;
         this.websocketManager = websocketManager;
         this.objectMapper = objectMapper;
         this.resourceService = resourceService;
         this.projectChildService = projectChildService;
+        this.pointsService = pointsService;
+        this.projectService = projectService;
     }
 
 
@@ -199,6 +211,7 @@ public class SocketIOServiceImpl implements SocketIOService {
             if(args.length>0 && args[0]!=null && args[0] instanceof JSONObject){
                 try{
                     JSONObject data = (JSONObject) args[0];
+//                    System.out.println(data);
                     if(data.getBoolean("success")){
                         // 处理文件
                         String html = Base64Util.encodeString(data.getString("updated_code"));
@@ -228,12 +241,25 @@ public class SocketIOServiceImpl implements SocketIOService {
                             messageService.saveMessage(projectMessage);
                             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(projectMessage)));
                             responseBuffer.setLength(0);
+                            // 扣费
+                            TokenUsed tokenUsed = new TokenUsed();
+                            tokenUsed.setSent(data.getInt("total_tokens_sent"));
+                            tokenUsed.setRecv(data.getInt("total_tokens_received"));
+                            tokenUsed.setProjectId(projectId);
+                            tokenUsed.setProjectChildId(projectChild.getId());
+                            try{
+                                Project project = projectService.getById(projectId);
+                                pointsService.consumePoints(project.getUserId(), tokenUsed, PointType.CONSUME_EDIT.name());
+                                log.info("已扣费");
+                            } catch (PointsNotEnoughException e) {
+                                throw new RuntimeException(e);
+                            }
                         }catch (Exception e){
                             try {
-                                log.error("转发SocketIO消息错误 {} --> Websocket {}",e.getMessage(), session.getId());
+                                e.printStackTrace();
                                 session.sendMessage(new TextMessage("""
-                            {"type":"error","message":"服务错误:%s"}
-                            """.formatted(e.getMessage())));
+                                        {"type":"error","message":"服务错误:%s"}
+                                    """.formatted(e.getMessage())));
                             } catch (IOException ex) {
                                 log.error("转发SocketIO消息错误 --> Websocket {}", session.getId());
                                 throw new ServiceException();

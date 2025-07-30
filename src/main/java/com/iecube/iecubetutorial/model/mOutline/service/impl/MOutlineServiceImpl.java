@@ -29,6 +29,7 @@ public class MOutlineServiceImpl implements MOutlineService {
     public MOutline genMOutline(MaterialQo materialQo, boolean isOneClick, String projectId) {
         MOutline mOutline = new MOutline();
         mOutline.setId(UUIDGenerator.generateUUID());
+        mOutline.setProjectId(projectId);
         mOutline.setName(materialQo.getName());
         mOutline.setTitle(materialQo.getTitle());
         mOutline.setKnowledgePoint(materialQo.getKnowledgePoints());

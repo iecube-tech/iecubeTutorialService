@@ -6,6 +6,7 @@ import lombok.Data;
 public class ParseArtefactDto {
     private Long materialId;
     private String artefactId;
+    private String chatId;
     private String status;
     private String error;
 }

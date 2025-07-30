@@ -9,7 +9,8 @@ public class PointRecordVo extends PointsRecord {
     private String topName;
     private String userName;
     private String phone;
-    private String materialName;
-    private String materialTitle;
-    private String materialKnowledgePoint;
+    private String projectName;
+    private String projectTitle;
+    private String projectKnowledgePoint;
+    private String type;
 }

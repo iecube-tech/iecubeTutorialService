@@ -56,7 +56,6 @@ public class MessageServiceImpl implements MessageService {
         message.setCreateTime(Instant.now());
         message.setSio(session.getAttributes().get("socketIOUserId").toString());
         message.setType(source);
-
         int res = messageMapper.insert(message);
         if(res!=1){
             throw new InsertException("保存数据异常");

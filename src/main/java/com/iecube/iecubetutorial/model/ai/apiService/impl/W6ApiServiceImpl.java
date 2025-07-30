@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iecube.iecubetutorial.model.ai.apiService.W6ApiService;
 import com.iecube.iecubetutorial.model.ai.exception.AiAPiResponseException;
+import com.iecube.iecubetutorial.model_user.points.dto.TokenUsed;
 import com.iecube.iecubetutorial.util.xlsx.CheckHttpResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +26,7 @@ import java.util.Map;
 @Service
 public class W6ApiServiceImpl implements W6ApiService {
 
+    private final ObjectMapper objectMapper;
     @Value("${Ai.baseUrl}")
     private String baseUrl;
 
@@ -48,7 +53,7 @@ public class W6ApiServiceImpl implements W6ApiService {
 
     private static final String INSTRUCTION= """
             您是一名具有高等教育经验的教学设计师和前端开发专家，对现代教学演示设计有深入理解，尤其擅长创建符合高校教学规范的交互式讲义。您的设计需兼顾知识体系的严谨性和教学呈现的直观性。
-            请根据提供的内容，设计一个符合中国高等院校教育教学风格和表达习惯的"中文" 可视化网页作品。\s
+            请根据提供的内容，设计一个符合中国高等院校教育教学风格和表达习惯的"中文" 可视化网页作品。
             
             ## 内容要求
             - 采用学术性中文表述，符合学科专业术语规范
@@ -61,7 +66,7 @@ public class W6ApiServiceImpl implements W6ApiService {
               - 教学案例/示意图（如果需要）
               - 思考题/延伸问题（底部固定区域，如果需要）
             - 在页面底部添加作者信息区域，包含：
-              - 版权信息: IECUBE Tutorial 和2025年
+              - 版权信息: IECUBE Tutorial 2025
               - 页脚用较小字号和灰色字体声明，"本内容为人工智能生成，观点为转述原作者，不代表本公司立场，仅供参考和批判"
             
             ## 仿真动画要求
@@ -70,6 +75,7 @@ public class W6ApiServiceImpl implements W6ApiService {
               - 动画应具有教育意义，能够帮助学习者更好地理解概念
               - 动画应遵循社会主义核心价值观，符合中国教育标准
               - 动画支持参数修改，有开始/结束等按钮调整参数实现仿真效果
+              - 如需用到插件，请使用中国大陆可快速访问的cnd地址
             
             ## 公式要求
             - 使用KaTeX进行公式渲染，确保公式正确显示
@@ -88,6 +94,7 @@ public class W6ApiServiceImpl implements W6ApiService {
             - 图表配色应符合整体主题
             - 每个图表包含清晰标题和数据来源
             - 确保图表清晰可读，附有必要的解释文字
+            - 如需用到插件，请使用中国大陆可快速访问的cnd地址
             
             ## 交互体验
             - 添加适当的微交互效果提升用户体验：
@@ -98,6 +105,7 @@ public class W6ApiServiceImpl implements W6ApiService {
             
             ## 图标与视觉元素
             - 使用专业图标库如Font Awesome或Material Icons
+            - 使用中国大陆可快速访问的cnd地址
             - 根据内容主题选择合适的插图或图表展示数据
             - 避免使用emoji作为主要图标
             
@@ -114,12 +122,13 @@ public class W6ApiServiceImpl implements W6ApiService {
             - 简化复杂组件：对于时间线、多列布局等复杂组件，确保它们能够自适应不同屏幕尺寸，必要时简化设计或提供替代布局。
             
             ## 技术规范
-            - 使用HTML5、TailwindCSS 3.0+（通过CDN引入）和必要的JavaScript
+            - 使用HTML5、TailwindCSS 3.0+和必要的JavaScript
             - 专业图标库的展示通过CDN引入必要资源
             - 图表展示时通过CDN引入chart.js， 并保证无错误
             - 动画功能要保证动画可用(如果有动画)
             - 实现完整的深色/浅色模式切换功能，默认跟随系统设置
             - 代码结构清晰，包含适当注释，便于理解和维护
+            - 如需用到插件，请使用中国大陆可快速访问的cnd地址
             - 注意，Tailwindcss 3.0+通过CDN引入的正确方式是:`<script src="https://cdn.tailwindcss.com"></script>`
             - 界面中引入的CDN链接必须保证中国大陆地区可访问性，如不可访问则使用国内镜像源
             
@@ -139,6 +148,10 @@ public class W6ApiServiceImpl implements W6ApiService {
             
             请你像一个真正的网页设计专家一样思考，充分发挥你的专业技能和创造力，打造一个令人惊艳的HTML可视化网页作品！
             """;
+
+    public W6ApiServiceImpl(@Qualifier("objectMapper") ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public String genChat() {
@@ -208,6 +221,8 @@ public class W6ApiServiceImpl implements W6ApiService {
                 throw new AiAPiResponseException("访问AI资源失败(响应错误)："+checkResult.getErrorReason());
             }
         }catch (Exception e){
+            //todo 更新Project状态 原因
+            // ChatIdToMaterial 数量检查：2  移除ChatIdToMaterial  断卡websocket连接
             log.error("动态讲义(pagemaker):{};{};{}",chatId, title, knowledgePoints);
             throw new AiAPiResponseException("访问AI资源失败："+e.getMessage());
        }
@@ -235,6 +250,63 @@ public class W6ApiServiceImpl implements W6ApiService {
             }
         }catch (Exception e){
             log.error("获取ai message json格式 ERROR {}", artefactId);
+            throw new AiAPiResponseException("访问AI资源失败："+e.getMessage());
+        }
+    }
+
+    @Override
+    public TokenUsed computeTokenUsed(String chatId) {
+        String uri = UriComponentsBuilder.fromHttpUrl(baseUrl + "/user/usage/%E5%BC%A0%E5%B0%8F%E9%BE%99")
+                .queryParam("limit",101)
+                .queryParam("offset",0)
+                .queryParam("agent","")
+                .toUriString();
+        String url = "";
+        try{
+            url = baseUrl+"/user/usage/"+ "张小龙" + "?limit=101&offset=0&agent=";
+//            System.out.println(url);
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type","application/json; charset=utf-8");
+        headers.add(headerFiled, headerVal);
+        HttpEntity<String> httpEntity = new HttpEntity<>(headers);
+        RestTemplate restTemplate = new RestTemplate();
+        try{
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
+            CheckHttpResponse.CheckResult checkResult = new CheckHttpResponse().responseNormal(response);
+            if(checkResult.isNormal()){
+                TokenUsed tokenUsed = new TokenUsed();
+                tokenUsed.setSent(0);
+                tokenUsed.setRecv(0);
+                for(int i=0;i<100;i++){
+                    if(checkResult.getBodyData().get("details").get(i).get("chat_id").asText().equals(chatId)){
+//                        System.out.println(checkResult.getBodyData().get("details").get(i).get("details").getNodeType());
+//                        System.out.println(checkResult.getBodyData().get("details").get(i).get("details").size());
+                        Map<String,Map> map = objectMapper.convertValue(checkResult.getBodyData().get("details").get(i).get("details"), Map.class);
+                        for (Map.Entry<String, Map> entry : map.entrySet()) {
+                            String key = entry.getKey();
+                            Map value = entry.getValue();
+                            if(key.contains("prompt")){
+                                tokenUsed.setSent(tokenUsed.getSent()+Integer.parseInt(value.get("amount").toString()));
+                            }
+                            if(key.contains("completion")){
+                                tokenUsed.setRecv(tokenUsed.getRecv()+Integer.parseInt(value.get("amount").toString()));
+                            }
+//                            System.out.println("Key: " + key + ", Value: " + value);
+                        }
+//                        System.out.println(tokenUsed);
+                        return tokenUsed;
+                    }
+                }
+                return null;
+            }else {
+                log.error("获取token用量 WARNING： {}", chatId);
+                throw new AiAPiResponseException("访问AI资源失败："+checkResult.getErrorReason());
+            }
+        }catch (Exception e){
+            log.error("获取token用量 ERROR： {}", chatId);
             throw new AiAPiResponseException("访问AI资源失败："+e.getMessage());
         }
     }

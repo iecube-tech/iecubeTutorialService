@@ -1,9 +1,6 @@
 package com.iecube.iecubetutorial.model_admin.price.service;
 
-import com.iecube.iecubetutorial.model_admin.approval.approval.entity.Approval;
 import com.iecube.iecubetutorial.model_admin.price.entity.PriceUnit;
-import com.iecube.iecubetutorial.model_admin.price.qo.PriceChangeQo;
-import com.iecube.iecubetutorial.model_admin.user.entity.AUser;
 
 import java.util.List;
 
@@ -12,13 +9,13 @@ public interface PriceUnitService {
     List<PriceUnit> findAll();
 
     /**
-     * @return **积分每生成
+     * @return ** __token每积分
      */
-    double GeneratePriceUnit();
+    double targetTokenPerPoint();
 
     /**
-     * @return **元每积分
+     * @return **__积分每元
      */
-    double RechargePriceUnit();
+    double targetPointsPerRMB();
 
 }

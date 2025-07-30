@@ -113,15 +113,18 @@ public class AiClientWebSocketHandler extends TextWebSocketHandler {
                             ParseArtefactDto dto = new ParseArtefactDto();
                             if(artefactId.isEmpty()){
                                 material.setStatus(MaterialStatus.FAILED.getStatus());
+                                material.setHtml("AI服务返回文件为空");
                                 materialService.handelUpload(material);
                             }
-                            dto.setArtefactId(artefactId);
-                            dto.setStatus(artefactId.isEmpty()?MaterialStatus.FAILED.getStatus():MaterialStatus.DONE.getStatus());
-                            dto.setError(artefactId.isEmpty()?"获取AI返回的文件ID错误":null);
-                            dto.setMaterialId(material.getId());
-                            NewParseTask.put(dto);
-                            log.info("W6:{},current： 输出最终结果，artefactId：{}",chatId,artefactId);
-                            log.info("AI 输出完成, 交给 parse-artefactId 处理:{}",dto);
+                            else{
+                                dto.setArtefactId(artefactId);
+                                dto.setStatus(MaterialStatus.DONE.getStatus());
+                                dto.setMaterialId(material.getId());
+                                dto.setChatId(chatId);
+                                NewParseTask.put(dto);
+                                log.info("W6:{},current： 输出最终结果，artefactId：{}",chatId,artefactId);
+                                log.info("AI 输出完成, 交给 parse-artefactId 处理:{}",dto);
+                            }
                             session.close();
                         }
                     }
@@ -143,14 +146,16 @@ public class AiClientWebSocketHandler extends TextWebSocketHandler {
                     ParseArtefactDto dto = new ParseArtefactDto();
                     if(artefactId.isEmpty()){
                         material.setStatus(MaterialStatus.FAILED.getStatus());
+                        material.setHtml("AI服务返回文件为空");
                         materialService.handelUpload(material);
+                    }else{
+                        dto.setArtefactId(artefactId);
+                        dto.setStatus(MaterialStatus.DONE.getStatus());
+                        dto.setMaterialId(material.getId());
+                        dto.setChatId(chatId);
+                        NewParseTask.put(dto); // 处理AI输出的文本消息
+                        log.info("AI 输出完成, 交给 parse-artefactId 处理:{}",dto);
                     }
-                    dto.setArtefactId(artefactId);
-                    dto.setStatus(artefactId.isEmpty()?MaterialStatus.FAILED.getStatus():MaterialStatus.DONE.getStatus());
-                    dto.setError(artefactId.isEmpty()?"获取AI返回的文件ID错误":null);
-                    dto.setMaterialId(material.getId());
-                    NewParseTask.put(dto); // 处理AI输出的文本消息
-                    log.info("AI 输出完成, 交给 parse-artefactId 处理:{}",dto);
                     break;
                 case "activity-stop":
                     log.info("W6:{}结束输出，即将断开",chatId);
@@ -173,7 +178,6 @@ public class AiClientWebSocketHandler extends TextWebSocketHandler {
         if(chatId != null){
             ChatIdToSession.remove(chatId);
             ChatIdToMaterial.remove(chatId);
-
         }
         SessionIdToChatId.remove(session.getId());
         log.info("ChatIdToSession 清理检查，剩余数量：{}",ChatIdToSession.size());

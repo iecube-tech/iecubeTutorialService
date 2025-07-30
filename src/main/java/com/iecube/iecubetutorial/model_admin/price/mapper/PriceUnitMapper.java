@@ -12,14 +12,14 @@ public interface PriceUnitMapper {
     int UpdatePriceUnit(PriceUnit priceUnit);
 
     /**
-     * @return **积分每生成
+     * @return **Token每积分
      */
-    double GeneratePriceUnit();
+    double targetTokenPerPoint();
 
     /**
-     * @return **元每积分
+     * @return ** __积分每元
      */
-    double RechargePriceUnit();
+    double targetPointsPerRMB();
 
     void disableAll();
 

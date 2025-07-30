@@ -10,7 +10,8 @@ public class PointsRecord {
     private Long oSecId;
     private Long accountId;
     private String type;
-    private double points;
-    private Long materialId;
+    private int points;
+    private String projectId;
+    private String projectChildId;
     private Instant createTime;
 }

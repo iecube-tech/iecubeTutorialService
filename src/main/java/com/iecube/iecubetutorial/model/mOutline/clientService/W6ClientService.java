@@ -4,5 +4,5 @@ import com.iecube.iecubetutorial.model.ai.exception.AiAPiResponseException;
 import org.springframework.web.socket.WebSocketSession;
 
 public interface W6ClientService {
-    WebSocketSession connect(String chatId) throws AiAPiResponseException;
+    WebSocketSession connect(String chatId, String projectId, Long materialId) throws AiAPiResponseException;
 }

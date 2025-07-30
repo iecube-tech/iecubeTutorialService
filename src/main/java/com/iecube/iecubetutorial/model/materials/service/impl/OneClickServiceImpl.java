@@ -96,13 +96,14 @@ public class OneClickServiceImpl implements OneClickService {
         // 数据准备工作完毕
         //和 生产消费者模型 AI建立websocket连接，处理生成任务  连接之后 material.setStatus(MaterialStatus.GENERATING.getStatus()); 更新状态
         if(!pointsService.pointsEnough(account)){
+            // todo  更改Project状态
             throw new PointsNotEnoughException("余额不足");
         }
         // todo 生成大纲，由outlineGenHandler 处理启动生成文件
         MOutline mOutline = mOutlineService.genMOutline(materialQo,true, project.getId());
         // 连接webSocket去处理outline
         wsManager.OneClickGen().put(mOutline.getChatId(), materialChat);
-        WebSocketSession w6Client = w6ClientService.connect(mOutline.getChatId()); // 发起和w6的socket连接，并发送消息
+        WebSocketSession w6Client = w6ClientService.connect(mOutline.getChatId(),project.getId(), material.getId()); // 发起和w6的socket连接，并发送消息
         WsHandler.SendTow6 sendTow6 = new WsHandler.SendTow6();
         sendTow6.setType("send-message");
         sendTow6.setImages(new ArrayList<>());

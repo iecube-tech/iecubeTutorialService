@@ -24,7 +24,10 @@ public class OutlineGenHandler extends TextWebSocketHandler {
     private final MOutlineService mOutlineService;
     private final ObjectMapper objectMapper;
     private final MaterialService materialService;
-    public OutlineGenHandler(WsManager wsManager, MOutlineService mOutlineService, ObjectMapper objectMapper, MaterialService materialService) {
+    public OutlineGenHandler(WsManager wsManager,
+                             MOutlineService mOutlineService,
+                             ObjectMapper objectMapper,
+                             MaterialService materialService) {
         this.wsManager=wsManager;
         this.mOutlineService=mOutlineService;
         this.objectMapper=objectMapper;
@@ -71,7 +74,7 @@ public class OutlineGenHandler extends TextWebSocketHandler {
                 Msg msg3 = new Msg();
                 msg3.setType("activity-stop");
                 sendMessageToOutlineSession(chatId,msg3);
-                session.close();
+                session.close(); //主动关闭和ai服务的连接
                 break;
             default:
                 break;

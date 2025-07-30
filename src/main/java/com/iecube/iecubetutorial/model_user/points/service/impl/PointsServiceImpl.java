@@ -1,7 +1,6 @@
 package com.iecube.iecubetutorial.model_user.points.service.impl;
 
 import com.iecube.iecubetutorial.config.ThreadLocalUtil;
-import com.iecube.iecubetutorial.model.materials.entity.MaterialEntity;
 import com.iecube.iecubetutorial.model.sms.service.SmsService;
 import com.iecube.iecubetutorial.model_admin.point.expire.service.APointExpireService;
 import com.iecube.iecubetutorial.model_admin.price.service.PriceUnitService;
@@ -9,6 +8,7 @@ import com.iecube.iecubetutorial.model_user.account.entity.Account;
 import com.iecube.iecubetutorial.model_user.account.service.AccountService;
 import com.iecube.iecubetutorial.model_user.account.vo.AccountVo;
 import com.iecube.iecubetutorial.model_user.organization_sec.entity.OrgSec;
+import com.iecube.iecubetutorial.model_user.points.dto.TokenUsed;
 import com.iecube.iecubetutorial.model_user.points.enmu.PointStatus;
 import com.iecube.iecubetutorial.model_user.points.enmu.PointType;
 import com.iecube.iecubetutorial.model_user.points.entity.Points;
@@ -20,6 +20,7 @@ import com.iecube.iecubetutorial.model_user.points.service.PointsService;
 import com.iecube.iecubetutorial.model_user.points.vo.ConsumePointVo;
 import com.iecube.iecubetutorial.model_user.points.vo.PointRecordVo;
 import com.iecube.iecubetutorial.model_user.points.vo.YearMonthConsumptionResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+@Slf4j
 @Service
 public class PointsServiceImpl implements PointsService {
 
@@ -63,7 +65,7 @@ public class PointsServiceImpl implements PointsService {
         point.setLastOperateTime(Instant.now());
         point.setLastOperator(ThreadLocalUtil.getPhone());
         pointsMapper.createPoints(point);
-        this.pointsRecord(PointType.RECHARGE.name(), orgSec.getId(), null, points, null);
+        this.pointsRecord(PointType.RECHARGE.name(), orgSec.getId(), null, (int)Math.ceil(points), null, null);
     }
 
     @Override
@@ -79,17 +81,24 @@ public class PointsServiceImpl implements PointsService {
             point.setLastOperateTime(Instant.now());
             point.setLastOperator(ThreadLocalUtil.getPhone());
             pointsMapper.updatePoints(point);
-            this.pointsRecord(PointType.RECHARGE.name(), orgSec.getId(), null, points,null);
+            this.pointsRecord(PointType.RECHARGE.name(), orgSec.getId(), null, (int)Math.ceil(points),null, null);
         }
     }
 
     @Override
-    public void consumePoints(Account account, MaterialEntity material) {
+    public void consumePoints(Long accountId, TokenUsed tokenUsed, String type) throws PointsNotEnoughException {
+        Account account = accountService.getAccount(accountId);
         Points point = pointsMapper.findValidPointsByOSecId(account.getOSecId());
-        double price = priceUnitService.GeneratePriceUnit();
+        //计算消耗的积分
+        double price = priceUnitService.targetTokenPerPoint(); // __token每积分  总token / __token每积分 = points
+        int amount = (int)Math.ceil((tokenUsed.getRecv()+ tokenUsed.getSent())/price);
+        log.warn("扣费：{}，{}，{},{}",account, tokenUsed, type, amount);
+        if(amount > point.getAmount()) {
+            throw new PointsNotEnoughException("余额不足: 余额："+point.getAmount()+"积分, 需要："+amount+"积分");
+        }
         point.setAmount(point.getAmount() - price);
         pointsMapper.updatePoints(point);
-        this.pointsRecord(PointType.CONSUME.name(), account.getOSecId(), account, price,material);
+        this.pointsRecord(type==null?PointType.CONSUME.name() : type, account.getOSecId(), account, amount,tokenUsed.getProjectId(), tokenUsed.getProjectChildId());
     }
 
     @Override
@@ -106,7 +115,7 @@ public class PointsServiceImpl implements PointsService {
     @Override
     public ConsumePointVo getConsumePoint(Long oSecId) {
         List<PointRecordVo> ConsumeRecords = this.getSecPointsRecords(oSecId).stream()
-                .filter(r-> PointType.CONSUME.name().equals(r.getType()))
+                .filter(r-> !PointType.RECHARGE.name().equals(r.getType()))
                 .toList();
         double total = 0.0;
         for(PointRecordVo record : ConsumeRecords) {
@@ -151,11 +160,13 @@ public class PointsServiceImpl implements PointsService {
     @Override
     public boolean pointsEnough(Account account) {
         Points point = pointsMapper.findValidPointsByOSecId(account.getOSecId());
-        double price = priceUnitService.GeneratePriceUnit();
+        double price = priceUnitService.targetTokenPerPoint();
+        int minExpendTokens = 10000;
+        int needPoints = (int)Math.ceil(minExpendTokens/price);
         if(point == null) {
             throw new PointsNotEnoughException("余额不足");
         }
-        if(point.getAmount() < price){
+        if(point.getAmount() < needPoints){
             throw new PointsNotEnoughException("余额不足");
         }
         return true;
@@ -214,13 +225,14 @@ public class PointsServiceImpl implements PointsService {
         pointsMapper.expiredPoints(currentTime);
     }
 
-    private void pointsRecord(String type, Long oSecId, Account account, double point, MaterialEntity material) {
+    private void pointsRecord(String type, Long oSecId, Account account, int point, String projectId, String projectChildId) {
         PointsRecord pointsRecord = new PointsRecord();
         pointsRecord.setOSecId(oSecId);
         pointsRecord.setType(type);
         pointsRecord.setAccountId(account==null?null:account.getId());
         pointsRecord.setPoints(point);
-        pointsRecord.setMaterialId(material==null?null:material.getId());
+        pointsRecord.setProjectId(projectId);
+        pointsRecord.setProjectChildId(projectChildId);
         pointsRecord.setCreateTime(Instant.now());
         pointsRecordMapper.create(pointsRecord);
     }

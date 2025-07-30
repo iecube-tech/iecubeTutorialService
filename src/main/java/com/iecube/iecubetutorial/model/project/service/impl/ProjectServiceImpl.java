@@ -77,6 +77,11 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public Project getById(String id) {
+        return projectMapper.getById(id);
+    }
+
+    @Override
     public ProjectDetailVo createProjectByCollection(long collectionId) {
         SMaterial sMaterial = sMaterialService.getBYId(collectionId);
         Project project = this.createProjectBySMaterial(sMaterial);
