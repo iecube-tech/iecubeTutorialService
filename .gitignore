@@ -35,7 +35,7 @@ build/
 
 ### resource ###
 resource/
-./resource/
-/resource
+
+!src/main/java/com/iecube/iecubetutorial/model/resource
 ### application ###
 src/main/resources/application.yaml
