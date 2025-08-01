@@ -1,5 +1,6 @@
 package com.iecube.iecubetutorial.model.mOutline.wsConfig;
 
+import com.iecube.iecubetutorial.model.mOutline.entity.MOutline;
 import com.iecube.iecubetutorial.model.materials.entity.MaterialChat;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,6 +37,15 @@ public class WsManager {
      */
     @Bean
     public ConcurrentHashMap<String, MaterialChat> OneClickGen(){
+        return new ConcurrentHashMap<>();
+    }
+
+    /**
+     * 先看大纲列表
+     * @return ConcurrentHashMap
+     */
+    @Bean
+    public ConcurrentHashMap<String, MOutline> lookOutline(){
         return new ConcurrentHashMap<>();
     }
 

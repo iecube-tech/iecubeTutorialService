@@ -1,5 +1,7 @@
 package com.iecube.iecubetutorial.model.htmlEditAi.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iecube.iecubetutorial.model.htmlEditAi.config.WebsocketManager;
 import com.iecube.iecubetutorial.model.htmlEditAi.dto.MessageDto;
@@ -13,6 +15,7 @@ import com.iecube.iecubetutorial.model.project.service.ProjectService;
 import com.iecube.iecubetutorial.model_user.account.entity.Account;
 import com.iecube.iecubetutorial.model_user.account.service.AccountService;
 import com.iecube.iecubetutorial.model_user.points.service.PointsService;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -87,35 +90,45 @@ public class WebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         String sessionId = session.getId();
         String payload = message.getPayload();
-        log.debug("收到来自客WebSocket户端{}的消息: {}", sessionId, payload);
-        log.debug(String.valueOf(payload.getClass()));
-        try{
-            Project project = projectService.getById(session.getAttributes().get("projectId").toString());
-            Account account = accountService.getAccount(project.getUserId());
-            if(pointsService.pointsEnough(account)){
-                // 处理并存储消息  json --> messageDto
-                MessageDto MessageDto = messageService.formatWebSocketMessage(sessionId, payload);
-                messageService.saveMessage(session, MessageDto, "user");
-                // 转发
-                socketIOService.sendMessage(sessionId, MessageDto);
-            }
-        }catch (Exception e){
-            ProjectMessage msg = new ProjectMessage();
-            msg.setType(MessageType.error.name());
-            msg.setProjectId(session.getAttributes().get("projectId").toString());
-            msg.setContent(e.getMessage());
-            try {
-                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(msg)));
-            } catch (IOException ex) {
+        try {
+            JsonNode jsonNode = objectMapper.readTree(payload);
+            if(jsonNode.get("type").asText().equals("message")){
+                log.debug("收到来自客WebSocket户端{}的消息: {}", sessionId, jsonNode);
+                log.debug(String.valueOf(payload.getClass()));
                 try{
-                    session.close(CloseStatus.SERVER_ERROR);
-                }catch (Exception e2){
-                    log.error(e2.getMessage());
+                    Project project = projectService.getById(session.getAttributes().get("projectId").toString());
+                    Account account = accountService.getAccount(project.getUserId());
+                    if(pointsService.pointsEnough(account)){
+                        // 处理并存储消息  json --> messageDto
+                        MessageDto MessageDto = messageService.formatWebSocketMessage(sessionId, objectMapper.writeValueAsString(jsonNode.get("message")));
+                        messageService.saveMessage(session, MessageDto, "user");
+                        // 转发
+                        socketIOService.sendMessage(sessionId, MessageDto);
+                    }
+                }catch (Exception e){
+                    ProjectMessage msg = new ProjectMessage();
+                    msg.setType(MessageType.error.name());
+                    msg.setProjectId(session.getAttributes().get("projectId").toString());
+                    msg.setContent(e.getMessage());
+                    try {
+                        session.sendMessage(new TextMessage(objectMapper.writeValueAsString(msg)));
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
+            if(jsonNode.get("type").asText().equals("ping")){
+                ProjectMessage msg = new ProjectMessage();
+                msg.setType(MessageType.pong.name());
+                try {
+                    session.sendMessage(new TextMessage(objectMapper.writeValueAsString(msg)));
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
-        // 转发到Socket.IO服务器C
-//        socketIOService.sendMessage(sessionId, formattedMessage);
     }
 
     @Override

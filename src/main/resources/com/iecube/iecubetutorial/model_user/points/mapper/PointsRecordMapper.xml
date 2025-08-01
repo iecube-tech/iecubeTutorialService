@@ -51,7 +51,7 @@
                  INNER JOIN `u_a_organization_top` top ON sec.p_id=top.id
                  INNER JOIN  `u_a_account` account ON re.account_id=account.id
                  INNER JOIN `u_a_user` u ON account.phone=u.phone
-                 INNER JOIN `project` p ON re.project_id=p.id
+                 LEFT JOIN `project` p ON re.project_id=p.id
         WHERE re.o_sec_id=#{oSecId} AND re.type!='RECHARGE' ORDER BY create_time DESC;
 
     </select>

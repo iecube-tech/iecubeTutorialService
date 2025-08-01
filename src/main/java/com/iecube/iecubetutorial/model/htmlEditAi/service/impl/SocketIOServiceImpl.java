@@ -213,56 +213,75 @@ public class SocketIOServiceImpl implements SocketIOService {
                     JSONObject data = (JSONObject) args[0];
 //                    System.out.println(data);
                     if(data.getBoolean("success")){
-                        // 处理文件
-                        String html = Base64Util.encodeString(data.getString("updated_code"));
-                        Resource resource = resourceService.saveResource(resourceService.writeHtmlToFile(html));
-                        ProjectChild projectChild = projectChildService.createProjectChild(projectId, resource.getId());
-                        ProjectChildVo pc = new ProjectChildVo();
-                        pc.setId(projectChild.getId());
-                        pc.setVersion(projectChild.getVersion());
-                        pc.setCreateTime(projectChild.getCreateTime());
-                        pc.setResource(resource);
-                        MessageDto messageDto = new MessageDto();
-                        messageDto.setProjectChildVo(pc);
-                        messageDto.setFullCode(html);
-                        messageDto.setFileName(resource.getFilename());
-                        messageDto.setType(MessageDtoType.ai_complete.name());
-                        messageDto.setProjectId(projectId);
-                        messageDto.setMessage(responseBuffer.toString());
-                        try{
-                            String json = objectMapper.writeValueAsString(messageDto);
-                            ProjectMessage projectMessage = new ProjectMessage();
-                            projectMessage.setId(UUIDGenerator.generateUUID());
-                            projectMessage.setProjectId(projectId);
-                            projectMessage.setContent(Base64Util.encodeString(json));
-                            projectMessage.setCreateTime(Instant.now());
-                            projectMessage.setSio(usr_id);
-                            projectMessage.setType(MessageType.ai.name());
-                            messageService.saveMessage(projectMessage);
-                            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(projectMessage)));
-                            responseBuffer.setLength(0);
-                            // 扣费
-                            TokenUsed tokenUsed = new TokenUsed();
-                            tokenUsed.setSent(data.getInt("total_tokens_sent"));
-                            tokenUsed.setRecv(data.getInt("total_tokens_received"));
-                            tokenUsed.setProjectId(projectId);
-                            tokenUsed.setProjectChildId(projectChild.getId());
+                        if(data.has("updated_code")){
+                            // 处理文件
+                            String html = Base64Util.encodeString(data.getString("updated_code"));
+                            Resource resource = resourceService.saveResource(resourceService.writeHtmlToFile(html));
+                            ProjectChild projectChild = projectChildService.createProjectChild(projectId, resource.getId());
+                            ProjectChildVo pc = new ProjectChildVo();
+                            pc.setId(projectChild.getId());
+                            pc.setVersion(projectChild.getVersion());
+                            pc.setCreateTime(projectChild.getCreateTime());
+                            pc.setResource(resource);
+                            MessageDto messageDto = new MessageDto();
+                            messageDto.setProjectChildVo(pc);
+                            messageDto.setFullCode(html);
+                            messageDto.setFileName(resource.getFilename());
+                            messageDto.setType(MessageDtoType.ai_complete.name());
+                            messageDto.setProjectId(projectId);
+                            messageDto.setMessage(responseBuffer.toString());
                             try{
-                                Project project = projectService.getById(projectId);
-                                pointsService.consumePoints(project.getUserId(), tokenUsed, PointType.CONSUME_EDIT.name());
-                                log.info("已扣费");
-                            } catch (PointsNotEnoughException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }catch (Exception e){
-                            try {
-                                e.printStackTrace();
-                                session.sendMessage(new TextMessage("""
+                                String json = objectMapper.writeValueAsString(messageDto);
+                                ProjectMessage projectMessage = new ProjectMessage();
+                                projectMessage.setId(UUIDGenerator.generateUUID());
+                                projectMessage.setProjectId(projectId);
+                                projectMessage.setContent(Base64Util.encodeString(json));
+                                projectMessage.setCreateTime(Instant.now());
+                                projectMessage.setSio(usr_id);
+                                projectMessage.setType(MessageType.ai.name());
+                                messageService.saveMessage(projectMessage);
+                                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(projectMessage)));
+                                responseBuffer.setLength(0);
+                                // 扣费
+                                TokenUsed tokenUsed = new TokenUsed();
+                                tokenUsed.setSent(data.getInt("total_tokens_sent"));
+                                tokenUsed.setRecv(data.getInt("total_tokens_received"));
+                                tokenUsed.setProjectId(projectId);
+                                tokenUsed.setProjectChildId(projectChild.getId());
+                                try{
+                                    Project project = projectService.getById(projectId);
+                                    pointsService.consumePoints(project.getUserId(), tokenUsed, PointType.CONSUME_EDIT.name());
+                                    log.info("已扣费");
+                                } catch (PointsNotEnoughException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }catch (Exception e){
+                                try {
+                                    e.printStackTrace();
+                                    session.sendMessage(new TextMessage("""
                                         {"type":"error","message":"服务错误:%s"}
                                     """.formatted(e.getMessage())));
-                            } catch (IOException ex) {
-                                log.error("转发SocketIO消息错误 --> Websocket {}", session.getId());
-                                throw new ServiceException();
+                                } catch (IOException ex) {
+                                    log.error("转发SocketIO消息错误 --> Websocket {}", session.getId());
+                                    throw new ServiceException();
+                                }
+                            }
+                        }
+                        else {
+                            if(data.has("message")){
+                                MessageDto messageDto = new MessageDto();
+                                messageDto.setType(MessageDtoType.ai_complete.name());
+                                messageDto.setProjectId(projectId);
+                                messageDto.setMessage(data.getString("message"));
+                                ProjectMessage projectMessage = new ProjectMessage();
+                                projectMessage.setId(UUIDGenerator.generateUUID());
+                                projectMessage.setProjectId(projectId);
+                                projectMessage.setContent(Base64Util.encodeString(objectMapper.writeValueAsString(messageDto)));
+                                projectMessage.setCreateTime(Instant.now());
+                                projectMessage.setSio(usr_id);
+                                projectMessage.setType(MessageType.ai.name());
+                                messageService.saveMessage(projectMessage);
+                                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(projectMessage)));
                             }
                         }
                     }else {

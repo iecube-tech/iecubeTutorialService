@@ -2,10 +2,15 @@ package com.iecube.iecubetutorial.model.mOutline.clientService;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iecube.iecubetutorial.model.ai.apiService.W6ApiService;
 import com.iecube.iecubetutorial.model.mOutline.entity.MOutline;
 import com.iecube.iecubetutorial.model.mOutline.service.MOutlineService;
 import com.iecube.iecubetutorial.model.mOutline.wsConfig.WsManager;
 import com.iecube.iecubetutorial.model.materials.service.MaterialService;
+import com.iecube.iecubetutorial.model_user.points.dto.TokenUsed;
+import com.iecube.iecubetutorial.model_user.points.enmu.PointType;
+import com.iecube.iecubetutorial.model_user.points.exception.PointsNotEnoughException;
+import com.iecube.iecubetutorial.model_user.points.service.PointsService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -24,14 +29,20 @@ public class OutlineGenHandler extends TextWebSocketHandler {
     private final MOutlineService mOutlineService;
     private final ObjectMapper objectMapper;
     private final MaterialService materialService;
+    private final W6ApiService w6ApiService;
+    private final PointsService pointsService;
     public OutlineGenHandler(WsManager wsManager,
                              MOutlineService mOutlineService,
                              ObjectMapper objectMapper,
-                             MaterialService materialService) {
+                             MaterialService materialService,
+                             W6ApiService w6ApiService,
+                             PointsService pointsService) {
         this.wsManager=wsManager;
         this.mOutlineService=mOutlineService;
         this.objectMapper=objectMapper;
         this.materialService=materialService;
+        this.w6ApiService=w6ApiService;
+        this.pointsService=pointsService;
     }
 
     @Override
@@ -74,6 +85,23 @@ public class OutlineGenHandler extends TextWebSocketHandler {
                 Msg msg3 = new Msg();
                 msg3.setType("activity-stop");
                 sendMessageToOutlineSession(chatId,msg3);
+                if(wsManager.lookOutline().get(chatId)!=null){
+                    // 先看大纲 扣费
+                    MOutline mOutline1 = wsManager.lookOutline().get(chatId);
+                    TokenUsed tokenUsed = w6ApiService.computeTokenUsed(mOutline1.getChatId());
+                    tokenUsed.setProjectId(mOutline1.getProjectId());
+                    try{
+                        pointsService.consumePoints(mOutline1.getCreator(), tokenUsed, PointType.CONSUME_OUTLINE_LOOK_FIRST.name());
+                        wsManager.lookOutline().remove(chatId);
+                    }catch (PointsNotEnoughException e){
+                        // 处理余额不足
+                        log.warn("余额不足 {}", wsManager.lookOutline().get(chatId));
+                        Msg msg4 = new Msg();
+                        msg4.setType("error");
+                        msg4.setMessage("余额不足");
+                        session.sendMessage(new TextMessage(objectMapper.writeValueAsString(msg4)));
+                    }
+                }
                 session.close(); //主动关闭和ai服务的连接
                 break;
             default:

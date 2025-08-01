@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds">
+    <!-- 定义日志文件的存储地址 -->
+    <property name="LOG_PATH" value="./logs"/>
+    <property name="MYBATIS_LOG_FILE" value="${LOG_PATH}/mybatis/mybatis-sql.log"/>
+    <property name="SPRING_WEB_LOG_FILE" value="${LOG_PATH}/spring/spring.log"/>
+    <property name="TUTORIAL_LOG_FILE" value="${LOG_PATH}/tutorial/tutorial.log"/>
+
+    <!-- 控制台输出器 (其他日志用) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-MM-dddd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- MyBatis日志文件输出器 -->
+    <appender name="MYBATIS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 日志文件路径 -->
+        <file>${MYBATIS_LOG_FILE}</file>
+        <!-- 滚动策略：按时间和大小分割 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 归档文件命名格式 -->
+            <fileNamePattern>${LOG_PATH}/mybatis/mybatis-sql.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- 保留10天日志 -->
+            <maxHistory>10</maxHistory>
+            <!-- 配合大小策略 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 单个文件最大100MB -->
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <!-- 日志格式 -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- org.springframework.web日志文件输出器 -->
+    <appender name="SPRING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 日志文件路径 -->
+        <file>${SPRING_WEB_LOG_FILE}</file>
+        <!-- 滚动策略：按时间和大小分割 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 归档文件命名格式 -->
+            <fileNamePattern>${LOG_PATH}/spring/spring.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- 保留10天日志 -->
+            <maxHistory>10</maxHistory>
+            <!-- 配合大小策略 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 单个文件最大100MB -->
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <!-- 日志格式 -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+
+    <!-- org.springframework.web日志文件输出器 -->
+    <appender name="TUTORIAL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 日志文件路径 -->
+        <file>${TUTORIAL_LOG_FILE}</file>
+        <!-- 滚动策略：按时间和大小分割 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 归档文件命名格式 -->
+            <fileNamePattern>${LOG_PATH}/tutorial/tutorial.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- 保留10天日志 -->
+            <maxHistory>10</maxHistory>
+            <!-- 配合大小策略 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 单个文件最大100MB -->
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <!-- 日志格式 -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- MyBatis日志配置 -->
+    <logger name="com.example.demo.mapper"
+            level="DEBUG"
+            additivity="false"> <!-- 关键：不向上级传递，避免控制台输出 -->
+        <appender-ref ref="MYBATIS_FILE"/> <!-- 只输出到文件 -->
+    </logger>
+
+    <!-- MyBatis日志配置 -->
+    <logger name="org.mybatis.spring"
+            level="DEBUG"
+            additivity="false"> <!-- 关键：不向上级传递，避免控制台输出 -->
+        <appender-ref ref="MYBATIS_FILE"/> <!-- 只输出到文件 -->
+    </logger>
+
+    <!-- ibatis日志配置 -->
+    <logger name="org.apache.ibatis"
+            level="DEBUG"
+            additivity="false"> <!-- 关键：不向上级传递，避免控制台输出 -->
+        <appender-ref ref="MYBATIS_FILE"/> <!-- 只输出到文件 -->
+    </logger>
+
+    <!-- iecubetutorial日志配置 -->
+    <logger name="com.iecube.iecubetutorial"
+            level="INFO"
+            additivity="false"> <!-- 关键：不向上级传递，避免控制台输出 -->
+        <appender-ref ref="TUTORIAL_FILE"/> <!-- 只输出到文件 -->
+    </logger>
+
+    <!-- 其他框架日志配置 -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="com.zaxxer.hikari" level="INFO"/> <!-- 连接池日志 -->
+
+    <!-- 根日志配置 (所有未单独配置的日志) -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/> <!-- 其他日志输出到控制台 -->
+    </root>
+</configuration>

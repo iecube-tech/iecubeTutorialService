@@ -7,6 +7,7 @@ import com.iecube.iecubetutorial.model.ai.apiService.W6ApiService;
 import com.iecube.iecubetutorial.model.mOutline.entity.MOutline;
 import com.iecube.iecubetutorial.model.mOutline.mapper.MOutlineMapper;
 import com.iecube.iecubetutorial.model.mOutline.service.MOutlineService;
+import com.iecube.iecubetutorial.model.mOutline.wsConfig.WsManager;
 import com.iecube.iecubetutorial.model.materials.qo.MaterialQo;
 import com.iecube.iecubetutorial.util.uuid.UUIDGenerator;
 import lombok.extern.slf4j.Slf4j;
