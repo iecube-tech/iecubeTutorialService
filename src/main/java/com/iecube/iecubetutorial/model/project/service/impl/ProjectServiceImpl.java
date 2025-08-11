@@ -25,10 +25,17 @@ import com.iecube.iecubetutorial.model.s_materials.service.SMaterialService;
 import com.iecube.iecubetutorial.util.uuid.UUIDGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,6 +58,8 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private MOutlineService mOutlineService;
 
+    @Value("${resource-location}")
+    private String outputDirectory;
 
     @Override
     public Project createProjectByMaterial(MaterialEntity materialEntity) {
@@ -174,10 +183,49 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void editHtml(EditHtmlQo editHtmlQo) {
+    public List<ProjectChildVo> editHtml(EditHtmlQo editHtmlQo) {
         ProjectChild pc = projectChildService.getById(editHtmlQo.getPChildId());
-        Resource resource = resourceService.getResourceById(pc.getResource());
-        Resource res = resourceService.updateResource(editHtmlQo.getHtmlBase64(),resource);
+        if(pc==null){
+            throw new ServiceException("未找到相关数据");
+        }
+        if(pc.getSaved()==null){
+            pc.setSaved(false);
+        }
+        // 判断是不是用户保存的版本
+        if(pc.getSaved()){
+            // 在用户已保存的版本上修改保存，检查有无修改内容，有修改内容保存新版本，没有修改内容返回空
+            Resource resource = resourceService.getResourceById(pc.getResource());
+            Path directory = Paths.get(outputDirectory);
+            Path filePath = directory.resolve(resource.getFilename());
+            try{
+                if(isEqual(editHtmlQo.getHtmlBase64(),filePath.toString())){
+                    // 文件没有修改
+                    return null;
+                }else{
+                    Resource res = resourceService.writeHtmlToFile(editHtmlQo.getHtmlBase64());
+                    Resource result = resourceService.saveResource(res);
+                    // 创建新版本
+                    projectChildService.createProjectChild(pc.getProjectId(), result.getId(), true);
+                    return projectChildService.projectChildList(pc.getProjectId());
+                }
+            }catch (Exception e){
+                throw new ServiceException(e.getMessage());
+            }
+        }else {
+            //保存当前最新版本
+            List<ProjectChildVo> projectChildList = projectChildService.projectChildList(pc.getProjectId());
+            int userVersion=1;
+            for (ProjectChildVo projectChildVo : projectChildList) {
+                if(projectChildVo.getUserVersion()!=null){
+                    userVersion+=1;
+                }
+            }
+            pc.setUserVersion(userVersion);
+            pc.setSaved(true);
+            projectChildService.updateProjectChild(pc);
+            return projectChildService.projectChildList(pc.getProjectId());
+        }
+//
     }
 
     private Project createProjectBySMaterial(SMaterial sMaterial) {
@@ -196,6 +244,35 @@ public class ProjectServiceImpl implements ProjectService {
         }
         // 创建ProjectChild
         return project;
+    }
+
+
+    public static boolean isEqual(String base64Str, String filePath) throws IOException {
+        // 1. 快速校验：比较前端文件内容编码后和传递的文本是否一致
+        byte[] fileContent = readFileToBytes(filePath);// 读取文件内容到字节数组
+        String fileBase64 = Base64.getEncoder().encodeToString(fileContent);// 进行Base64编码
+        return fileBase64.equals(base64Str);
+    }
+
+    /**
+     * 将文件内容读取为字节数组
+     * @param filePath 文件路径
+     * @return 文件内容的字节数组
+     * @throws IOException 可能的IO异常
+     */
+    private static byte[] readFileToBytes(String filePath) throws IOException {
+        File file = new File(filePath);
+        // 使用try-with-resources确保流自动关闭
+        try (FileInputStream fis = new FileInputStream(file);
+             ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            // 读取文件内容到缓冲区
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                bos.write(buffer, 0, bytesRead);
+            }
+            return bos.toByteArray();
+        }
     }
 
 

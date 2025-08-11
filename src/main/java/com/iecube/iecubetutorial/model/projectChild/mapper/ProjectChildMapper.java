@@ -13,4 +13,6 @@ public interface ProjectChildMapper {
     List<ProjectChild> getByProject(String projectId);
 
     ProjectChild getById(String id);
+
+    int Update(ProjectChild record);
 }

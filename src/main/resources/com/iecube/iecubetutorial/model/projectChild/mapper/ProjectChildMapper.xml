@@ -6,23 +6,30 @@
 <mapper namespace="com.iecube.iecubetutorial.model.projectChild.mapper.ProjectChildMapper">
     <resultMap id="ProjectChild" type="com.iecube.iecubetutorial.model.projectChild.entity.ProjectChild">
         <result column="project_id" property="projectId"></result>
+        <result column="user_version" property="userVersion"></result>
         <result column="create_time" property="createTime"></result>
     </resultMap>
 
     <insert id="insert">
-        INSERT INTO project_child (id,project_id,version,resource,removed,create_time)
-        VALUES (#{id}, #{projectId}, #{version}, #{resource}, #{removed}, #{createTime})
+        INSERT INTO project_child (id,project_id,version,user_version, saved, resource,removed,create_time)
+        VALUES (#{id}, #{projectId}, #{version},#{userVersion}, #{saved}, #{resource}, #{removed}, #{createTime})
     </insert>
 
     <select id="getByProject" resultMap="ProjectChild">
-        SELECT id,project_id,version,resource,removed,create_time
+        SELECT id,project_id,version,user_version, saved, resource,removed,create_time
         FROM project_child
         WHERE project_id=#{projectId} AND removed=0 ORDER BY version
     </select>
 
     <select id="getById" resultMap="ProjectChild">
-        SELECT id,project_id,version,resource,removed,create_time
+        SELECT id,project_id,version,user_version, saved, resource,removed,create_time
         FROM project_child
         WHERE id=#{id} AND removed=0
     </select>
+
+    <update id="Update">
+        UPDATE project_child SET user_version=#{userVersion},
+                                 saved=#{saved}
+                             WHERE id=#{id}
+    </update>
 </mapper>

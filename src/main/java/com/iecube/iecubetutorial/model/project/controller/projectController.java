@@ -6,6 +6,7 @@ import com.iecube.iecubetutorial.model.project.qo.EditHtmlQo;
 import com.iecube.iecubetutorial.model.project.service.ProjectService;
 import com.iecube.iecubetutorial.model.project.vo.ProjectDetailVo;
 import com.iecube.iecubetutorial.model.project.vo.ProjectVo;
+import com.iecube.iecubetutorial.model.projectChild.vo.ProjectChildVo;
 import com.iecube.iecubetutorial.util.JsonResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -56,9 +57,8 @@ public class projectController extends BaseController {
     @PostMapping("/edit")
     @Operation(summary = "编辑保存ProjectChild的html文件内容")
     @ApiPermissions({"USER_M", "USER"})
-    public JsonResult<Void> editHtml(@RequestBody EditHtmlQo editHtmlQo){
-        projectService.editHtml(editHtmlQo);
-        return new JsonResult<>(OK);
+    public JsonResult<List<ProjectChildVo>> editHtml(@RequestBody EditHtmlQo editHtmlQo){
+        return new JsonResult<>(OK,projectService.editHtml(editHtmlQo));
     }
 
 }

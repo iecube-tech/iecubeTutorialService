@@ -13,5 +13,6 @@ public class PointsRecord {
     private int points;
     private String projectId;
     private String projectChildId;
+    private String projectMessageId;
     private Instant createTime;
 }

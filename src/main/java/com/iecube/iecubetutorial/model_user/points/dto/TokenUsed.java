@@ -8,4 +8,5 @@ public class TokenUsed {
     private int recv;
     private String projectId;
     private String projectChildId;
+    private String projectMessageId;
 }

@@ -65,6 +65,8 @@ public class OutlineGenHandler extends TextWebSocketHandler {
                 sendMessageToOutlineSession(chatId,msg1);
                 break;
             case "message":
+                log.debug("W6消息：chatId:{}, type: message",chatId);
+                log.debug("wsManager.OneClickGen().get(chatId):{}", wsManager.OneClickGen().get(chatId));
                 Msg msg2 = new Msg();
                 msg2.setType("message");
                 String outline = rec.get("payload").get("content").asText();

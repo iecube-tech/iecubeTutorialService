@@ -65,7 +65,7 @@ public class PointsServiceImpl implements PointsService {
         point.setLastOperateTime(Instant.now());
         point.setLastOperator(ThreadLocalUtil.getPhone());
         pointsMapper.createPoints(point);
-        this.pointsRecord(PointType.RECHARGE.name(), orgSec.getId(), null, (int)Math.ceil(points), null, null);
+        this.pointsRecord(PointType.RECHARGE.name(), orgSec.getId(), null, (int)Math.ceil(points), null, null, null);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class PointsServiceImpl implements PointsService {
             point.setLastOperateTime(Instant.now());
             point.setLastOperator(ThreadLocalUtil.getPhone());
             pointsMapper.updatePoints(point);
-            this.pointsRecord(PointType.RECHARGE.name(), orgSec.getId(), null, (int)Math.ceil(points),null, null);
+            this.pointsRecord(PointType.RECHARGE.name(), orgSec.getId(), null, (int)Math.ceil(points),null, null,null);
         }
     }
 
@@ -98,7 +98,7 @@ public class PointsServiceImpl implements PointsService {
         }
         point.setAmount(point.getAmount() - price);
         pointsMapper.updatePoints(point);
-        this.pointsRecord(type==null?PointType.CONSUME.name() : type, account.getOSecId(), account, amount,tokenUsed.getProjectId(), tokenUsed.getProjectChildId());
+        this.pointsRecord(type==null?PointType.CONSUME.name() : type, account.getOSecId(), account, amount,tokenUsed.getProjectId(), tokenUsed.getProjectChildId(), tokenUsed.getProjectMessageId());
     }
 
     @Override
@@ -225,7 +225,7 @@ public class PointsServiceImpl implements PointsService {
         pointsMapper.expiredPoints(currentTime);
     }
 
-    private void pointsRecord(String type, Long oSecId, Account account, int point, String projectId, String projectChildId) {
+    private void pointsRecord(String type, Long oSecId, Account account, int point, String projectId, String projectChildId, String projectMessageId) {
         PointsRecord pointsRecord = new PointsRecord();
         pointsRecord.setOSecId(oSecId);
         pointsRecord.setType(type);
@@ -233,6 +233,7 @@ public class PointsServiceImpl implements PointsService {
         pointsRecord.setPoints(point);
         pointsRecord.setProjectId(projectId);
         pointsRecord.setProjectChildId(projectChildId);
+        pointsRecord.setProjectMessageId(projectMessageId);
         pointsRecord.setCreateTime(Instant.now());
         pointsRecordMapper.create(pointsRecord);
     }

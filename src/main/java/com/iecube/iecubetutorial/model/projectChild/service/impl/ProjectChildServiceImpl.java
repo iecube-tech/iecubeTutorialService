@@ -31,14 +31,50 @@ public class ProjectChildServiceImpl implements ProjectChildService {
         ProjectChild projectChild = new ProjectChild();
         projectChild.setProjectId(projectId);
         projectChild.setId(UUIDGenerator.generateUUID());
+        projectChild.setSaved(false);
         if(projectChildList.isEmpty()){
             projectChild.setVersion(1);
+            projectChild.setSaved(true);
+            projectChild.setUserVersion(1);
         }else{
             projectChild.setVersion(projectChildList.get(projectChildList.size()-1).getVersion() + 1);
         }
         projectChild.setResource(ResourceId);
         projectChild.setCreateTime(Instant.now());
         projectChild.setRemoved(0);
+        int res = projectChildMapper.insert(projectChild);
+        if(res!=1){
+            throw new InsertException("新增数据异常");
+        }
+        return projectChild;
+    }
+
+    @Override
+    public ProjectChild createProjectChild(String projectId, Long ResourceId, boolean saved) {
+        List<ProjectChild> projectChildList = projectChildMapper.getByProject(projectId);
+        ProjectChild projectChild = new ProjectChild();
+        projectChild.setProjectId(projectId);
+        projectChild.setId(UUIDGenerator.generateUUID());
+        if(projectChildList.isEmpty()){
+            projectChild.setVersion(1);
+            projectChild.setSaved(Boolean.TRUE);
+            projectChild.setUserVersion(1);
+        }else{
+            projectChild.setVersion(projectChildList.get(projectChildList.size()-1).getVersion() + 1);
+        }
+        projectChild.setResource(ResourceId);
+        projectChild.setCreateTime(Instant.now());
+        projectChild.setRemoved(0);
+        if(saved){
+            int userVersion = 1;
+            for(ProjectChild pc : projectChildList){
+                if(pc.getUserVersion()!=null){
+                    userVersion+=1;
+                }
+            }
+            projectChild.setUserVersion(userVersion);
+        }
+        projectChild.setSaved(saved);
         int res = projectChildMapper.insert(projectChild);
         if(res!=1){
             throw new InsertException("新增数据异常");
@@ -54,6 +90,8 @@ public class ProjectChildServiceImpl implements ProjectChildService {
             ProjectChildVo projectChildVo = new ProjectChildVo();
             projectChildVo.setId(projectChild.getId());
             projectChildVo.setVersion(projectChild.getVersion());
+            projectChildVo.setSaved(projectChild.getSaved()==null?Boolean.FALSE:projectChild.getSaved());
+            projectChildVo.setUserVersion(projectChild.getUserVersion()==null?null:projectChild.getUserVersion());
             projectChildVo.setCreateTime(projectChild.getCreateTime());
             Resource resource = resourceService.getResourceById(projectChild.getResource());
             projectChildVo.setResource(resource);
@@ -65,6 +103,11 @@ public class ProjectChildServiceImpl implements ProjectChildService {
     @Override
     public ProjectChild getById(String id) {
         return projectChildMapper.getById(id);
+    }
+
+    @Override
+    public void updateProjectChild(ProjectChild newPc) {
+        projectChildMapper.Update(newPc);
     }
 
 

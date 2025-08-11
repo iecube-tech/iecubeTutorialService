@@ -9,7 +9,11 @@ public interface ProjectChildService {
 
     ProjectChild createProjectChild(String projectId, Long ResourceId);
 
+    ProjectChild createProjectChild(String projectId, Long ResourceId, boolean saved);
+
     List<ProjectChildVo> projectChildList(String projectId);
 
     ProjectChild getById(String id);
+
+    void updateProjectChild(ProjectChild newPc);
 }

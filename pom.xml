@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>org.iecube</groupId>
 	<artifactId>iecubeTutorial</artifactId>
-	<version>0.0.5</version>
+	<version>1.0.5</version>
 	<name>TutorialOfficial</name>
 	<description>TutorialOfficial</description>
 	<url/>

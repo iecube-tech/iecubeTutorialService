@@ -244,10 +244,11 @@ public class SocketIOServiceImpl implements SocketIOService {
                                 responseBuffer.setLength(0);
                                 // 扣费
                                 TokenUsed tokenUsed = new TokenUsed();
-                                tokenUsed.setSent(data.getInt("total_tokens_sent"));
-                                tokenUsed.setRecv(data.getInt("total_tokens_received"));
+                                tokenUsed.setSent(data.getInt("total_tokens_sent")/4);
+                                tokenUsed.setRecv(data.getInt("total_tokens_received")/4);
                                 tokenUsed.setProjectId(projectId);
                                 tokenUsed.setProjectChildId(projectChild.getId());
+                                tokenUsed.setProjectMessageId(projectMessage.getId());
                                 try{
                                     Project project = projectService.getById(projectId);
                                     pointsService.consumePoints(project.getUserId(), tokenUsed, PointType.CONSUME_EDIT.name());

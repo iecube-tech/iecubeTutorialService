@@ -4,6 +4,7 @@ import com.iecube.iecubetutorial.model.materials.entity.MaterialEntity;
 import com.iecube.iecubetutorial.model.project.entity.Project;
 import com.iecube.iecubetutorial.model.project.qo.EditHtmlQo;
 import com.iecube.iecubetutorial.model.project.vo.ProjectDetailVo;
+import com.iecube.iecubetutorial.model.projectChild.vo.ProjectChildVo;
 
 import java.util.List;
 
@@ -22,5 +23,5 @@ public interface ProjectService {
 
     ProjectDetailVo getProjectDetailVo(String projectId);
 
-    void editHtml(EditHtmlQo editHtmlQo);
+    List<ProjectChildVo> editHtml(EditHtmlQo editHtmlQo);
 }

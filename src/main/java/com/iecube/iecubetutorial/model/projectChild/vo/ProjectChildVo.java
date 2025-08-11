@@ -9,6 +9,8 @@ import java.time.Instant;
 public class ProjectChildVo {
     private String id;
     private Integer version;
+    private Integer userVersion;
+    private boolean saved;
     private Resource resource;
     private Instant createTime;
 }
