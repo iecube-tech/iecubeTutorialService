@@ -1,29 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="60 seconds">
-    <!-- 定义日志文件的存储地址 -->
+    <!-- 日志文件存储路径 -->
     <property name="LOG_PATH" value="./logs"/>
-    <property name="MYBATIS_LOG_FILE" value="${LOG_PATH}/mybatis/mybatis-sql.log"/>
-    <property name="SPRING_WEB_LOG_FILE" value="${LOG_PATH}/spring/spring.log"/>
-    <property name="TUTORIAL_LOG_FILE" value="${LOG_PATH}/tutorial/tutorial.log"/>
+    <property name="SERVICE_PACKAGE" value="com.iecube.iecubetutorial"/> <!-- 目标包 -->
 
-    <!-- 控制台输出器 (其他日志用) -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{yyyy-MM-MM-dddd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
-            <charset>UTF-8</charset>
-        </encoder>
-    </appender>
-
-    <!-- MyBatis日志文件输出器 -->
-    <appender name="MYBATIS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <!-- 日志文件路径 -->
-        <file>${MYBATIS_LOG_FILE}</file>
-        <!-- 滚动策略：按时间和大小分割 -->
+    <!-- 1. DEBUG级别日志文件输出器 -->
+    <appender name="SERVICE_DEBUG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/iecubeTutorial/debug.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- 归档文件命名格式 -->
-            <fileNamePattern>${LOG_PATH}/mybatis/mybatis-sql.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <!-- 保留10天日志 -->
-            <maxHistory>10</maxHistory>
+            <fileNamePattern>${LOG_PATH}/iecubeTutorial/debug/debug.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
             <!-- 配合大小策略 -->
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <!-- 单个文件最大100MB -->
@@ -32,92 +18,104 @@
         </rollingPolicy>
         <!-- 日志格式 -->
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%thread]  [%logger{50}] - %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
+        <!-- 过滤器：只接受DEBUG级别 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
     </appender>
 
-    <!-- org.springframework.web日志文件输出器 -->
-    <appender name="SPRING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <!-- 日志文件路径 -->
-        <file>${SPRING_WEB_LOG_FILE}</file>
-        <!-- 滚动策略：按时间和大小分割 -->
+    <!-- 2. INFO级别日志文件输出器 -->
+    <appender name="SERVICE_INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/iecubeTutorial/info.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- 归档文件命名格式 -->
-            <fileNamePattern>${LOG_PATH}/spring/spring.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <!-- 保留10天日志 -->
-            <maxHistory>10</maxHistory>
+            <fileNamePattern>${LOG_PATH}/iecubeTutorial/info/info.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
             <!-- 配合大小策略 -->
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <!-- 单个文件最大100MB -->
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
-        <!-- 日志格式 -->
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%thread]  [%logger{50}] - %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
+        <!-- 过滤器：只接受INFO级别 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
     </appender>
 
-
-    <!-- org.springframework.web日志文件输出器 -->
-    <appender name="TUTORIAL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <!-- 日志文件路径 -->
-        <file>${TUTORIAL_LOG_FILE}</file>
-        <!-- 滚动策略：按时间和大小分割 -->
+    <!-- 3. ERROR级别日志文件输出器 -->
+    <appender name="SERVICE_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/iecubeTutorial/error.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- 归档文件命名格式 -->
-            <fileNamePattern>${LOG_PATH}/tutorial/tutorial.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <!-- 保留10天日志 -->
-            <maxHistory>10</maxHistory>
+            <fileNamePattern>${LOG_PATH}/iecubeTutorial/error/error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
             <!-- 配合大小策略 -->
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <!-- 单个文件最大100MB -->
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
-        <!-- 日志格式 -->
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%thread]  [%logger{50}] - %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
+        <!-- 过滤器：只接受ERROR级别 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
     </appender>
 
-    <!-- MyBatis日志配置 -->
-    <logger name="com.example.demo.mapper"
-            level="DEBUG"
-            additivity="false"> <!-- 关键：不向上级传递，避免控制台输出 -->
-        <appender-ref ref="MYBATIS_FILE"/> <!-- 只输出到文件 -->
+    <!-- 4. WARN级别日志文件输出器 -->
+    <appender name="SERVICE_WARN_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/iecubeTutorial/warn.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/iecubeTutorial/warn/warn.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <!-- 配合大小策略 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 单个文件最大100MB -->
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%thread]  [%logger{50}] - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <!-- 过滤器：只接受ERROR级别 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 配置目标包的日志行为 -->
+    <logger name="${SERVICE_PACKAGE}" level="DEBUG" additivity="false">
+        <!-- 关联三个不同级别的输出器 -->
+        <appender-ref ref="SERVICE_DEBUG_FILE"/>
+        <appender-ref ref="SERVICE_INFO_FILE"/>
+        <appender-ref ref="SERVICE_ERROR_FILE"/>
+        <appender-ref ref="SERVICE_WARN_FILE"/>
     </logger>
 
-    <!-- MyBatis日志配置 -->
-    <logger name="org.mybatis.spring"
-            level="DEBUG"
-            additivity="false"> <!-- 关键：不向上级传递，避免控制台输出 -->
-        <appender-ref ref="MYBATIS_FILE"/> <!-- 只输出到文件 -->
-    </logger>
-
-    <!-- ibatis日志配置 -->
-    <logger name="org.apache.ibatis"
-            level="DEBUG"
-            additivity="false"> <!-- 关键：不向上级传递，避免控制台输出 -->
-        <appender-ref ref="MYBATIS_FILE"/> <!-- 只输出到文件 -->
-    </logger>
-
-    <!-- iecubetutorial日志配置 -->
-    <logger name="com.iecube.iecubetutorial"
-            level="INFO"
-            additivity="false"> <!-- 关键：不向上级传递，避免控制台输出 -->
-        <appender-ref ref="TUTORIAL_FILE"/> <!-- 只输出到文件 -->
-    </logger>
-
-    <!-- 其他框架日志配置 -->
-    <logger name="org.springframework" level="INFO"/>
-    <logger name="com.zaxxer.hikari" level="INFO"/> <!-- 连接池日志 -->
-
-    <!-- 根日志配置 (所有未单独配置的日志) -->
+    <!-- 根日志配置（其他非目标包的日志） -->
     <root level="INFO">
-        <appender-ref ref="CONSOLE"/> <!-- 其他日志输出到控制台 -->
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%thread]  [%logger{50}] - %msg%n</pattern>
+            </encoder>
+        </appender>
     </root>
 </configuration>
