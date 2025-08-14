@@ -96,7 +96,7 @@ public class PointsServiceImpl implements PointsService {
         if(amount > point.getAmount()) {
             throw new PointsNotEnoughException("余额不足: 余额："+point.getAmount()+"积分, 需要："+amount+"积分");
         }
-        point.setAmount(point.getAmount() - price);
+        point.setAmount(point.getAmount() - amount);
         pointsMapper.updatePoints(point);
         this.pointsRecord(type==null?PointType.CONSUME.name() : type, account.getOSecId(), account, amount,tokenUsed.getProjectId(), tokenUsed.getProjectChildId(), tokenUsed.getProjectMessageId());
     }

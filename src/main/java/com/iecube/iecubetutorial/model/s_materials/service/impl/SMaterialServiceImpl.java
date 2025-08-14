@@ -220,7 +220,7 @@ public class SMaterialServiceImpl implements SMaterialService {
         sMaterialVo.setName(sMaterial.getName());
         sMaterialVo.setKnowledgePoint(sMaterial.getKnowledgePoint());
         sMaterialVo.setInstruction(sMaterial.getInstruction());
-        sMaterialVo.setHtml(sMaterial.getHtml());
+        sMaterialVo.setHtml(null);
         sMaterialVo.setOutline(sMaterial.getOutline());
         Resource cover = resourceMapper.getResource(sMaterial.getCover());
         sMaterialVo.setCover(cover);
