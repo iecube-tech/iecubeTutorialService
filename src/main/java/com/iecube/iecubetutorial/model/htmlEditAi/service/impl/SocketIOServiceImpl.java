@@ -251,8 +251,10 @@ public class SocketIOServiceImpl implements SocketIOService {
                                 // 扣费
                                 TokenUsed tokenUsed = new TokenUsed();
                                 double perRMBTokens = priceUnitService.targetPointsPerRMB()*priceUnitService.targetTokenPerPoint();
-                                tokenUsed.setSent((data.getInt("total_tokens_sent") * (int) Math.ceil(perRMBTokens) / (int) Math.ceil(HTMLEditAIPerRMBTokens))*50 );
-                                tokenUsed.setRecv((data.getInt("total_tokens_received")* (int) Math.ceil(perRMBTokens) / (int) Math.ceil(HTMLEditAIPerRMBTokens))*50 );
+                                log.debug("编辑输入token：{}",data.getInt("total_tokens_sent") );
+                                log.debug("编辑输出token：{}",data.getInt("total_tokens_received") );
+                                tokenUsed.setSent((data.getInt("total_tokens_sent") * (int) Math.ceil(perRMBTokens) / (int) Math.ceil(HTMLEditAIPerRMBTokens))*10 );
+                                tokenUsed.setRecv((data.getInt("total_tokens_received")* (int) Math.ceil(perRMBTokens) / (int) Math.ceil(HTMLEditAIPerRMBTokens))*10 );
                                 tokenUsed.setProjectId(projectId);
                                 tokenUsed.setProjectChildId(projectChild.getId());
                                 tokenUsed.setProjectMessageId(projectMessage.getId());
