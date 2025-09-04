@@ -16,6 +16,7 @@ import com.iecube.iecubetutorial.model.projectChild.service.ProjectChildService;
 import com.iecube.iecubetutorial.model.projectChild.vo.ProjectChildVo;
 import com.iecube.iecubetutorial.model.resource.entity.Resource;
 import com.iecube.iecubetutorial.model.resource.service.ResourceService;
+import com.iecube.iecubetutorial.model_admin.price.service.PriceUnitService;
 import com.iecube.iecubetutorial.model_user.points.dto.TokenUsed;
 import com.iecube.iecubetutorial.model_user.points.enmu.PointType;
 import com.iecube.iecubetutorial.model_user.points.exception.PointsNotEnoughException;
@@ -57,7 +58,10 @@ public class SocketIOServiceImpl implements SocketIOService {
     private final ProjectChildService projectChildService;
     private final PointsService pointsService;
     private final ProjectService projectService;
+    private final PriceUnitService priceUnitService;
 
+    @Value("${HtmlEditAI.price.perRMBTokens}")
+    private Double HTMLEditAIPerRMBTokens;
 
     @Value("${HtmlEditAI.socketIO.baseUrl}")
     private String baseUrl;
@@ -71,7 +75,8 @@ public class SocketIOServiceImpl implements SocketIOService {
                                ResourceService resourceService,
                                ProjectChildService projectChildService,
                                PointsService pointsService,
-                               ProjectService projectService) {
+                               ProjectService projectService,
+                               PriceUnitService priceUnitService) {
         this.messageService = messageService;
         this.websocketManager = websocketManager;
         this.objectMapper = objectMapper;
@@ -79,6 +84,7 @@ public class SocketIOServiceImpl implements SocketIOService {
         this.projectChildService = projectChildService;
         this.pointsService = pointsService;
         this.projectService = projectService;
+        this.priceUnitService = priceUnitService;
     }
 
 
@@ -244,8 +250,9 @@ public class SocketIOServiceImpl implements SocketIOService {
                                 responseBuffer.setLength(0);
                                 // 扣费
                                 TokenUsed tokenUsed = new TokenUsed();
-                                tokenUsed.setSent(data.getInt("total_tokens_sent")/4);
-                                tokenUsed.setRecv(data.getInt("total_tokens_received")/4);
+                                double perRMBTokens = priceUnitService.targetPointsPerRMB()*priceUnitService.targetTokenPerPoint();
+                                tokenUsed.setSent((data.getInt("total_tokens_sent") * (int) Math.ceil(perRMBTokens) / (int) Math.ceil(HTMLEditAIPerRMBTokens))*50 );
+                                tokenUsed.setRecv((data.getInt("total_tokens_received")* (int) Math.ceil(perRMBTokens) / (int) Math.ceil(HTMLEditAIPerRMBTokens))*50 );
                                 tokenUsed.setProjectId(projectId);
                                 tokenUsed.setProjectChildId(projectChild.getId());
                                 tokenUsed.setProjectMessageId(projectMessage.getId());
